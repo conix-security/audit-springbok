@@ -32,13 +32,13 @@ Start to import a configuration file `File → Import configuration`.
 
 You can select multiple files. For each file the tool will try to detect the equipment type.
 
-At the end of the importation, the tool launch the construction of ROBDD, which may very temporarily decrease the performance of the tool.
+At the end of the importation, the tool launches the construction of ROBDD, which may very temporarily decrease the performance of the tool.
 
 #### Open project
 
 You can open saved project `File → Open project`.
 
-One again, the tool launch the construction of ROBDD, which may very temporarily decrease the performance of the tool.
+Once again, the tool launches the construction of ROBDD, which may very temporarily decrease the performance of the tool.
 
 
 #### Save project
@@ -57,7 +57,7 @@ Default action:
 
 - __Show the configuration file__ : the firewall configuration is not editable.
 
-When you right click on a firewall a popup menu appear and you can:
+When you right click on a firewall a popup menu appears and you can:
 
 - __Show the configuration file__ : the firewall configuration is not editable.
 - __Add a note__ : this will display a small note on the firewall
@@ -65,7 +65,7 @@ When you right click on a firewall a popup menu appear and you can:
 - __Show configuration error__ : this will show unused objects and unbounded rules
 - __Show defined object list__ : this will show the list of defined objects
 - __Show enabled services__ : this will show all enable services (based on the rule destination ports)
-- __Remove__ : this will remove the selected firewall
+- __Remove__ : this will remove the selected fir ewall
 
 
 #### Network
