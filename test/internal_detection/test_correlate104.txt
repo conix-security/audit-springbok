@@ -1,0 +1,24 @@
+# test correlate rule
+
+set interface "ethernet0/0" zone "Trust"
+set interface "ethernet0/0" ip 192.168.0.0/24
+set interface "ethernet0/1" zone "Untrust"
+set interface "ethernet0/1" ip 192.168.1.0/24
+
+set address "Untrust" "ip_src1" 192.168.40.42 255.255.255.0
+set address "Untrust" "ip_dst1" 74.125.195.94 255.255.255.255
+set address "Trust" "ip_src2" 192.168.41.42 255.255.255.0
+set address "Trust" "ip_dst2" 74.125.195.94 255.255.255.255
+set address "Trust" "ip_src3" 192.168.42.42 255.255.255.0
+set address "Trust" "ip_dst3" 74.125.195.94 255.255.255.255
+set address "Trust" "ip_src4" 192.168.43.42 255.255.255.0
+set address "Trust" "ip_dst4" 74.125.195.94 255.255.255.255
+set address "Trust" "ip_src5" 192.168.42.42 255.255.252.0
+set address "Trust" "ip_dst5" 74.125.195.94 255.255.255.255
+set service "port" protocol tcp src-port 0-65535 dst-port 3700-3700
+
+set policy id 1 from "Untrust" to "Trust" "ip_src1" "ip_dst1" "port" permit
+set policy id 2 from "Untrust" to "Trust" "ip_src2" "ip_dst2" "port" reject
+set policy id 3 from "Untrust" to "Trust" "ip_src3" "ip_dst3" "port" permit
+set policy id 4 from "Untrust" to "Trust" "ip_src4" "ip_dst4" "port" reject
+set policy id 5 from "Untrust" to "Trust" "ip_src5" "ip_dst5" "port" reject

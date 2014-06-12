@@ -1,0 +1,22 @@
+# test redudant rule
+
+set interface "ethernet0/0" zone "Trust"
+set interface "ethernet0/0" ip 192.168.0.0/24
+set interface "ethernet0/1" zone "Untrust"
+set interface "ethernet0/1" ip 192.168.1.0/24
+
+set address "Untrust" "ip_src1" 192.168.42.42 255.255.255.0
+set address "Untrust" "ip_dst1" 74.125.195.94 255.255.255.255
+set address "Trust" "ip_src2" 192.168.42.128 255.255.255.128
+set address "Trust" "ip_dst2" 74.125.195.94 255.255.255.255
+set service "port1" protocol tcp src-port 0-65535 dst-port 3700-3700
+set service "port2" protocol tcp src-port 0-65535 dst-port 3701-3701
+set service "port3" protocol tcp src-port 0-65535 dst-port 3702-3702
+set service "port4" protocol tcp src-port 0-65535 dst-port 3703-3703
+set service "port5" protocol tcp src-port 0-65535 dst-port 3700-3704
+
+set policy id 1 from "Untrust" to "Trust" "ip_src1" "ip_dst1" "port1" permit
+set policy id 2 from "Untrust" to "Trust" "ip_src2" "ip_dst2" "port2" permit
+set policy id 3 from "Untrust" to "Trust" "ip_src2" "ip_dst2" "port3" permit
+set policy id 4 from "Untrust" to "Trust" "ip_src2" "ip_dst2" "port4" permit
+set policy id 5 from "Untrust" to "Trust" "ip_src2" "ip_dst2" "port5" permit

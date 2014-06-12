@@ -1,0 +1,13 @@
+# test redudant rule
+
+interface GigabitEthernet0/0
+ nameif outside
+ ip address 192.168.0.0 255.255.255.0
+!
+
+access-list acl_in extended permit tcp host 192.168.42.0 host 74.125.195.94 eq 3700
+access-list acl_in extended permit tcp host 192.168.43.0 host 74.125.195.94 eq 3700
+access-list acl_in extended permit tcp host 192.168.44.0 host 74.125.195.94 eq 3700
+access-list acl_in extended permit tcp 192.168.42.0 255.255.0.0 host 74.125.195.94 eq 3700
+
+access-group acl_in in interface outside

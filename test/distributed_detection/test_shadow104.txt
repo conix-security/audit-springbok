@@ -1,0 +1,18 @@
+# test shadow rule
+
+set interface "ethernet0/0" zone "Trust"
+set interface "ethernet0/0" ip 192.168.0.0/24
+set interface "ethernet0/1" zone "Untrust"
+set interface "ethernet0/1" ip 192.168.1.0/24
+set interface "ethernet0/2" zone "DMZ"
+set interface "ethernet0/2" ip 192.168.2.0/24
+
+set address "Untrust" "ip_src1" 192.168.42.42 255.255.255.255
+set address "Untrust" "ip_dst1" 74.125.195.94 255.255.255.255
+set address "Trust" "ip_src2" 192.168.42.42 255.255.255.255
+set address "Trust" "ip_dst2" 74.125.195.95 255.255.255.255
+set service "port" protocol tcp src-port 0-65535 dst-port 3700-3700
+
+set policy id 1 from "Untrust" to "Trust" "ip_src1" "ip_dst1" "port" permit
+
+set policy id 2 from "Trust" to "DMZ" "ip_src2" "ip_dst2" "port" permit
