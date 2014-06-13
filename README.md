@@ -32,13 +32,13 @@ Start to import a configuration file `File → Import configuration`.
 
 You can select multiple files. For each file the tool will try to detect the equipment type.
 
-At the end of the importation, the tool launches the construction of ROBDD, which may very temporarily decrease the performance of the tool.
+Once the import finished, the tool launches the construction of ROBDD, which may decrease temporarily the performance of the tool. But don't worry, it won't block the software. In fact, the operation is launched in a thread.
 
 #### Open project
 
 You can open saved project `File → Open project`.
 
-Once again, the tool launches the construction of ROBDD, which may very temporarily decrease the performance of the tool.
+Once again, the tool launches the construction of ROBDD.
 
 
 #### Save project
@@ -48,7 +48,7 @@ You can save the state of the current project `File → Save project`.
 
 ### Network topology
 
-After importing files, the tool draws the detected network topology. You can interact with all elements. The elements can be moved and you can zoom with the mouse scroll or the zoom bar at the bottom of the zone. The "Redraw" button redraw the topology. If you double click on an element a default action is launched.
+After importing files, the tool draws the network topology. You can interact with all elements. The elements can be moved and you can zoom in or out using your mouse scroll or the zoom bar at the bottom of the zone. The "Redraw" button redraws the topology. If you double click on an element a default action is launched.
 
 
 #### Firewall
@@ -65,7 +65,7 @@ When you right click on a firewall a popup menu appears and you can:
 - __Show configuration error__ : this will show unused objects and unbounded rules
 - __Show defined object list__ : this will show the list of defined objects
 - __Show enabled services__ : this will show all enable services (based on the rule destination ports)
-- __Remove__ : this will remove the selected fir ewall
+- __Remove__ : this will remove the selected firewall
 
 
 #### Network
@@ -79,7 +79,7 @@ When you right click on a node a popup menu appear and you can:
 - __Add a note__ : this will display a small note on the network
 - __Add itinerary form this place__ : this will add the start marker on the network (see query path)
 - __Add itinerary to this place__ : this will add the end marker on the network (see query path)
-- __Change sensitivity__ : this enable you to change the color of the network (for faster overview)
+- __Change sensitivity__ : this enables you to change the color of the network (for faster overview)
 
 
 #### Edge
@@ -90,7 +90,7 @@ Default action:
 
 When you right click on an edge a popup menu appear and you can:
 
-- __Select an ACL__ : this enable you to show an ACL from/to this network
+- __Select an ACL__ : this enables you to show an ACL from/to this network
 
 
 #### Background
@@ -109,22 +109,22 @@ Algorithms for detecting anomalies are based on the work of [Al-Shaer and H. Ham
 
 ##### Internal detection
 
-- __Masked rules__: The rule will not match any packets and action defined by the rule will never be taken. 
- - __Shadowing__: The rule intended to accept/deny some packets which have been denied/accepted by preceding rules. 
+- __Masked rules__: The rule will not match any packets and action defined by the rule will never be taken.
+ - __Shadowing__: The rule has been defined to accept/deny some packets which have been denied/accepted by preceding rules.
  - __Redundancy__: All the packets have been accepted/denied by preceding rules or will not take this path.
  - __Redundancy and correlation__: Part of the packets for this rule have been denied/accepted. Others are either accepted/denied or will not take this path.
  
-- __Partially masked rules__: The rule match some packets that have already been matched.
- - __Correlation__: Part of the packets intend to be accepted/denied by the rule have been denied/accepted by preceding rules.
- - __Generalization__: The rule is a generalization of preceding rules since preceding rules match a subset of the current rule but defined a different action.
- - __Redundant__: If preceding rules are removed, all the packets that match preceding rules can still be accepted/denied to the current rule. Therefore, preceding rules are redundant.
+- __Partially masked rules__: The rule matches some packets that have already been matched.
+ - __Correlation__: Part of the packets supposed to be accepted/denied by the rule have been denied/accepted by preceding rules.
+ - __Generalization__: The rule is a generalization of preceding rules since preceding rules match a subset of the current rule but have a different action.
+ - __Redundant__: If preceding rules are removed, all the packets that match preceding rules can still be accepted/denied by the current rule. Therefore, preceding rules are redundant.
 
 
 ##### Distributed detection
 
 - __Shadowing__: The rule is shadowed by upstream ACLs. It tries to accept some packets that are blocked on all reachable path.
 - __Raised security level__: The rule probably reveals a raised security level. Certain packets might be allowed to access part of the network path but not to the end of this path.
-- __Redundant__: The rule is probably a redundancy since the packets to be denied will not reach this ACL anyway. However, multiple lines of defense are often encouraged in practice to increase overall security level.
+- __Redundant__: The rule is probably a redundancy since the packets supposed to be denied will not reach this ACL anyway. However, multiple lines of defense are often encouraged in practice to increase overall security level.
 - __Correlation__: The rule is probably an overlapping rule. Part of the packets intend to be accepted/denied by this rule have been denied/accepted by upstream ACLs.
 
 
@@ -132,14 +132,14 @@ Algorithms for detecting anomalies are based on the work of [Al-Shaer and H. Ham
 
 You can launch the internal detection of a firewall by clicking on it `Right click → Detect anomaly`.
 
-The internal detection will take each ACL of the firewall individually and will check for anomalies between the rules. The 'Deep search' option enable you to have all blamed rules on an anomaly. However, this option will take much longer.
+The internal detection will take each ACL of the firewall individually and will check for anomalies between the rules. The 'Deep search' option enables you to have all blamed rules on an anomaly. However, this option will take too much time to perform.
 
 
 #### Distributed detection
 
 You can launch the distributed detection of all firewalls by clicking on the menu `Audit → Distributed detection`.
 
-The distributed detection will construct rooted tree for each pair of network and will check for anomalies along the path. The 'Deep search' option enable you to have all blamed rules on an anomaly. However, this option will take much longer.
+The distributed detection will construct rooted tree for each pair of network and will check for anomalies along the path. The 'Deep search' option enables you to have all blamed rules on an anomaly. However, this option will take too much time to perform.
 
 
 ### Query path
@@ -169,7 +169,7 @@ If paths are found, you will be able to select a path in the right lateral pane.
 
 #### Automatic method
 
-You can import a query file to launch multiple query request `Audit → Import query file`.
+You can import a query file to launch multiple query requests `Audit → Import query file`.
 
 Each query must be separated with a single line of two hyphens.
 
