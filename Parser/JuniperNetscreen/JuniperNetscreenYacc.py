@@ -22,6 +22,7 @@ from SpringBase.Rule import Rule
 from SpringBase.Operator import Operator
 from SpringBase.Firewall import Firewall
 from SpringBase.ACL import ACL
+from SpringBase.Action import Action
 import NetworkGraph
 import socket
 import re
@@ -52,7 +53,7 @@ def init(name, raise_on_error=False):
     p_info['firewall'] = Firewall()
     p_info['firewall'].name = name
     p_info['firewall'].hostname = ntpath.basename(name)
-    p_info['firewall'].type = 'JuniperNetscreen'
+    p_info['firewall'].type = 'Juniper Netscreen'
     p_info['current_policy'] = Rule(0, "", [], [], [], [], [], False)
     p_info['context_policy'] = Rule(0, "", [], [], [], [], [], False),
     p_info['policy_zone_src'] = None
@@ -76,7 +77,7 @@ def finish():
 
 
 def get_firewall():
-    return p_info['firewall']
+    return [p_info['firewall']]
 
 
 def show():
@@ -615,12 +616,12 @@ def p_opt_dst_nat(p):
 def p_action_1(p):
     '''action : DENY
               | REJECT'''
-    p_info['current_policy'].action = False
+    p_info['current_policy'].action = Action(False)
 
 
 def p_action_2(p):
     '''action : PERMIT'''
-    p_info['current_policy'].action = True
+    p_info['current_policy'].action = Action(True)
 
 
 def p_action_3(p):
@@ -634,6 +635,7 @@ def p_tunnel(p):
               | TUNNEL VPN item
               | TUNNEL VPN item L2TP item
               | TUNNEL VPN item PAIR_POLICY item'''
+    raise Warning('Unsuported action')
 
 
 ### options
@@ -689,12 +691,11 @@ def p_policy_context_line_6(p):
 
 
 def p_error(p):
-    if p:
-        print("Syntax error at '%s'" % p.value)
-    else:
-        print("Syntax error at EOF")
-
     if p_info['raise_on_error']:
+        if p:
+            print("Syntax error at '%s'" % p.value)
+        else:
+            print("Syntax error at EOF")
         raise SyntaxError
 
 parser = yacc.yacc(optimize=1)

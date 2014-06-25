@@ -145,7 +145,7 @@ class Gtk_NoteBookSplit:
             # strangely if you remove self to tab_interface, we have problems with garbage collector deleting attributes
             name = "%s (%s)" % (obj.name, NetworkGraph.NetworkGraph.NetworkGraph().get_firewall_from_acl(obj).hostname)
             self.tab_interface = Gtk_TabInterface(name, obj)
-            self.tab_interface.add_rules(obj.rules)
+            self.tab_interface.add_rules(obj.get_rules())
             self.search_bar = Gtk_SearchBar(obj, self.tab_interface, self.tab_interface.scrolled_window)
             self.add_tab(self.search_bar.vbox, name, can_close=True)
             page_num = self.notebook.notebook.page_num(self.tab_interface.scrolled_window)

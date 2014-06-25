@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import pygtk
-from Gtk.Gtk_HelpMessage import Gtk_Message
-
 pygtk.require("2.0")
+from Gtk.Gtk_HelpMessage import Gtk_Message
 import gtk
 import collections
 import threading
 import Gtk_Main
+from Parser import Parser
 from Gtk_QueryPath import Gtk_QueryPath
 from Gtk_ListView import Gtk_ListView
 from Gtk_TreeView import Gtk_TreeView
@@ -83,6 +83,12 @@ class Gtk_NewtworkPopupMenu:
             self.service_menu = gtk.MenuItem("Service list")
             self.menu.append(self.service_menu)
             self.service_menu.connect("activate", self.on_service_menu)
+
+        # Error conf #
+        if isinstance(self.node.object, Firewall.Firewall):
+            self.error_conf_menu = gtk.MenuItem("Generate anonymous configuration")
+            self.menu.append(self.error_conf_menu)
+            self.error_conf_menu.connect("activate", self.on_error_conf)
 
         # Remove #
         if isinstance(self.node.object, Firewall.Firewall):
@@ -410,6 +416,33 @@ class Gtk_NewtworkPopupMenu:
                                              "Service list (%s)" % self.node.object.hostname,
                                              can_close=True)
         Gtk_Main.Gtk_Main().lateral_pane.help_message.change_message(Gtk_Message.ON_SHOW_SERVICE)
+
+    def on_error_conf(self, item):
+        """Launch parser and generate an anonymous configuration file with parsed token"""
+        filename = None
+
+        dialog = gtk.FileChooserDialog('Save anonymous configuration file',
+                                       None,
+                                       gtk.FILE_CHOOSER_ACTION_SAVE,
+                                       (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                        gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+        dialog.set_default_response(gtk.RESPONSE_OK)
+        response = dialog.run()
+
+        if response == gtk.RESPONSE_OK:
+            filename = dialog.get_filename()
+
+        dialog.destroy()
+
+        if not filename:
+            return
+
+        try:
+            Parser.generate_debug_conf(filename, self.node.object.name, self.node.object.type)
+        except Exception as e:
+            Gtk_DialogBox(e)
+        except:
+            Gtk_DialogBox("An error occurred.")
 
     def on_remove_menu(self, item):
         """Remove a firewall. Close all pages, clear paths and details, remove firewall and redraw the graph"""

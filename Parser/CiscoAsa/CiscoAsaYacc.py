@@ -22,6 +22,7 @@ from SpringBase.Rule import Rule
 from SpringBase.Operator import Operator
 from SpringBase.Firewall import Firewall
 from SpringBase.ACL import ACL
+from SpringBase.Action import Action
 import NetworkGraph
 import CiscoAsaPort
 import re
@@ -53,7 +54,7 @@ def init(name, raise_on_error=False):
     p_info['firewall'] = Firewall()
     p_info['firewall'].name = name
     p_info['firewall'].hostname = ntpath.basename(name)
-    p_info['firewall'].type = 'CiscoAsa'
+    p_info['firewall'].type = 'Cisco Asa'
     p_info['interface_state'] = False
     p_info['current_interface'] = None
     p_info['object_name'] = None
@@ -105,7 +106,7 @@ def finish():
 
 
 def get_firewall():
-    return p_info['firewall']
+    return [p_info['firewall']]
 
 
 def show():
@@ -622,12 +623,12 @@ def p_access_option(p):
 ### action
 def p_action_1(p):
     '''action : ACCEPT'''
-    p_info['current_rule'].action = True
+    p_info['current_rule'].action = Action(True)
 
 
 def p_action_2(p):
     '''action : DENY'''
-    p_info['current_rule'].action = False
+    p_info['current_rule'].action = Action(False)
 
 
 ### tcp_udp
@@ -805,12 +806,11 @@ def p_port_service2(p):
 
 
 def p_error(p):
-    if p:
-        print("Syntax error at '%s'" % p.value)
-    else:
-        print("Syntax error at EOF")
-
     if p_info['raise_on_error']:
+        if p:
+            print("Syntax error at '%s'" % p.value)
+        else:
+            print("Syntax error at EOF")
         raise SyntaxError
 
 

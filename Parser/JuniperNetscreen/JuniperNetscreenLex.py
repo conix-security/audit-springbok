@@ -117,8 +117,8 @@ def t_WORD(t):
 
 
 def t_error(t):
-    print("Illegal character %s" % repr(t.value[0]))
     t.lexer.skip(1)
+    return t
 
 
 lexer = lex.lex()

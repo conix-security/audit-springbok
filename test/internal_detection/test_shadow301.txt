@@ -1,0 +1,7 @@
+# test redudant rule
+
+eth0      Link encap:Ethernet  HWaddr d4:be:d9:c6:15:71
+          inet addr:192.168.0.0 Mask:255.255.255.0
+
+iptables -A INPUT -i eth0 -p TCP -s 192.168.42.42/32 -d 74.125.195.94/32 --dport 3700 -j ACCEPT
+iptables -A INPUT -i eth0 -p TCP -s 192.168.42.42/32 -d 74.125.195.94/32 --dport 3700 -j DROP

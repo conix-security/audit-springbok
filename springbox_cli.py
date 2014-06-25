@@ -101,10 +101,10 @@ def parse_file(file, no_confirm):
         return None
 
     redirect_null()
-    fw = Parser.parser(file, supposed_type, None)
+    fws = Parser.parser(file, supposed_type, None)
     redirect_standard()
 
-    return fw
+    return fws
 
 
 # export rules of fw to the out_dir
@@ -181,9 +181,9 @@ def springbox_cli_main():
 
     # create firewall list
     for i in file_list:
-        fw = parse_file(i, no_confirm)
-        if fw:
-            fw_list.append(fw)
+        fws = parse_file(i, no_confirm)
+        if fws:
+            fw_list += fws
         else:
             print YELLOW + 'Firewall parse failed, skip ...' + WHITE
 

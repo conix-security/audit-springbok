@@ -21,6 +21,16 @@ python springbok.py
 - Cisco Asa
 - Juniper Netscreen
 - Fortinet Fortigate
+- Iptables
+
+## CHANGELOG
+
+v0.6:
+
+- Add Iptables
+- Implement VDOM for Fortigate
+- Add generation of anonymous configuration file
+
 
 ## How it works
 
@@ -65,6 +75,7 @@ When you right click on a firewall a popup menu appears and you can:
 - __Show configuration error__ : this will show unused objects and unbounded rules
 - __Show defined object list__ : this will show the list of defined objects
 - __Show enabled services__ : this will show all enable services (based on the rule destination ports)
+- __Generate anonymous configuration__ : this enables you to create an anonymous configuration file
 - __Remove__ : this will remove the selected firewall
 
 
@@ -113,7 +124,7 @@ Algorithms for detecting anomalies are based on the work of [Al-Shaer and H. Ham
  - __Shadowing__: The rule has been defined to accept/deny some packets which have been denied/accepted by preceding rules.
  - __Redundancy__: All the packets have been accepted/denied by preceding rules or will not take this path.
  - __Redundancy and correlation__: Part of the packets for this rule have been denied/accepted. Others are either accepted/denied or will not take this path.
- 
+
 - __Partially masked rules__: The rule matches some packets that have already been matched.
  - __Correlation__: Part of the packets supposed to be accepted/denied by the rule have been denied/accepted by preceding rules.
  - __Generalization__: The rule is a generalization of preceding rules since preceding rules match a subset of the current rule but have a different action.

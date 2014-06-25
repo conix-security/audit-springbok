@@ -9,17 +9,18 @@ from SpringBase.Operator import Operator
 from SpringBase.Protocol import Protocol
 from SpringBase.Ip import Ip
 from SpringBase.Port import Port
+from SpringBase.Action import Action
 
 
 p_info = {
     'rule_list': [],
-    'current_rule': Rule(0, '', [], [], [], [], [], True),
+    'current_rule': Rule(0, '', [], [], [], [], [], Action(True)),
 }
 
 
 def init():
     p_info['rule_list'] = []
-    p_info['current_rule'] = Rule(0, '', [], [], [], [], [], True)
+    p_info['current_rule'] = Rule(0, '', [], [], [], [], [], Action(True))
 
 
 def get_query():

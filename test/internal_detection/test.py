@@ -20,10 +20,11 @@ def test(file):
     - return the error list
     '''
     res = ''
-    fw = Parser.parser(file, Parser.suppose_type(file), None)
-    fw.build_bdd()
-    error_list = InternalDetection.InternalDetection(Node.Node(fw), True).detect_anomaly()
-    for elem in error_list:
-        for error in elem:
-            res += error
+    firewalls = Parser.parser(file, Parser.suppose_type(file), None)
+    for fw in firewalls:
+        fw.build_bdd()
+        error_list = InternalDetection.InternalDetection(Node.Node(fw), True).detect_anomaly()
+        for elem in error_list:
+            for error in elem:
+                res += error
     return res

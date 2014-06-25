@@ -64,15 +64,11 @@ class Gtk_TabInterface:
         result = set()
 
         if re.search(pattern, 'any'):
-            result |= set([rule for rule in self.object.rules if
+            result |= set([rule for rule in self.object.get_rules() if
                             not rule.ip_source or not rule.ip_dest or not rule.port_source or not rule.port_dest])
         if re.search(pattern, 'ip'):
-            result |= set([rule for rule in self.object.rules if not rule.protocol])
-        if re.search(pattern, 'permit'):
-            result |= set([rule for rule in self.object.rules if rule.action])
-        if re.search(pattern, 'deny'):
-            result |= set([rule for rule in self.object.rules if not rule.action])
-        result |= set([rule for rule in self.object.rules if rule.search(pattern)])
+            result |= set([rule for rule in self.object.get_rules() if not rule.protocol])
+        result |= set([rule for rule in self.object.get_rules() if rule.search(pattern)])
         self.model.clear()
         self.add_rules(list(result))
 
@@ -104,7 +100,7 @@ class Gtk_TabInterface:
         index = self.model_sort[tree_view.get_selection().get_selected()[1]][0]
         rule = None
 
-        for r in self.object.rules:
+        for r in self.object.get_rules():
             if r.identifier == index:
                 rule = r
                 break
@@ -146,8 +142,8 @@ class Gtk_TabInterface:
                                                 format(r.port_source, r.port_source_name),
                                                 format(r.ip_dest, r.ip_dest_name),
                                                 format(r.port_dest, r.port_dest_name),
-                                                "permit" if r.action else "deny",
-                                                'darkgreen' if r.action else 'darkred',
+                                                r.action.to_string(),
+                                                r.action.get_action_color(),
                                                 '#FFFFFF' if i % 2 == 0 else '#DCDCDC'])
             i += 1
         self.model_sort.handler_unblock(self.row_reordered_signal)

@@ -116,7 +116,7 @@ class Gtk_QueryPath:
             port_dest_op = [Operator.Operator('EQ', Port.Port(self.port_dest_entry.get_text()))]
 
         test_rule = Rule.Rule(0, 'query_path', protocol_op, ip_source_op, port_source_op, ip_dest_op, port_dest_op,
-                              True)
+                              Action.Action(True))
 
         self.popup.destroy()
 
@@ -177,6 +177,7 @@ def path_to_string(path, separator):
     path_string += "]"
 
     return path_string
+
 
 def treeview_output(query_path):
     """Add a tab in the notebook showing the result of the query path.
@@ -243,8 +244,8 @@ def run_query(rule, ip_source=None, ip_dest=None):
             # list of acl between path[i] and path[i + 1] who match the query
             acl_list = []
             for acl in g.get_acl_list(path[i], path[i + 1]):
-                sub_rule = get_subset_rule(rule, acl.rules)
-                if sub_rule and sub_rule.action:
+                sub_rule = get_subset_rule(rule, acl.get_rules())
+                if sub_rule and sub_rule.action.chain:
                     acl_list.append((acl, sub_rule))
             # acl_list empty : this mean we don't find an accepting rule between path[i] and path[i + 1]
             # so we give up
@@ -274,7 +275,7 @@ def run_query(rule, ip_source=None, ip_dest=None):
                 # mark the path passing through the firewall
                 if not isinstance(path[i], Firewall.Firewall) and not isinstance(path[i + 1], Firewall.Firewall):
                     # get the firewall
-                    fw = [fw for fw in g.firewalls for acl in fw.acl if acl == path_data[1][acl_index][0]][0]
+                    fw = [fw for fw in g.firewalls for acl in g.get_acl_list(firewall=fw) if acl == path_data[1][acl_index][0]][0]
                     path.insert(i + 1, fw)
                     acl_index -= 1
             i += 1
@@ -286,6 +287,8 @@ def run_query(rule, ip_source=None, ip_dest=None):
 def get_subset_rule(test_rule, rules):
     """Construct the rule and try to find if it is a subset of a rule in the given list"""
     for rule in rules:
+        if rule.action.is_chained() or rule.action.is_return():
+            continue
         if is_subset(rule, test_rule):
             return rule
     return None

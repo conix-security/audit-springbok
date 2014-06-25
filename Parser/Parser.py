@@ -7,9 +7,10 @@ import gtk
 import time
 
 # Parser list with tuple of module path, parser name and start line
-parser_list = [('Parser.CiscoAsa.CiscoAsaYacc', 'Cisco Asa', 'access-list'),
-               ('Parser.JuniperNetscreen.JuniperNetscreenYacc', 'Juniper Netscreen', 'set policy'),
-               ('Parser.FortiGate.FortiGateYacc', 'Fortinet FortiGate', 'config firewall')]
+parser_list = [('Parser.CiscoAsa.CiscoAsaYacc', 'Cisco Asa', ['access-list']),
+               ('Parser.JuniperNetscreen.JuniperNetscreenYacc', 'Juniper Netscreen', ['set policy']),
+               ('Parser.FortiGate.FortiGateYacc', 'Fortinet FortiGate', ['config firewall']),
+               ('Parser.IpTables.IpTablesYacc', 'Iptables', ['iptables', '*filter'])]
 
 
 def parser(file_name, yacc_parser, progressBar):
@@ -40,7 +41,7 @@ def parser(file_name, yacc_parser, progressBar):
     # clear state and dictionary values
     _parse_kit.init(file_name)
 
-    t0 = time.time() # start timer
+    t0 = time.time()  # start timer
     count = 0
     for line in fd:
         _parse_kit.update()
@@ -64,6 +65,7 @@ def parser(file_name, yacc_parser, progressBar):
 
 def file_len(fname):
     """Return the number of line in the file"""
+    i = 0
     with open(fname) as f:
         for i, l in enumerate(f):
             pass
@@ -95,11 +97,54 @@ def suppose_type(fname):
         for i, l in enumerate(f):
             # test if line start with one proposed by parsers
             for j in xrange(len(parser_list)):
-                if l.startswith(parser_list[j][2]):
-                    try:
-                        # verify by trying to parse
-                        _parse_kit[j].parser.parse(l, _parse_kit[j].lexer)
-                        return parser_list[j][0]
-                    except:
-                        pass
+                for pattern in parser_list[j][2]:
+                    if l.lstrip().startswith(pattern):
+                        try:
+                            # verify by trying to parse
+                            _parse_kit[j].parser.parse(l, _parse_kit[j].lexer)
+                            return parser_list[j][0]
+                        except:
+                            pass
     return None
+
+
+def generate_debug_conf(destination_file, file_name, type=None):
+    """Generate a debug configuration file.
+    This function stop at the lexing part to generate a file of token (used to send anonymous conf file).
+
+    Parameters
+    ----------
+    destination_file : string. The output file
+    file_name : string. The file to parse
+    type : string (optional, default=None). The parse to use
+    """
+    if not type:
+        type = suppose_type(file_name)
+
+    for i in parser_list:
+        if i[1] == type:
+            type = i[0]
+
+    if not type:
+        raise Exception('No parser found for this file')
+
+    try:
+        fd = open(file_name, 'r')
+        file_out = open(destination_file, 'w')
+    except:
+        raise Exception('Error while opening the configuration file')
+
+    # import parser
+    _parse_kit = __import__(type, fromlist=['a'])
+
+    for line in fd:
+        tokenize_line = ''
+        _parse_kit.lexer.input(line)
+        token = _parse_kit.lexer.token()
+        while token:
+            tokenize_line += token.type + ' '
+            token = _parse_kit.lexer.token()
+        file_out.write(tokenize_line + '\n')
+
+    fd.close()
+    file_out.close()

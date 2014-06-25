@@ -22,9 +22,10 @@ def test(file):
     '''
     res = ''
     NetworkGraph().clear()
-    fw = Parser.parser(file, Parser.suppose_type(file), None)
-    fw.build_bdd()
-    NetworkGraph().network_graph(fw)
+    firewalls = Parser.parser(file, Parser.suppose_type(file), None)
+    for fw in firewalls:
+        fw.build_bdd()
+        NetworkGraph().network_graph(fw)
     error_list = DistributedDetection.DistributedDetection(False).distributed_detection()
     for k, v in error_list:
         if len(v) > 0:

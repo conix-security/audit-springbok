@@ -190,6 +190,11 @@ class NetworkGraph(object):
         firewall : Firewall (optional). Filter acl belonging to this firewall any if firewall is not defined
         """
         acl_list = []
+        if src and isinstance(src, Ip) and not self.multidigraph.has_node(src):
+            src = Ip.ListContains(self.digraph_subnet_list, src)
+        if dst and isinstance(dst, Ip) and not self.multidigraph.has_node(dst):
+            dst = Ip.ListContains(self.digraph_subnet_list, dst)
+
         if src and not self.multidigraph.has_node(src):
             return acl_list
 

@@ -83,9 +83,9 @@ tokens = [
          ] + list(reserved.values())
 
 
-def t_ignore_OTHER(t):
-    r'^(PIX|enable|passwd|domain-name|logging|mtu|failover|pdm|arp|aaa|timeout|snmp|floodguard|telnet|ssh|console|terminal|crypto|pager|global|nat|static|fixup|route|vpngroup).*$'
-    pass
+# def t_ignore_OTHER(t):
+#     r'^(PIX|enable|passwd|domain-name|logging|mtu|failover|pdm|arp|aaa|timeout|snmp|floodguard|telnet|ssh|console|terminal|crypto|pager|global|nat|static|fixup|route|vpngroup).*$'
+#     pass
 
 
 def t_BANG(t):
@@ -123,8 +123,8 @@ def t_WORD(t):
 
 
 def t_error(t):
-    print("Illegal character %s" % repr(t.value[0]))
     t.lexer.skip(1)
+    return t
 
 
 lexer = lex.lex()

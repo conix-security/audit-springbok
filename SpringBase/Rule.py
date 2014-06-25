@@ -22,7 +22,7 @@ class Rule:
     port_source : Operator. Ports source of the rule
     ip_dest : Operator. Ips destination of the rule
     port_dest : Operator. Ports destination of the rule
-    action : bool. The action of the rule (accept/deny)
+    action : Action. The action of the rule (accept/deny/forward)
     rule_robdd : ROBDD. The ROBDD of the rule
     """
     def __init__(self, identifier, name, protocol, ip_source, port_source, ip_dest, port_dest, action):
@@ -87,7 +87,7 @@ class Rule:
         [match.append(e) for s in self.ip_dest_name for e in test_match(s, pattern)]
         match += [s for e in self.port_dest for s in e.search(pattern) if s]
         [match.append(e) for s in self.port_dest_name for e in test_match(s, pattern)]
-        match += test_match(str(self.action), pattern)
+        match += self.action.search(pattern)
 
         return match
 
@@ -194,5 +194,5 @@ class Rule:
             res += i.to_string()
             res += ","
         res += "]" + separator + "  action: "
-        res += str(self.action)
+        res += self.action.to_string()
         return res

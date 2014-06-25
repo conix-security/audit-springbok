@@ -22,6 +22,7 @@ from SpringBase.Rule import Rule
 from SpringBase.Operator import Operator
 from SpringBase.Firewall import Firewall
 from SpringBase.ACL import ACL
+from SpringBase.Action import Action
 import NetworkGraph
 import re
 import ntpath
@@ -33,7 +34,11 @@ object_dict = {}
 
 # Use for detect state
 p_info = {
+    'firewall_list': [],
     'firewall': Firewall(),
+    'vdom': None,
+    'name': None,
+    'hostname': None,
     'srcintf': None,
     'dstintf': None,
     'used_object': set(),
@@ -45,15 +50,30 @@ p_info = {
     'range_ip': None,
     'range_port': None,
     'raise_on_error': False,
+    'use_vdom': False,
+    'interface_list': [],
 }
 
 
 def init(name, raise_on_error=False):
+    p_info['firewall_list'] = []
+    p_info['raise_on_error'] = raise_on_error
+    p_info['use_vdom'] = False
+    p_info['name'] = name
+    p_info['hostname'] = ntpath.basename(name)
+    p_info['current_state'] = []
+    p_info['interface_list'] = []
+    _init(None)
+
+
+# reset for each VDOM
+def _init(vdom):
     object_dict.clear()
     p_info['firewall'] = Firewall()
-    p_info['firewall'].name = name
-    p_info['firewall'].hostname = ntpath.basename(name)
-    p_info['firewall'].type = 'FortiGate'
+    p_info['firewall'].name = p_info['name']
+    p_info['firewall'].hostname = p_info['hostname'] + ('-' + vdom if vdom else '')
+    p_info['firewall'].type = 'Fortinet FortiGate'
+    p_info['vdom'] = vdom
     p_info['srcintf'] = None
     p_info['dstintf'] = None
     p_info['used_object'] = set()
@@ -61,10 +81,8 @@ def init(name, raise_on_error=False):
     p_info['current_rule'] = Rule(None, None, [], [], [], [], [], False)
     p_info['current_interface'] = Interface(None, None, None, [])
     p_info['current_object'] = None
-    p_info['current_state'] = []
     p_info['range_ip'] = None
     p_info['range_port'] = None
-    p_info['raise_on_error'] = raise_on_error
 
 
 def update():
@@ -77,10 +95,22 @@ def finish():
     for k in object_dict:
         if k not in p_info['used_object']:
             p_info['firewall'].unused_objects.add(k)
+    if not (p_info['use_vdom'] and p_info['vdom'] is None):
+        p_info['firewall_list'].append(p_info['firewall'])
 
 
 def get_firewall():
-    return p_info['firewall']
+    # bind interfaces
+    for itf, vdom_name in p_info['interface_list']:
+        if not vdom_name or vdom_name == 'root':
+            p_info['firewall'].interfaces.append(itf)
+            continue
+        for fw in p_info['firewall_list']:
+            if len(fw.hostname) > len(vdom_name) and fw.hostname[len(fw.hostname) - len(vdom_name):] == vdom_name:
+                fw.interfaces.append(itf)
+                break
+
+    return p_info['firewall_list']
 
 
 def show():
@@ -124,17 +154,23 @@ def resolve(name, src_dest=None):
                 p_info['current_rule'].port_dest_name.append(name)
 
 
-
 def add_rule(rule):
     acl = p_info['firewall'].get_acl_by_name(p_info['srcintf'] + '-' + p_info['dstintf'])
 
     if not acl:
         acl = ACL(p_info['srcintf'] + '-' + p_info['dstintf'])
         p_info['firewall'].acl.append(acl)
+        src_itf = None
+        dst_itf = None
+        for itf, vdom_name in p_info['interface_list']:
+            if itf.nameif == p_info['srcintf']:
+                src_itf = itf
+            elif itf.nameif == p_info['dstintf']:
+                dst_itf = itf
         NetworkGraph.NetworkGraph.NetworkGraph().bind_acl(acl,
                                                           p_info['firewall'],
-                                                          p_info['firewall'].get_interface_by_nameif(p_info['srcintf']),
-                                                          p_info['firewall'].get_interface_by_nameif(p_info['dstintf']))
+                                                          src_itf,
+                                                          dst_itf)
 
     acl.rules.append(rule)
 
@@ -142,6 +178,8 @@ def add_rule(rule):
 # remove the rule who his identifier match id
 def remove_rule(id):
     p_info['firewall'].del_rule_by_id(id)
+    for fw in p_info['firewall_list']:
+        fw.del_rule_by_id(id)
 
 
 # remove quote from variable name if any
@@ -179,7 +217,9 @@ def p_lines(p):
 
 
 def p_line(p):
-    '''line : config_system_line NL
+    '''line : config_vdom_line NL
+            | set_vdom_line NL
+            | config_system_line NL
             | hostname_line NL
             | policy_line NL
             | edit_line NL
@@ -195,6 +235,7 @@ def p_line(p):
             | addrgrp_line NL
             | policy_set_line NL
             | interface_line NL
+            | config_line NL
             | end_line NL
             | next_line NL
             | words NL
@@ -236,6 +277,20 @@ def p_words_2(p):
     p[0] = p[1] + ' ' + p[2]
 
 
+# config vdom
+def p_config_vdom(p):
+    '''config_vdom_line : CONFIG VDOM'''
+    p_info['use_vdom'] = True
+    push_state('vdom')
+
+
+# set vdom line
+def p_set_vdom_line(p):
+    '''set_vdom_line : SET VDOM WORD'''
+    if get_state() == 'interface':
+        p_info['interface_list'][-1][1] = remove_quote(p[3])
+
+
 # config system global
 def p_config_system_line(p):
     '''config_system_line : CONFIG SYSTEM GLOBAL'''
@@ -246,7 +301,11 @@ def p_config_system_line(p):
 def p_hostname_line(p):
     '''hostname_line : SET HOSTNAME WORD'''
     if get_state() == 'config_global':
-        p_info['firewall'].hostname = remove_quote(p[3])
+        hostname = remove_quote(p[3])
+        p_info['firewall'].hostname = hostname + ('-' + p_info['vdom'] if p_info['vdom'] else '')
+        for fw in p_info['firewall_list']:
+            fw.hostname.replace(p_info['hostname'], hostname, 1)
+        p_info['hostname'] = hostname
 
 
 # edit line
@@ -254,7 +313,10 @@ def p_hostname_line(p):
 def p_edit_line(p):
     '''edit_line : EDIT NUMBER
                  | EDIT WORD'''
-    if get_state() == 'policy':
+    if get_state() == 'vdom':
+        finish()  # finish
+        _init(p[2])  # reset to a new firewall
+    elif get_state() == 'policy':
         p_info['current_rule'] = Rule(int(p[2]), None, [], [], [], [], [], False)
         p_info['srcintf'] = None
         p_info['dstintf'] = None
@@ -265,7 +327,7 @@ def p_edit_line(p):
         p_info['range_port'] = None
     elif get_state() == 'interface':
         p_info['current_interface'] = Interface(remove_quote(p[2]), None, None, [])
-        p_info['firewall'].interfaces.append(p_info['current_interface'])
+        p_info['interface_list'].append([p_info['current_interface'], None])
 
 
 # address parse
@@ -470,13 +532,13 @@ def p_policy_line(p):
 def p_policy_set_line_1(p):
     '''policy_set_line : SET ACTION ACCEPT'''
     if get_state() == 'policy':
-        p_info['current_rule'].action = True
+        p_info['current_rule'].action = Action(True)
 
 
 def p_policy_set_line_2(p):
     '''policy_set_line : SET ACTION DENY'''
     if get_state() == 'policy':
-        p_info['current_rule'].action = False
+        p_info['current_rule'].action = Action(False)
 
 
 ### dst address line
@@ -548,6 +610,13 @@ def p_policy_set_line_9(p):
         remove_rule(p_info['current_rule'].identifier)
 
 
+# config word
+
+def p_config_word(p):
+    '''config_line : CONFIG words'''
+    push_state(p[2])
+
+
 # end_next_line
 
 def p_end_line(p):
@@ -561,12 +630,11 @@ def p_next_line(p):
 
 
 def p_error(p):
-    if p:
-        print("Syntax error at '%s'" % p.value)
-    else:
-        print("Syntax error at EOF")
-
     if p_info['raise_on_error']:
+        if p:
+            print("Syntax error at '%s'" % p.value)
+        else:
+            print("Syntax error at EOF")
         raise SyntaxError
 
 

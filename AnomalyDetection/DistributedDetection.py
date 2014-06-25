@@ -92,7 +92,7 @@ class DistributedDetection:
 
         Return
         ------
-        Return a tuple containing the accepted paquet and a list of detected errors
+        Return a tuple containing the accepted packets and a list of detected errors
         """
         error_list = []
         parent = tree_path[0]
@@ -136,59 +136,75 @@ class DistributedDetection:
         error_list_append = error_list.append
 
         for acl in acl_list:
-            accept = Robdd.false()
-            deny = Robdd.false()
-            if self.cancel:
-                break
-            for rule in acl.rules:
+            for rule_path in acl.get_rules_path():
+                accept = Robdd.false()
+                deny = Robdd.false()
                 if self.cancel:
                     break
-                Gtk.Gtk_Main.Gtk_Main().update_progress_bar(1)
-                Gtk.Gtk_Main.Gtk_Main().update_interface()
-                error_rules = []
-                if rule.action:
-                    # P ⊆ I
-                    if compare_bdd(rule.toBDD(), Bdd.IMPL, remain):
-                        pass
-                    # P ⊆ ¬I
-                    elif compare_bdd(rule.toBDD(), Bdd.IMPL, negate_bdd(remain)):
-                        if self.deep_search:
-                            # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ <Px, deny> such that Px ∩ Pj
-                            error_rules = self.search_rules(rule, Bdd.AND, False, tree_path)
-                        error_list_append(
-                            AnomalyError.error_message(ErrorType.DIST_SHADOW, ErrorType.ERROR, rule, error_rules))
-                    # P ∩ I != ∅
+                for rule, action in rule_path:
+                    if self.cancel:
+                        break
+                    Gtk.Gtk_Main.Gtk_Main().update_progress_bar(1)
+                    Gtk.Gtk_Main.Gtk_Main().update_interface()
+                    error_rules = []
+                    rule_action = rule.action.chain if isinstance(rule.action.chain, bool) else action
+                    if rule_action:
+                        # P ⊆ I
+                        if compare_bdd(rule.toBDD(), Bdd.IMPL, remain):
+                            pass
+                        # P ⊆ ¬I
+                        elif compare_bdd(rule.toBDD(), Bdd.IMPL, negate_bdd(remain)):
+                            if self.deep_search:
+                                # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ <Px, deny> such that Px ∩ Pj != ∅
+                                error_rules = self.search_rules(rule, Bdd.AND, False, tree_path)
+                            error_list_append(
+                                AnomalyError.error_message(ErrorType.DIST_SHADOW, ErrorType.ERROR, rule, error_rules))
+                        # P ∩ I != ∅
+                        else:
+                            if self.deep_search:
+                                # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ <Px, deny> such that Px ∩ Pj
+                                error_rules = self.search_rules(rule, Bdd.AND, False, tree_path)
+                            error_list_append(
+                                AnomalyError.error_message(ErrorType.DIST_CORRELATE, ErrorType.WARNING, rule, error_rules))
                     else:
-                        if self.deep_search:
-                            # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ <Px, deny> such that Px ∩ Pj
-                            error_rules = self.search_rules(rule, Bdd.AND, False, tree_path)
-                        error_list_append(
-                            AnomalyError.error_message(ErrorType.DIST_CORRELATE, ErrorType.WARNING, rule, error_rules))
-                    accept = synthesize(accept, Bdd.OR, synthesize(negate_bdd(deny), Bdd.AND, rule.toBDD()))
-                else:
-                    # P ⊆ I
-                    if compare_bdd(rule.toBDD(), Bdd.IMPL, remain):
-                        if self.deep_search:
-                            # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ <Px, accept> such that Px ∩ Pj
-                            error_rules = self.search_rules(rule, Bdd.AND, True, tree_path)
-                        error_list_append(
-                            AnomalyError.error_message(ErrorType.DIST_RAISED, ErrorType.WARNING, rule, error_rules))
-                    # P ⊆ ¬I
-                    elif compare_bdd(rule.toBDD(), Bdd.IMPL, negate_bdd(remain)):
-                        if self.deep_search:
-                            # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ <Px, deny> such that Px ∩ Pj
-                            error_rules = self.search_rules(rule, Bdd.AND, False, tree_path)
-                        error_list_append(
-                            AnomalyError.error_message(ErrorType.DIST_REDUNDANT, ErrorType.WARNING, rule, error_rules))
-                    # P ∩ I != ∅
+                        # P ⊆ I
+                        if compare_bdd(rule.toBDD(), Bdd.IMPL, remain):
+                            if self.deep_search:
+                                # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ <Px, accept> such that Px ∩ Pj
+                                error_rules = self.search_rules(rule, Bdd.AND, True, tree_path)
+                            error_list_append(
+                                AnomalyError.error_message(ErrorType.DIST_RAISED, ErrorType.WARNING, rule, error_rules))
+                        # P ⊆ ¬I
+                        elif compare_bdd(rule.toBDD(), Bdd.IMPL, negate_bdd(remain)):
+                            if self.deep_search:
+                                # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ <Px, deny> such that Px ∩ Pj
+                                error_rules = self.search_rules(rule, Bdd.AND, False, tree_path)
+                            error_list_append(
+                                AnomalyError.error_message(ErrorType.DIST_REDUNDANT, ErrorType.WARNING, rule, error_rules))
+                        # P ∩ I != ∅
+                        else:
+                            if self.deep_search:
+                                # ∀ ACLx < ACLj, ∀ x ∈ ACLx such that Px ∩ Pj
+                                error_rules = self.search_rules(rule, Bdd.AND, None, tree_path)
+                            error_list_append(
+                                AnomalyError.error_message(ErrorType.DIST_CORRELATE, ErrorType.WARNING, rule, error_rules))
+
+                    # update value
+                    if rule.action.is_chained() or rule.action.is_return():
+                        if action:
+                            # D = D ∪ ¬(A ∪ P) = D ∪ (¬A ∩ ¬P)
+                            deny = synthesize(deny, Bdd.OR, negate_bdd(synthesize(accept, Bdd.OR, rule.toBDD())))
+                        else:
+                            # D = D ∪ (¬A ∩ P)
+                            deny = synthesize(deny, Bdd.OR, synthesize(negate_bdd(accept), Bdd.AND, rule.toBDD()))
                     else:
-                        if self.deep_search:
-                            # ∀ ACLx < ACLj, ∀ x ∈ ACLx such that Px ∩ Pj
-                            error_rules = self.search_rules(rule, Bdd.AND, None, tree_path)
-                        error_list_append(
-                            AnomalyError.error_message(ErrorType.DIST_CORRELATE, ErrorType.WARNING, rule, error_rules))
-                    deny = synthesize(deny, Bdd.OR, synthesize(negate_bdd(accept), Bdd.AND, rule.toBDD()))
-            accept_robdd_list.append(accept)
+                        if rule.action.chain:
+                            # A = A ∪ (¬D ∩ P)
+                            accept = synthesize(accept, Bdd.OR, synthesize(negate_bdd(deny), Bdd.AND, rule.toBDD()))
+                        else:
+                            # D = D ∪ (¬A ∩ P)
+                            deny = synthesize(deny, Bdd.OR, synthesize(negate_bdd(accept), Bdd.AND, rule.toBDD()))
+                accept_robdd_list.append(accept)
 
         res_accept = Robdd.false()
         for a in accept_robdd_list:
@@ -216,11 +232,13 @@ class DistributedDetection:
                 error_rules.append(self.search_rules(rule, operator, action, tree_path[i]))
             acl_list = NetworkGraph.NetworkGraph().get_acl_list(src=parent, dst=tree_path[i][0])
             for acl in acl_list:
-                for r in acl.rules:
-                    if action and r.action != action:
-                        continue
-                    if compare_bdd(rule.toBDD(), operator, r.toBDD()):
-                        error_rules.append(r)
+                for rule_path in acl.get_rules_path():
+                    for r, a in rule_path:
+                        rule_action = r.action.chain if isinstance(r.action.chain, bool) else a
+                        if action and a != action:
+                            continue
+                        if compare_bdd(rule.toBDD(), operator, r.toBDD()):
+                            error_rules.append(r)
 
         if not error_rules:
             error_rules.append(Rule(-1, 'probably implicit deny', [], [], [], [], [], False))
@@ -236,7 +254,7 @@ def get_rooted_tree(graph, source, target, visited):
     graph : MultiDiGraph. networkX multidigraph reversed for path search
     source : Ip. souce node
     target : Ip. target node
-    visisted : set. Set of visisted path"""
+    visited : set. Set of visited path"""
     if source == target:
         return [source]
     res = []

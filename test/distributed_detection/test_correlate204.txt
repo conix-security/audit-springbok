@@ -1,0 +1,77 @@
+# test correlate rule
+
+config system interface
+    edit "zone1"
+        set vdom "vdom1"
+        set ip 192.168.0.0 255.255.255.0
+    next
+    edit "zone2"
+        set vdom "vdom1"
+        set ip 192.168.1.0 255.255.255.0
+    next
+    edit "zone3"
+        set vdom "vdom2"
+        set ip 192.168.1.0 255.255.255.0
+    next
+    edit "zone4"
+        set vdom "vdom2"
+        set ip 192.168.2.0 255.255.255.0
+    next
+end
+
+config vdom
+    edit vdom1
+        config firewall service custom
+	    edit "port1"
+		set tcp-portrange 3700
+	    next
+	end
+        config firewall address
+	    edit "ip_src"
+	        set type iprange
+		set subnet 192.168.0.0 255.255.128.0
+	    next
+	    edit "ip_dst"
+	        set type iprange
+		set subnet 74.125.195.94 255.255.255.255
+	    next
+	end
+	config firewall policy
+	    edit 1
+                set srcintf "zone1"
+    	        set dstintf "zone2"
+                set srcaddr "ip_src"
+                set dstaddr "ip_dst"
+                set action accept
+		set service "port1"
+	    next
+	end
+    next
+    edit vdom2
+        config firewall service custom
+	    edit "port2"
+		set tcp-portrange 3700
+	    next
+	end
+        config firewall address
+	    edit "ip_src"
+	        set type iprange
+		set subnet 192.168.0.0 255.255.0.0
+	    next
+	    edit "ip_dst"
+	        set type iprange
+		set subnet 74.125.195.94 255.255.255.255
+	    next
+	end
+	config firewall policy
+	    edit 1
+                set srcintf "zone2"
+    	        set dstintf "zone4"
+                set srcaddr "ip_src"
+                set dstaddr "ip_dst"
+                set action deny
+		set service "port2"
+	    next
+	end
+    next
+end

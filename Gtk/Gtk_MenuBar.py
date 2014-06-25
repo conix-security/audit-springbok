@@ -260,13 +260,14 @@ class Gtk_MenuBar:
                 if p[0].get_active():
                     parser_module = p[1]
 
-            firewall = Parser.parser(filename, parser_module, progressBar)
-            NetworkGraph.NetworkGraph().network_graph(firewall)
-            Gtk_Main.Gtk_Main().lateral_pane.firewalls.add_row(firewall.hostname)
-            Gtk_Main.Gtk_Main().lateral_pane.focus_firewall()
+            firewalls = Parser.parser(filename, parser_module, progressBar)
+            for fw in firewalls:
+                NetworkGraph.NetworkGraph().network_graph(fw)
+                Gtk_Main.Gtk_Main().lateral_pane.firewalls.add_row(fw.hostname)
+                Gtk_Main.Gtk_Main().lateral_pane.focus_firewall()
             Gtk_Main.Gtk_Main().draw()
             popup.destroy()
-            self.tmp_fw_list.append(firewall)
+            self.tmp_fw_list += firewalls
 
         button_start.connect("clicked", on_click)
         button_cancel.connect("clicked", lambda x: popup.destroy())
