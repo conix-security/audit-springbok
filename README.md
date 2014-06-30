@@ -21,7 +21,7 @@ python springbok.py
 - Cisco Asa
 - Juniper Netscreen
 - Fortinet Fortigate
-- Iptables
+- Iptables (cf. [Using iptables](#iptables))
 
 ## CHANGELOG
 
@@ -33,6 +33,16 @@ v0.6:
 
 
 ## How it works
+
+### <a name="iptables"></a>Using iptables
+
+You can import your script configuration file or the output of the _iptables-save_ command.
+
+In order to import iptables configuration files, you must concatenate the output of the _ifconfig_ command with your configuration file :
+
+```
+ifconfig | cat - my_iptables.conf > /tmp/out && mv /tmp/out my_iptables.conf
+```
 
 ### File menu
 
