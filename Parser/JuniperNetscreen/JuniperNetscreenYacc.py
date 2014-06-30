@@ -36,8 +36,8 @@ object_dict = {}
 # Use for detect state
 p_info = {
     'firewall': Firewall(),
-    'current_policy': Rule(0, "", [], [], [], [], [], False),
-    'context_policy': Rule(0, "", [], [], [], [], [], False),
+    'current_policy': Rule(0, "", [], [], [], [], [], Action(False)),
+    'context_policy': Rule(0, "", [], [], [], [], [], Action(False)),
     'policy_zone_src': None,
     'policy_zone_dst': None,
     'current_object': None,
@@ -54,8 +54,8 @@ def init(name, raise_on_error=False):
     p_info['firewall'].name = name
     p_info['firewall'].hostname = ntpath.basename(name)
     p_info['firewall'].type = 'Juniper Netscreen'
-    p_info['current_policy'] = Rule(0, "", [], [], [], [], [], False)
-    p_info['context_policy'] = Rule(0, "", [], [], [], [], [], False),
+    p_info['current_policy'] = Rule(0, "", [], [], [], [], [], Action(False))
+    p_info['context_policy'] = Rule(0, "", [], [], [], [], [], Action(False)),
     p_info['policy_zone_src'] = None
     p_info['policy_zone_dst'] = None
     p_info['current_object'] = []
@@ -114,7 +114,7 @@ def insert_rule():
         for acl in p_info['firewall'].acl:
             acl.rules.append(p_info['current_policy'])
 
-    p_info['current_policy'] = Rule(0, "", [], [], [], [], [], False)
+    p_info['current_policy'] = Rule(0, "", [], [], [], [], [], Action(False))
     p_info['policy_zone_src'] = None
     p_info['policy_zone_dst'] = None
     p_info['index_rule'] = -1

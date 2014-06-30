@@ -44,7 +44,7 @@ p_info = {
     'rule_id': 0,
     'rule_list': [],
     'rule_bind': dict(),
-    'current_rule': Rule(None, None, [], [], [], [], [], False),
+    'current_rule': Rule(None, None, [], [], [], [], [], Action(False)),
     'current_table': None,
     'raise_on_error': False,
 }
@@ -74,7 +74,7 @@ def init(name, raise_on_error=False):
     p_info['rule_id'] = 0
     p_info['rule_list'] = []
     p_info['rule_bind'] = dict()
-    p_info['current_rule'] = Rule(p_info['rule_id'], None, [], [], [], [], [], False)
+    p_info['current_rule'] = Rule(p_info['rule_id'], None, [], [], [], [], [], Action(False))
     p_info['rule_bind'][p_info['rule_id']] = [None, None]
     p_info['current_table'] = None
     # raise on error option
@@ -82,7 +82,7 @@ def init(name, raise_on_error=False):
 
 
 def update():
-    p_info['current_rule'] = Rule(p_info['rule_id'], None, [], [], [], [], [], False)
+    p_info['current_rule'] = Rule(p_info['rule_id'], None, [], [], [], [], [], Action(False))
     p_info['rule_bind'][p_info['rule_id']] = [None, None]
 
 

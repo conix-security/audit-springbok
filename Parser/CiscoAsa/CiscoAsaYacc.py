@@ -42,7 +42,7 @@ p_info = {
     'bounded_rules': set(),
     'rule_id': 0,
     'rule_list': [],
-    'current_rule': Rule(None, None, [], [], [], [], [], False),
+    'current_rule': Rule(None, None, [], [], [], [], [], Action(False)),
     'index_rule': 0,
     'global_rules': [],
     'raise_on_error': False,
@@ -62,7 +62,7 @@ def init(name, raise_on_error=False):
     p_info['bounded_rules'] = set()
     p_info['rule_id'] = 0
     p_info['rule_list'] = []
-    p_info['current_rule'] = Rule(None, None, [], [], [], [], [], False)
+    p_info['current_rule'] = Rule(None, None, [], [], [], [], [], Action(False))
     p_info['index_rule'] = 0
     p_info['global_rules'] = []
     p_info['raise_on_error'] = raise_on_error

@@ -50,7 +50,7 @@ def p_line_error(p):
 def p_hyphen_line(p):
     '''hyphen_line : DBL_HYPHEN'''
     p_info['rule_list'].append(p_info['current_rule'])
-    p_info['current_rule'] = Rule(0, '', [], [], [], [], [], True)
+    p_info['current_rule'] = Rule(0, '', [], [], [], [], [], Action(False))
 
 
 def p_protocol_line(p):

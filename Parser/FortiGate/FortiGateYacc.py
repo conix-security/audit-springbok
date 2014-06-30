@@ -43,7 +43,7 @@ p_info = {
     'dstintf': None,
     'used_object': set(),
     'bounded_rules': set(),
-    'current_rule': Rule(None, None, [], [], [], [], [], False),
+    'current_rule': Rule(None, None, [], [], [], [], [], Action(False)),
     'current_interface': Interface(None, None, None, []),
     'current_object': None,
     'current_state': [],
@@ -78,7 +78,7 @@ def _init(vdom):
     p_info['dstintf'] = None
     p_info['used_object'] = set()
     p_info['bounded_rules'] = set()
-    p_info['current_rule'] = Rule(None, None, [], [], [], [], [], False)
+    p_info['current_rule'] = Rule(None, None, [], [], [], [], [], Action(False))
     p_info['current_interface'] = Interface(None, None, None, [])
     p_info['current_object'] = None
     p_info['range_ip'] = None

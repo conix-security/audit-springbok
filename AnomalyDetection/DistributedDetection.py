@@ -13,6 +13,7 @@ import networkx as nx
 from SpringBase.Firewall import Firewall
 import Gtk.Gtk_Main
 from SpringBase.Rule import Rule
+from SpringBase.Action import Action
 
 
 class DistributedDetection:
@@ -241,7 +242,7 @@ class DistributedDetection:
                             error_rules.append(r)
 
         if not error_rules:
-            error_rules.append(Rule(-1, 'probably implicit deny', [], [], [], [], [], False))
+            error_rules.append(Rule(-1, 'probably implicit deny', [], [], [], [], [], Action(False)))
 
         return error_rules
 
