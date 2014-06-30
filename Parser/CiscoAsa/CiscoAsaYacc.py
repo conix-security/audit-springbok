@@ -247,7 +247,7 @@ def p_object_line_2(p):
 ### network_line
 def p_network_line_1(p):
     '''network_line : HOST IP_ADDR'''
-    object_dict[p_info['object_name']].append({'network': Operator('EQ', Ip(p[3]))})
+    object_dict[p_info['object_name']].append({'network': Operator('EQ', Ip(p[2]))})
 
 
 def p_network_line_2(p):
