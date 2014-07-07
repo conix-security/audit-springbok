@@ -44,6 +44,7 @@ p_info = {
     'used_object': set(),
     'policy_context': 0,
     'index_rule': -1,
+    'default_permit_all': False,
     'raise_on_error': False,
 }
 
@@ -62,6 +63,7 @@ def init(name, raise_on_error=False):
     p_info['used_object'] = set()
     p_info['policy_context'] = 0
     p_info['index_rule'] = -1
+    p_info['default_permit_all'] = False
     p_info['raise_on_error'] = raise_on_error
 
 
@@ -74,6 +76,10 @@ def finish():
     for k in object_dict:
         if k not in p_info['used_object']:
             p_info['firewall'].unused_objects.add(k)
+
+    if p_info['default_permit_all']:
+        for acl in p_info['firewall'].acl:
+            acl.rules.append(Rule(-1, 'default', [], [], [], [], [], Action(True)))
 
 
 def get_firewall():
@@ -130,8 +136,8 @@ def move_rule(i1, pos, i2):
         for rule in acl.rules:
             if rule.identifier == i2:
                 acl.rules.remove(rule1)
-                index = p_info['firewall'].rules.index(rule) + 0 if pos == 'before' else 1
-                p_info['firewall'].rules.insert(index, rule1)
+                index = acl.rules.index(rule) + 0 if pos == 'before' else 1
+                acl.rules.insert(index, rule1)
 
 
 def resolve_predefined_juniper(name, policy):
@@ -285,14 +291,27 @@ def p_hostname_line(p):
 
 ### address_line
 def p_address_line_1(p):
-    '''address_line : SET ADDRESS WORD object_name WORD words'''
+    '''address_line : SET ADDRESS WORD object_name WORD
+                    | SET ADDRESS WORD object_name WORD words'''
     object_dict[p[4]] = [{'address': Operator('EQ', Ip(socket.gethostbyname(p[5])))}]
 
 
+# don't know if slash is compulsory (difference between CLI reference and tested configurations)
 def p_address_line_2(p):
-    '''address_line : SET ADDRESS WORD object_name IP_ADDR IP_ADDR
-                    | SET ADDRESS WORD object_name IP_ADDR IP_ADDR words'''
-    object_dict[p[4]] = [{'address': Operator('EQ', Ip(p[5], p[6]))}]
+    '''address_line : SET ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR
+                    | SET ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR words'''
+    object_dict[p[4]] = [{'address': Operator('EQ', Ip(p[5], p[7]))}]
+
+
+def p_address_line_3(p):
+    '''address_line : SET ADDRESS WORD object_name IP_ADDR opt_slash NUMBER
+                    | SET ADDRESS WORD object_name IP_ADDR opt_slash NUMBER words'''
+    object_dict[p[4]] = [{'address': Operator('EQ', Ip(p[5], Ip.CidrToMask(int(p[7]))))}]
+
+
+def p_opt_slash(p):
+    '''opt_slash : SLASH
+                 | empty'''
 
 
 ## service
@@ -312,7 +331,9 @@ def p_service_line_2(p):
 
 def p_service_line(p):
     '''service_line : SET SERVICE WORD TIMEOUT items
+                    | SET SERVICE WORD TIMEOUT NEVER
                     | SET SERVICE WORD SESSION_CACHE'''
+    object_dict[p[3]] = []
 
 
 ### service_plus
@@ -482,8 +503,7 @@ def p_opt_tag_2(p):
 
 ### policy_line
 def p_policy_line_1(p):
-    '''policy_line : SET POLICY opt_global opt_id opt_position opt_name opt_zone rules opt_nat action options
-                   | SET POLICY DEFAULT_PERMIT_ALL'''
+    '''policy_line : SET POLICY opt_global opt_id opt_position opt_name opt_zone rules opt_nat action options'''
     insert_rule()
 
 
@@ -495,6 +515,16 @@ def p_policy_line_2(p):
 def p_policy_line_3(p):
     '''policy_line : SET POLICY MOVE NUMBER AFTER NUMBER'''
     move_rule(int(p[4]), 'after', int(p[6]))
+
+
+def p_policy_line_4(p):
+    '''policy_line : SET POLICY DEFAULT_PERMIT_ALL'''
+    p_info['default_permit_all'] = True
+
+
+def p_policy_line_5(p):
+    '''policy_line : UNSET POLICY DEFAULT_PERMIT_ALL'''
+    p_info['default_permit_all'] = False
 
 
 def p_opt_global(p):
@@ -606,9 +636,9 @@ def p_opt_src_nat(p):
 
 ### opt_dst_nat
 def p_opt_dst_nat(p):
-    '''opt_dst_nat : DST IP item
-                   | DST IP item item
-                   | DST IP item PORT item
+    '''opt_dst_nat : DST IP IP_ADDR
+                   | DST IP IP_ADDR IP_ADDR
+                   | DST IP IP_ADDR PORT item
                    | empty'''
 
 
@@ -640,8 +670,17 @@ def p_tunnel(p):
 
 ### options
 def p_options(p):
-    '''options : items
+    '''options : option options
                | empty'''
+
+def p_option(p):
+    '''option : WORD
+              | NUMBER
+              | DISABLE
+              | ATTACK
+              | AV
+              | ZONE
+              | TIMEOUT'''
 
 
 ### policy_id_line
@@ -664,22 +703,30 @@ def p_policy_context_line_1(p):
     resolve(p[3], p_info['context_policy'], 'dst')
 
 
-# TODO enable negate
 def p_policy_context_line_2(p):
     '''policy_context_line : SET DST_ADDRESS NEGATE'''
-    resolve(p[3], p_info['context_policy'], 'dst')
-
+    if not p_info['context_policy'].ip_dest:
+        p_info['context_policy'].ip_dest.append(Operator('EQ', Ip(0)))
+    else:
+        res = []
+        for op in p_info['context_policy'].ip_dest:
+            res += op.toggle()
+        p_info['context_policy'].ip_dest = res
 
 def p_policy_context_line_3(p):
     '''policy_context_line : SET SRC_ADDRESS object_name'''
     resolve(p[3], p_info['context_policy'], 'src')
 
 
-# TODO enable negate
 def p_policy_context_line_4(p):
     '''policy_context_line : SET SRC_ADDRESS NEGATE'''
-    resolve(p[3], p_info['context_policy'], 'src')
-
+    if not p_info['context_policy'].ip_source:
+        p_info['context_policy'].ip_source.append(Operator('EQ', Ip(0)))
+    else:
+        res = []
+        for op in p_info['context_policy'].ip_source:
+            res += op.toggle()
+        p_info['context_policy'].ip_source = res
 
 def p_policy_context_line_5(p):
     '''policy_context_line : SET SERVICE object_name'''

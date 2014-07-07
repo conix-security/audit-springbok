@@ -1,0 +1,11 @@
+# test service plus sun-rpc rule
+
+set interface "ethernet0/0" zone "Trust"
+set interface "ethernet0/0" ip 192.168.0.0/24
+set interface "ethernet0/1" zone "Untrust"
+set interface "ethernet0/1" ip 192.168.1.0/24
+
+set service test protocol tcp
+set service test + sun-rpc program 1-2
+
+set policy id 0 from "Untrust" to "Trust" any any test deny

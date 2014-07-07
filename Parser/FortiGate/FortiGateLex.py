@@ -17,9 +17,11 @@ reserved = {
     r'accept$': 'ACCEPT',
     r'deny$': 'DENY',
     r'dstaddr$': 'DST_ADDR',
+    r'dstaddr-negate$': 'DST_ADDR_NEGATE',
     r'label$': 'LABEL',
     r'service$': 'SERVICE',
     r'srcaddr$': 'SRC_ADDR',
+    r'srcaddr-negate$': 'SRC_ADDR_NEGATE',
     r'srcintf$': 'SRC_INTF',
     r'dstintf$': 'DST_INTF',
     r'status$': 'STATUS',
@@ -47,6 +49,11 @@ reserved = {
     r'alias$': 'ALIAS',
     r'global$': 'GLOBAL',
     r'vdom$': 'VDOM',
+    r'permit-any-host$': 'PERMIT_ANY_HOST',
+    r'permit-stun-host$': 'PERMIT_STUN_HOST',
+    r'tcp/udp/sctp$': 'TCP_UDP_SCTP',
+    r'zone$': 'ZONE',
+    r'wildcard$': 'WILDCARD',
 }
 
 tokens = [
@@ -68,6 +75,11 @@ def t_MINUS(t):
 
 def t_COLON(t):
     r':'
+    return t
+
+
+def t_SLASH(t):
+    r'/'
     return t
 
 

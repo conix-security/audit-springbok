@@ -1,0 +1,1 @@
+id: 0   name: test   protocol: \[.*tcp.*\]   ip_source: \[\]   port_source: \[.*!=.*1200.*\]   ip_dest: \[\]   port_dest: \[\]   action: deny

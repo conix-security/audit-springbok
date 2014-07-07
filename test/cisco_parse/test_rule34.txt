@@ -1,0 +1,25 @@
+# test dst ip object group rule
+
+interface GigabitEthernet0/0
+ nameif outside
+ ip address 192.168.0.0 255.255.255.0
+!
+
+object network OBJECT1
+ host 1.1.1.1
+ network 1.1.1.2
+ range 1.1.1.3 1.1.1.4
+ fqdn localhost
+ fqdn V4 localhost
+
+object-group network OBJECT2
+ network-object host 1.1.1.10
+ network-object 1.1.1.20 255.0.0.0
+
+object-group network OBJECT3
+ network-object object OBJECT1
+ group-object OBJECT2
+
+access-list test extended deny ip any object-group OBJECT3
+
+access-group test in interface outside

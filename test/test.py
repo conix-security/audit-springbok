@@ -50,7 +50,7 @@ def display_folder_test(file):
 # print result OK in green or KO in red #
 def display_result(file, res, ref):
     print BLUE + '├─── ' + CYAN + file + BLUE + ' ' * (50 - len(file)),
-    if re.match(ref, res, re.S):
+    if re.search(ref, res, re.S):
         print '[' + GREEN + 'OK' + BLUE + ']' + WHITE
     else:
         print '[' + RED + 'KO' + BLUE + ']' + WHITE

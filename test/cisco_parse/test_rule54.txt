@@ -1,0 +1,14 @@
+# test simple rule
+
+interface GigabitEthernet0/0
+ nameif outside
+ ip address 192.168.0.0 255.255.255.0
+!
+
+object-group icmp-type icmp-allowed
+ icmp-object echo
+ icmp-object time-exceeded
+
+access-list test extended deny icmp any any object-group icmp-allowed
+
+access-group test in interface outside

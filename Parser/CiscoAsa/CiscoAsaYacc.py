@@ -27,6 +27,7 @@ import NetworkGraph
 import CiscoAsaPort
 import re
 import ntpath
+import socket
 
 
 # Use for construct dictionary of object and object group
@@ -84,10 +85,12 @@ def finish():
     for acl in p_info['firewall'].acl:
         for rule in p_info['rule_list']:
             if rule.name == acl.name:
-                if rule.ip_source == 'INTERFACE':
-                    rule.ip_source = NetworkGraph.NetworkGraph.NetworkGraph().get_interface_ip(acl)
-                if rule.ip_dest == 'INTERFACE':
-                    rule.ip_dest = NetworkGraph.NetworkGraph.NetworkGraph().get_interface_ip(acl)
+                for i in xrange(0, len(rule.ip_source)):
+                    if rule.ip_source[i] == 'INTERFACE':
+                        rule.ip_source[i] = Operator('EQ', NetworkGraph.NetworkGraph.NetworkGraph().get_interface_ip(acl))
+                for i in xrange(0, len(rule.ip_dest)):
+                    if rule.ip_dest[i] == 'INTERFACE':
+                        rule.ip_dest[i] = Operator('EQ', NetworkGraph.NetworkGraph.NetworkGraph().get_interface_ip(acl))
                 acl.rules.append(rule)
 
     add_global_rules()
@@ -158,7 +161,7 @@ def resolve(name, src_dest=None):
 
 
 precedence = (
-    ('left', 'OBJECT_GROUP'),
+    ('right', 'OBJECT_GROUP'),
 )
 
 
@@ -252,13 +255,22 @@ def p_network_line_1(p):
 
 def p_network_line_2(p):
     '''network_line : NETWORK IP_ADDR'''
-    object_dict[p_info['object_name']].append({'network': Operator('EQ', Ip(p[3], None, True))})
+    object_dict[p_info['object_name']].append({'network': Operator('EQ', Ip(p[2], None, True))})
 
 
 def p_network_line_3(p):
     '''network_line : OP_RANGE IP_ADDR IP_ADDR'''
-    for i in range(Ip.toInteger(p[2]), Ip.toInteger(p[3]) + 1):
-        object_dict[p_info['object_name']].append({'network': Operator('EQ', Ip(i, '255.255.255.255'))})
+    object_dict[p_info['object_name']].append({'network': Operator('RANGE', Ip(p[2]), Ip(p[3]))})
+
+
+def p_network_line_4(p):
+    '''network_line : FQDN item WORD'''
+    object_dict[p_info['object_name']].append({'network': Operator('EQ', Ip(socket.gethostbyname(p[3])))})
+
+
+def p_network_line_5(p):
+    '''network_line : FQDN WORD'''
+    object_dict[p_info['object_name']].append({'network': Operator('EQ', Ip(socket.gethostbyname(p[2])))})
 
 
 ### service_line
@@ -371,7 +383,11 @@ def p_network_object_line_3(p):
 
 ### protocol_object_line
 def p_protocol_object_line(p):
-    '''protocol_object_line : PROTOCOL_OBJECT item'''
+    '''protocol_object_line : PROTOCOL_OBJECT item
+                            | PROTOCOL_OBJECT TCP
+                            | PROTOCOL_OBJECT UDP
+                            | PROTOCOL_OBJECT ICMP
+                            | PROTOCOL_OBJECT ICMP6'''
     object_dict[p_info['object_group_name']].append({'protocol': Operator('EQ', Protocol(p[2]))})
 
 
@@ -569,19 +585,16 @@ def p_rule_3(p):
 ### standard rule
 def p_standard_rule_1(p):
     '''standard_rule : action ANY'''
-    p_info['current_rule'].action = p[1]
 
 
 def p_standard_rule_2(p):
     '''standard_rule : action HOST IP_ADDR'''
-    p_info['current_rule'].action = p[1]
     p_info['current_rule'].ip_dest = [Operator('EQ', Ip(p[3]))]
 
 
 def p_standard_rule_3(p):
     '''standard_rule : action IP_ADDR IP_ADDR'''
-    p_info['current_rule'].action = p[1]
-    p_info['current_rule'].ip_dest = [Operator('EQ', Ip(p[3], p[4]))]
+    p_info['current_rule'].ip_dest = [Operator('EQ', Ip(p[2], p[3]))]
 
 
 ### p_user_arg
@@ -614,9 +627,13 @@ def p_log(p):
 
 
 ### access_option
-def p_access_option(p):
-    '''access_option : INACTIVE
-                     | TIME_RANGE item
+def p_access_option1(p):
+    '''access_option : INACTIVE'''
+    raise Warning('Inactive rule')
+
+
+def p_access_option2(p):
+    '''access_option : TIME_RANGE item
                      | empty'''
 
 
@@ -635,11 +652,13 @@ def p_action_2(p):
 def p_tcp_udp_1(p):
     '''tcp_udp : TCP'''
     p_info['current_rule'].protocol.append(Operator('EQ', Protocol('tcp')))
+    p[0] = p[1]
 
 
 def p_tcp_udp_2(p):
     '''tcp_udp : UDP'''
     p_info['current_rule'].protocol.append(Operator('EQ', Protocol('udp')))
+    p[0] = p[1]
 
 
 ### protocol
@@ -681,7 +700,7 @@ def p_address_source_3(p):
 
 def p_address_source_4(p):
     '''address_source : INTERFACE'''
-    p_info['current_rule'].ip_source = 'INTERFACE'
+    p_info['current_rule'].ip_source.append('INTERFACE')
 
 
 def p_address_source_5(p):
@@ -712,7 +731,7 @@ def p_address_dest_3(p):
 
 def p_address_dest_4(p):
     '''address_dest : INTERFACE'''
-    p_info['current_rule'].ip_dest = 'INTERFACE'
+    p_info['current_rule'].ip_dest.append('INTERFACE')
 
 
 def p_address_dest_5(p):

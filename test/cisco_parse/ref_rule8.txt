@@ -1,0 +1,1 @@
+id: 0   name: test   protocol: \[.*egp.*tcp.*udp.*icmp.*icmp.*\]   ip_source: \[\]   port_source: \[.*80.*\]   ip_dest: \[\]   port_dest: \[.*23.*\]   action: deny

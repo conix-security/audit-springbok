@@ -5,7 +5,7 @@ import re
 from Parser.ply import lex
 
 reserved = {
-    r'any$|any4$': 'ANY',
+    r'any$|any4$|any6$': 'ANY',
     r'accept$|permit$': 'ACCEPT',
     r'deny$|reject$': 'DENY',
     r'access-group$': 'ACCESS_GROUP',
@@ -44,6 +44,7 @@ reserved = {
     r'rename$': 'RENAME',
     r'tag$': 'TAG',
     r'network$': 'NETWORK',
+    r'fqdn$': 'FQDN',
     r'service$': 'SERVICE',
     r'protocol$': 'PROTOCOL',
     r'icmp-type$': 'ICMP_TYPE',

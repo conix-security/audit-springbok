@@ -30,15 +30,33 @@ import re
 import ntpath
 
 
-# Use for construct dictionary of object and object group
-object_dict = {}
+class ParseHook:
+    def __init__(self):
+        # Use for construct dictionary of object and object group
+        self.parser = yacc.yacc()
+        self.object_dict = {}
+
+    def clear(self):
+        self.parser = yacc.yacc()
+        self.clear()
+
+    def resolve(self, value):
+        for k, v in self.object_dict.items():
+            key = '$' + k
+            if key in value:
+                value = value.replace(key, v)
+        return value
+
+    def parse(self, line, parse_kit, debug=0):
+        resolved_line = self.resolve(line)
+        return self.parser.parse(resolved_line, parse_kit, debug)
+
 
 # Use for detect state
 p_info = {
     'firewall': Firewall(),
     'used_object': set(),
     'current_interface_name': None,
-    'variables': dict(),
     'default_policy': dict(),
     'current_chain': None,
     'rule_id': 0,
@@ -52,7 +70,7 @@ p_info = {
 
 def init(name, raise_on_error=False):
     # clear object variables
-    object_dict.clear()
+    parser.object_dict.clear()
     # init firewall
     p_info['firewall'] = Firewall()
     p_info['firewall'].name = name
@@ -64,7 +82,6 @@ def init(name, raise_on_error=False):
     p_info['firewall'].acl.append(ACL('OUTPUT'))
     # init parser state
     p_info['current_interface_name'] = None
-    p_info['variables'] = dict()
     p_info['used_object'] = set()
     p_info['default_policy'] = dict()
     p_info['default_policy']['INPUT'] = Action(True)
@@ -126,7 +143,7 @@ def get_firewall():
 
 def show():
     print "--------- Object ---------"
-    for k, v in object_dict.items():
+    for k, v in parser.object_dict.items():
         print '%s :' % k
         for elem in v:
             for k1, v1 in elem.items():
@@ -154,7 +171,8 @@ all_interfaces.list = []
 def get_interface_list(identifier):
     def _get_interface(itf):
         if itf:
-            return [p_info['firewall'].get_interface_by_name(itf)]
+            itf_name = itf.split('+')[0]
+            return [i for i in p_info['firewall'].interfaces if i.name.startswith(itf_name)]
         else:
             return all_interfaces()
 
@@ -202,8 +220,8 @@ def find_chain_by_name(name):
 def delete_rule_by_spec(acl, rule):
     test = False
 
-    for r in acl.rules:
-        if compare(r.toBDD(), Bdd.BIIMPL, rule.toBDD()) <= 2:
+    for r in [a for a in acl.rules]:
+        if compare(r.toBDD(), Bdd.BIIMPL, rule.toBDD()) <= 2 and r.action.chain == rule.action.chain:
             acl.rules.remove(r)
             test = True
 
@@ -229,12 +247,9 @@ def delete_chain(name):
                 p_info['firewall'].acl.remove(acl)
 
 
-# remove all quote and if variable return corresponding value
+# remove all quote
 def get_value(token):
-    if token not in p_info['variables']:
-        return remove_quote(token)
-    else:
-        return remove_quote(p_info['variables'][remove_quote(token)])
+    return remove_quote(token)
 
 
 # 127.0.1.1/24, 192.168.0.1, ...
@@ -315,9 +330,15 @@ def p_opt_bcast(p):
 
 ######## variables ########
 
-def p_variable_line(p):
+def p_variable_line_1(p):
     '''variable_line : WORD EQ item'''
-    p_info['variables'][p[1]] = remove_quote(p[3])
+    parser.object_dict[p[1]] = remove_quote(p[3])
+
+
+# for key word (ex: IPT=iptables)
+def p_variable_line_2(p):
+    '''variable_line : WORD EQ error'''
+    parser.object_dict[p[1]] = remove_quote(p[3].value)
 
 
 ######## iptables script ########
@@ -421,7 +442,7 @@ def p_delete_cmd2(p):
     '''delete_cmd : DELETE chain NUMBER'''
     if p_info['current_table'] == 'filter':
         acl = find_chain_by_name(p[2])
-        delete_rule_by_id(acl, p[3])
+        delete_rule_by_id(acl, int(p[3]) - 1)
 
 
 def p_insert_cmd1(p):
@@ -514,10 +535,7 @@ def p_rename_chain_cmd(p):
 
 def p_chain(p):
     '''chain : WORD'''
-    if p[1] in p_info['variables']:
-        p[0] = p_info['variables'][p[1]]
-    else:
-        p[0] = p[1]
+    p[0] = p[1]
 
 
 def p_rule_spec(p):
@@ -526,8 +544,7 @@ def p_rule_spec(p):
 
 def p_opt_matches(p):
     '''opt_matches : opt_match opt_matches
-                   | opt_match
-                   | WORD items'''
+                   | opt_match'''
 
 
 def p_unsupported_option(p):
@@ -559,24 +576,42 @@ def p_opt_match(p):
                  | goto_chain
                  | in_interface
                  | out_interface
-                 | state_option'''
+                 | state_option
+                 | error'''
 
 
-def p_protocol(p):
+def p_protocol_1(p):
     '''protocol : PROTOCOL item'''
     p_info['current_rule'].protocol.append(Operator('EQ', Protocol(get_value(p[2]))))
 
 
-def p_ip_source(p):
+def p_protocol_2(p):
+    '''protocol : BANG PROTOCOL item'''
+    p_info['current_rule'].protocol.append(Operator('NEQ', Protocol(get_value(p[3]))))
+
+
+def p_ip_source_1(p):
     '''ip_source : IP_SOURCE ip_addr_list'''
     for ip in p[2]:
         p_info['current_rule'].ip_source.append(Operator('EQ', ip))
 
 
-def p_ip_dest(p):
+def p_ip_source_2(p):
+    '''ip_source : BANG IP_SOURCE ip_addr_list'''
+    for ip in p[3]:
+        p_info['current_rule'].ip_source.append(Operator('NEQ', ip))
+
+
+def p_ip_dest_1(p):
     '''ip_destination : IP_DESTINATION ip_addr_list'''
     for ip in p[2]:
         p_info['current_rule'].ip_dest.append(Operator('EQ', ip))
+
+
+def p_ip_dest_2(p):
+    '''ip_destination : BANG IP_DESTINATION ip_addr_list'''
+    for ip in p[3]:
+        p_info['current_rule'].ip_dest.append(Operator('NEQ', ip))
 
 
 def p_ip_addr_list1(p):
@@ -604,13 +639,7 @@ def p_ip_addr3(p):
     p[0] = [Ip(p[1], p[3])]
 
 
-# variable ip
-def p_ip_addr4(p):
-    '''ip_addr : WORD'''
-    p[0] = to_ip_list(p_info['variables'][p[1]])
-
-
-def p_port_source(p):
+def p_port_source_1(p):
     '''port_source : PORT_SOURCE port_list'''
     for v1, v2 in p[2]:
         if not v2:
@@ -619,13 +648,31 @@ def p_port_source(p):
             p_info['current_rule'].port_source.append(Operator('RANGE', Port(v1), Port(v2)))
 
 
-def p_port_destination(p):
+def p_port_source_2(p):
+    '''port_source : BANG PORT_SOURCE port_list'''
+    for v1, v2 in p[3]:
+        if not v2:
+            p_info['current_rule'].port_source.append(Operator('NEQ', Port(v1)))
+        else:
+            p_info['current_rule'].port_source.append(Operator('RANGE', Port(v1), Port(v2)).toggle())
+
+
+def p_port_destination_1(p):
     '''port_destination : PORT_DESTINATION port_list'''
     for v1, v2 in p[2]:
         if not v2:
             p_info['current_rule'].port_dest.append(Operator('EQ', Port(v1)))
         else:
             p_info['current_rule'].port_dest.append(Operator('RANGE', Port(v1), Port(v2)))
+
+
+def p_port_destination_2(p):
+    '''port_destination : BANG PORT_DESTINATION port_list'''
+    for v1, v2 in p[3]:
+        if not v2:
+            p_info['current_rule'].port_dest.append(Operator('NEQ', Port(v1)))
+        else:
+            p_info['current_rule'].port_dest.append(Operator('RANGE', Port(v1), Port(v2)).toggle())
 
 
 def p_port_list1(p):
@@ -714,7 +761,7 @@ def p_error(p):
         raise SyntaxError
 
 
-parser = yacc.yacc()
+parser = ParseHook()
 
 if __name__ == '__main__':
     while True:

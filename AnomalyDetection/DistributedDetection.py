@@ -74,7 +74,7 @@ class DistributedDetection:
                 path_res = get_rooted_tree(g_reverse, source, target, set())
                 if path_res:
                     remain, tmp_error = self._tree_parse_detection(path_res)
-                    error_list.append([source.to_string() + " -> " + target.to_string(), tmp_error])
+                    error_list.append([source.to_string() + " → " + target.to_string(), tmp_error])
 
         self.error_path = error_list
 
@@ -163,29 +163,29 @@ class DistributedDetection:
                         # P ∩ I != ∅
                         else:
                             if self.deep_search:
-                                # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ <Px, deny> such that Px ∩ Pj
-                                error_rules = self.search_rules(rule, Bdd.AND, False, tree_path)
+                                # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ Px such that Px ∩ Pj != ∅
+                                error_rules = self.search_rules(rule, Bdd.AND, None, tree_path)
                             error_list_append(
                                 AnomalyError.error_message(ErrorType.DIST_CORRELATE, ErrorType.WARNING, rule, error_rules))
                     else:
                         # P ⊆ I
                         if compare_bdd(rule.toBDD(), Bdd.IMPL, remain):
                             if self.deep_search:
-                                # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ <Px, accept> such that Px ∩ Pj
+                                # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ <Px, accept> such that Px ∩ Pj != ∅
                                 error_rules = self.search_rules(rule, Bdd.AND, True, tree_path)
                             error_list_append(
                                 AnomalyError.error_message(ErrorType.DIST_RAISED, ErrorType.WARNING, rule, error_rules))
                         # P ⊆ ¬I
                         elif compare_bdd(rule.toBDD(), Bdd.IMPL, negate_bdd(remain)):
                             if self.deep_search:
-                                # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ <Px, deny> such that Px ∩ Pj
+                                # ∀ ACLx < ACLj, ∀ x ∈ ACLx, ∃ <Px, deny> such that Px ∩ Pj != ∅
                                 error_rules = self.search_rules(rule, Bdd.AND, False, tree_path)
                             error_list_append(
                                 AnomalyError.error_message(ErrorType.DIST_REDUNDANT, ErrorType.WARNING, rule, error_rules))
                         # P ∩ I != ∅
                         else:
                             if self.deep_search:
-                                # ∀ ACLx < ACLj, ∀ x ∈ ACLx such that Px ∩ Pj
+                                # ∀ ACLx < ACLj, ∀ x ∈ ACLx such that Px ∩ Pj != ∅
                                 error_rules = self.search_rules(rule, Bdd.AND, None, tree_path)
                             error_list_append(
                                 AnomalyError.error_message(ErrorType.DIST_CORRELATE, ErrorType.WARNING, rule, error_rules))
@@ -229,20 +229,22 @@ class DistributedDetection:
         for i in xrange(1, len(tree_path)):
             if self.cancel:
                 break
-            if isinstance(i, list):
-                error_rules.append(self.search_rules(rule, operator, action, tree_path[i]))
-            acl_list = NetworkGraph.NetworkGraph().get_acl_list(src=parent, dst=tree_path[i][0])
+            if len(tree_path[i]) > 1:
+                error_rules += self.search_rules(rule, operator, action, tree_path[i])
+            acl_list = NetworkGraph.NetworkGraph().get_acl_list(src=tree_path[i][0], dst=parent)
             for acl in acl_list:
                 for rule_path in acl.get_rules_path():
                     for r, a in rule_path:
                         rule_action = r.action.chain if isinstance(r.action.chain, bool) else a
-                        if action and a != action:
+                        if action is not None and rule_action != action:
                             continue
                         if compare_bdd(rule.toBDD(), operator, r.toBDD()):
                             error_rules.append(r)
 
         if not error_rules:
-            error_rules.append(Rule(-1, 'probably implicit deny', [], [], [], [], [], Action(False)))
+            deny_rule = Rule(-1, 'probably implicit deny', [], [], [], [], [], Action(False))
+            if not action and compare_bdd(rule.toBDD(), operator, deny_rule.toBDD()):
+                error_rules.append(deny_rule)
 
         return error_rules
 

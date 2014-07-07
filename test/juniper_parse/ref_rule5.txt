@@ -1,0 +1,3 @@
+id: 0   protocol: \[\]   ip_source: \[\]   port_source: \[\]   ip_dest: \[\]   port_dest: \[\]   action: deny
+.*id: 2   protocol: \[\]   ip_source: \[\]   port_source: \[\]   ip_dest: \[\]   port_dest: \[\]   action: deny
+.*id: 1   protocol: \[\]   ip_source: \[\]   port_source: \[\]   ip_dest: \[\]   port_dest: \[\]   action: deny

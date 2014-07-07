@@ -1,0 +1,17 @@
+# test src ip object network rule
+
+interface GigabitEthernet0/0
+ nameif outside
+ ip address 192.168.0.0 255.255.255.0
+!
+
+object network OBJECT1
+ host 1.1.1.1
+ network 1.1.1.2
+ range 1.1.1.3 1.1.1.4
+ fqdn localhost
+ fqdn V4 localhost
+
+access-list test extended deny ip object OBJECT1 any
+
+access-group test in interface outside

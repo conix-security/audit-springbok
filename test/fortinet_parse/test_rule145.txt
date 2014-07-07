@@ -1,0 +1,27 @@
+# test addrgrp color rule
+
+config system interface
+    edit "zone1"
+        set vdom "root"
+        set ip 192.168.0.0 255.255.255.0
+    next
+    edit "zone2"
+        set vdom "root"
+        set ip 192.168.1.0 255.255.255.0
+    next
+end
+
+config firewall addrgrp
+edit test
+set color 1
+end
+
+
+config firewall policy
+edit 0
+set srcintf zone1
+set dstintf zone2
+set action deny
+set dstaddr test
+next
+end

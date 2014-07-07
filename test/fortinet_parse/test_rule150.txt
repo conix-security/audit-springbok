@@ -1,0 +1,28 @@
+# test srcintf zone rule
+
+config system interface
+    edit "zone1"
+        set vdom "root"
+        set ip 192.168.0.0 255.255.255.0
+    next
+    edit "zone2"
+        set vdom "root"
+        set ip 192.168.1.0 255.255.255.0
+    next
+    edit "zone3"
+        set vdom "root"
+        set ip 192.168.2.0 255.255.255.0
+    next
+end
+
+config system zone
+edit test
+set interface "zone1"zone3
+
+config firewall policy
+edit 0
+set srcintf test
+set dstintf zone2
+set action deny
+next
+end

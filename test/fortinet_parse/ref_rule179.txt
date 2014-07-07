@@ -1,0 +1,1 @@
+id: 0   protocol: \[.*tcp.*\]   ip_source: \[\]   port_source: \[.*42.*-.*45.*\]   ip_dest: \[\]   port_dest: \[.*23.*-.*80.*\]   action: deny

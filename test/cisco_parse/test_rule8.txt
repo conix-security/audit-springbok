@@ -1,0 +1,17 @@
+# test protocol service rule
+
+interface GigabitEthernet0/0
+ nameif outside
+ ip address 192.168.0.0 255.255.255.0
+!
+
+object service service1
+ service egp
+ service tcp source eq 80
+ service udp destination eq 23
+ service icmp 13
+ service icmp 12
+
+access-list test extended deny object service1 any any
+
+access-group test in interface outside

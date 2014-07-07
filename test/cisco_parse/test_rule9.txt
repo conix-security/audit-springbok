@@ -1,0 +1,20 @@
+# test protocol service group rule
+
+interface GigabitEthernet0/0
+ nameif outside
+ ip address 192.168.0.0 255.255.255.0
+!
+
+object-group service srv1 tcp
+ port-object eq 80
+ port-object range 20 30
+
+object-group service srv2 tcp
+ group-object srv1
+ service-object egp
+ service-object udp source eq 91 destination eq 92
+ service-object icmp 13
+
+access-list test extended deny object-group srv2 any any
+
+access-group test in interface outside

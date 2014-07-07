@@ -29,6 +29,14 @@ import ntpath
 import socket
 
 
+class FirewallVDOM:
+    def __init__(self, fw, vdom, used_object, bounded_rules):
+        self.fw = fw
+        self.vdom = vdom
+        self.used_object = set(used_object)
+        self.bounded_rules = set(bounded_rules)
+
+
 # Use for construct dictionary of object and object group
 object_dict = {}
 
@@ -39,8 +47,8 @@ p_info = {
     'vdom': None,
     'name': None,
     'hostname': None,
-    'srcintf': None,
-    'dstintf': None,
+    'srcintf': [],
+    'dstintf': [],
     'used_object': set(),
     'bounded_rules': set(),
     'current_rule': Rule(None, None, [], [], [], [], [], Action(False)),
@@ -52,6 +60,8 @@ p_info = {
     'raise_on_error': False,
     'use_vdom': False,
     'interface_list': [],
+    'zone_list': {},
+    'current_zone': None,
 }
 
 
@@ -63,7 +73,29 @@ def init(name, raise_on_error=False):
     p_info['hostname'] = ntpath.basename(name)
     p_info['current_state'] = []
     p_info['interface_list'] = []
-    _init(None)
+    p_info['zone_list'] = {}
+    p_info['current_zone'] = None
+    restore_or_create_fw(None)
+
+
+# restore the firewall context corresponding to vdom or create it
+def restore_or_create_fw(vdom):
+    # reset to normal state
+    _init(vdom)
+    # try to restore
+    for fw_vdom in p_info['firewall_list']:
+        if fw_vdom.vdom == vdom:
+            p_info['firewall'] = fw_vdom.fw
+            p_info['vdom'] = fw_vdom.vdom
+            p_info['used_object'] = fw_vdom.used_object
+            p_info['bounded_rules'] = fw_vdom.bounded_rules
+            # object_dict = p_info['firewall'].dictionnary not possible (outer scope)
+            for k, v in p_info['firewall'].dictionnary.items():
+                object_dict[k] = v
+            return
+
+    # no fw found : create
+    p_info['firewall_list'].append(FirewallVDOM(p_info['firewall'], vdom, p_info['used_object'], p_info['bounded_rules']))
 
 
 # reset for each VDOM
@@ -74,8 +106,8 @@ def _init(vdom):
     p_info['firewall'].hostname = p_info['hostname'] + ('-' + vdom if vdom else '')
     p_info['firewall'].type = 'Fortinet FortiGate'
     p_info['vdom'] = vdom
-    p_info['srcintf'] = None
-    p_info['dstintf'] = None
+    p_info['srcintf'] = []
+    p_info['dstintf'] = []
     p_info['used_object'] = set()
     p_info['bounded_rules'] = set()
     p_info['current_rule'] = Rule(None, None, [], [], [], [], [], Action(False))
@@ -92,25 +124,25 @@ def update():
 def finish():
     p_info['firewall'].dictionnary = dict(object_dict)
     # perform unused object and unbounded rules
+    p_info['firewall'].unused_objects = set()
     for k in object_dict:
         if k not in p_info['used_object']:
             p_info['firewall'].unused_objects.add(k)
-    if not (p_info['use_vdom'] and p_info['vdom'] is None):
-        p_info['firewall_list'].append(p_info['firewall'])
 
 
 def get_firewall():
     # bind interfaces
-    for itf, vdom_name in p_info['interface_list']:
-        if not vdom_name or vdom_name == 'root':
+    if not p_info['use_vdom']:
+        for itf, vdom_name in p_info['interface_list']:
             p_info['firewall'].interfaces.append(itf)
-            continue
-        for fw in p_info['firewall_list']:
-            if len(fw.hostname) > len(vdom_name) and fw.hostname[len(fw.hostname) - len(vdom_name):] == vdom_name:
-                fw.interfaces.append(itf)
-                break
+    else:
+        for itf, vdom_name in p_info['interface_list']:
+            for fw_vdom in p_info['firewall_list']:
+                if fw_vdom.vdom == vdom_name:
+                    fw_vdom.fw.interfaces.append(itf)
+                    break
 
-    return p_info['firewall_list']
+    return [fw_vdom.fw for fw_vdom in p_info['firewall_list']]
 
 
 def show():
@@ -124,8 +156,29 @@ def show():
     print "%s" % p_info['firewall'].to_string()
 
 
+def try_resolve_service(name):
+    if re.search('icmp6', name, re.I) or re.search('ping', name, re.I):
+        p_info['current_rule'].protocol.append(Operator('EQ', Protocol('icmp')))
+        return True
+
+    try:
+        # try port
+        p_info['current_rule'].port_dest.append(Operator('EQ', Port(name)))
+        p_info['current_rule'].protocol.append(Operator('EQ', Protocol('tcp')))
+    except socket.error:
+        # not a port, try protocol
+        try:
+            p_info['current_rule'].protocol.append(Operator('EQ', Protocol(name)))
+        except socket.error:
+            # not a port or a protocol
+            return False
+    return True
+
+
 def resolve(name, src_dest=None):
     if name not in object_dict:
+        if src_dest == 'service' and try_resolve_service(name.lower()):
+            return
         print 'Critical: %s not found in dictionary' % name
         raise SyntaxError
 
@@ -155,24 +208,26 @@ def resolve(name, src_dest=None):
 
 
 def add_rule(rule):
-    acl = p_info['firewall'].get_acl_by_name(p_info['srcintf'] + '-' + p_info['dstintf'])
+    for src_itf in p_info['srcintf']:
+        for dst_itf in p_info['dstintf']:
+            acl = p_info['firewall'].get_acl_by_name(src_itf + '-' + dst_itf)
 
-    if not acl:
-        acl = ACL(p_info['srcintf'] + '-' + p_info['dstintf'])
-        p_info['firewall'].acl.append(acl)
-        src_itf = None
-        dst_itf = None
-        for itf, vdom_name in p_info['interface_list']:
-            if itf.nameif == p_info['srcintf']:
-                src_itf = itf
-            elif itf.nameif == p_info['dstintf']:
-                dst_itf = itf
-        NetworkGraph.NetworkGraph.NetworkGraph().bind_acl(acl,
-                                                          p_info['firewall'],
-                                                          src_itf,
-                                                          dst_itf)
+            if not acl:
+                acl = ACL(src_itf + '-' + dst_itf)
+                p_info['firewall'].acl.append(acl)
+                s_itf = None
+                d_itf = None
+                for itf, vdom_name in p_info['interface_list']:
+                    if itf.nameif == src_itf:
+                        s_itf = itf
+                    elif itf.nameif == dst_itf:
+                        d_itf = itf
+                NetworkGraph.NetworkGraph.NetworkGraph().bind_acl(acl,
+                                                                  p_info['firewall'],
+                                                                  s_itf,
+                                                                  d_itf)
 
-    acl.rules.append(rule)
+            acl.rules.append(rule)
 
 
 # remove the rule who his identifier match id
@@ -235,6 +290,8 @@ def p_line(p):
             | addrgrp_line NL
             | policy_set_line NL
             | interface_line NL
+            | zone_line NL
+            | zone_set_line NL
             | config_line NL
             | end_line NL
             | next_line NL
@@ -280,7 +337,10 @@ def p_words_2(p):
 # config vdom
 def p_config_vdom(p):
     '''config_vdom_line : CONFIG VDOM'''
-    p_info['use_vdom'] = True
+    # We use vdom so we remove the first firewall of the list because it does not belong
+    if not p_info['use_vdom']:
+        p_info['use_vdom'] = True
+        p_info['firewall_list'].pop()
     push_state('vdom')
 
 
@@ -302,10 +362,10 @@ def p_hostname_line(p):
     '''hostname_line : SET HOSTNAME WORD'''
     if get_state() == 'config_global':
         hostname = remove_quote(p[3])
-        p_info['firewall'].hostname = hostname + ('-' + p_info['vdom'] if p_info['vdom'] else '')
-        for fw in p_info['firewall_list']:
-            fw.hostname.replace(p_info['hostname'], hostname, 1)
         p_info['hostname'] = hostname
+        p_info['firewall'].hostname = hostname + ('-' + p_info['vdom'] if p_info['vdom'] else '')
+        for fw_vdom in p_info['firewall_list']:
+            fw_vdom.fw.hostname = hostname + '-' + (fw_vdom.vdom if fw_vdom.vdom else '')
 
 
 # edit line
@@ -315,11 +375,11 @@ def p_edit_line(p):
                  | EDIT WORD'''
     if get_state() == 'vdom':
         finish()  # finish
-        _init(p[2])  # reset to a new firewall
+        restore_or_create_fw(p[2])  # reset to a new firewall
     elif get_state() == 'policy':
-        p_info['current_rule'] = Rule(int(p[2]), None, [], [], [], [], [], False)
-        p_info['srcintf'] = None
-        p_info['dstintf'] = None
+        p_info['current_rule'] = Rule(int(p[2]), None, [], [], [], [], [], Action(False))
+        p_info['srcintf'] = []
+        p_info['dstintf'] = []
     elif get_state() in ('address', 'address_group', 'service', 'service_group'):
         object_dict[remove_quote(p[2])] = []
         p_info['current_object'] = remove_quote(p[2])
@@ -328,6 +388,9 @@ def p_edit_line(p):
     elif get_state() == 'interface':
         p_info['current_interface'] = Interface(remove_quote(p[2]), None, None, [])
         p_info['interface_list'].append([p_info['current_interface'], None])
+    elif get_state() == 'zone':
+        p_info['zone_list'][remove_quote(p[2])] = []
+        p_info['current_zone'] = remove_quote(p[2])
 
 
 # address parse
@@ -368,8 +431,8 @@ def p_addr_set_line_4(p):
 
 ### subnet 2
 def p_addr_set_line_5(p):
-    '''addr_set_line : SET SUBNET IP_ADDR SLASH IP_ADDR'''
-    object_dict[p_info['current_object']].append({'address': Operator('EQ', Ip(p[3], Ip.CidrToMask(int(p[4]))))})
+    '''addr_set_line : SET SUBNET IP_ADDR SLASH NUMBER'''
+    object_dict[p_info['current_object']].append({'address': Operator('EQ', Ip(p[3], Ip.CidrToMask(int(p[5]))))})
 
 
 ## config addr service
@@ -379,26 +442,31 @@ def p_addr_service_line(p):
 
 ### service address end port
 def p_addr_service_set_line_1(p):
-    '''service_set_line : END_PORT NUMBER'''
+    '''service_set_line : SET END_PORT NUMBER'''
     if p_info['range_port']:
-        object_dict[p_info['current_object']].append({'port_dst': Operator('RANGE', p_info['range_port'], Port(p[2]))})
+        object_dict[p_info['current_object']].append({'port_dst': Operator('RANGE', p_info['range_port'], Port(p[3]))})
         p_info['range_port'] = None
     else:
-        p_info['range_port'] = Port(p[2])
+        p_info['range_port'] = Port(p[3])
 
-### service address protocol
+### service address protocol -> redirect service_set_line
 def p_addr_service_set_line_2(p):
-    '''service_set_line : PROTOCOL WORD'''
-    object_dict[p_info['current_object']].append({'protocol': Operator('EQ', Protocol(p[2]))})
+    '''service_set_line : service_set_line'''
 
 ### service address start port
 def p_addr_service_set_line_3(p):
-    '''service_set_line : START_PORT NUMBER'''
+    '''service_set_line : SET START_PORT NUMBER'''
     if p_info['range_port']:
-        object_dict[p_info['current_object']].append({'port_dst': Operator('RANGE', Port(p[2]), p_info['range_port'])})
+        object_dict[p_info['current_object']].append({'port_dst': Operator('RANGE', Port(p[3]), p_info['range_port'])})
         p_info['range_port'] = None
     else:
-        p_info['range_port'] = Port(p[2])
+        p_info['range_port'] = Port(p[3])
+
+
+### subnet 2
+def p_addr_set_line_6(p):
+    '''addr_set_line : SET WILDCARD IP_ADDR IP_ADDR'''
+    object_dict[p_info['current_object']].append({'address': Operator('EQ', Ip(p[3], p[4]))})
 
 
 # service parse
@@ -422,10 +490,28 @@ def p_service_set_line_2_2(p):
 
 
 ### protocol set line
-def p_service_set_line_3(p):
-    '''service_set_line : SET PROTOCOL WORD
-                        | SET PROTOCOL_NUMBER NUMBER'''
+def p_service_set_line_3_1(p):
+    '''service_set_line : SET PROTOCOL WORD'''
+    if p[3].lower() in ('ftp', 'http'):
+        object_dict[p_info['current_object']].append({'port_dst': Operator('EQ', Port(p[3].lower()))})
+    else:
+        object_dict[p_info['current_object']].append({'protocol': Operator('EQ', Protocol(p[3].lower()))})
+
+
+def p_service_set_line_3_2(p):
+    '''service_set_line : SET PROTOCOL_NUMBER NUMBER'''
     object_dict[p_info['current_object']].append({'protocol': Operator('EQ', Protocol(p[3]))})
+
+
+def p_service_set_line_3_3(p):
+    '''service_set_line : SET PROTOCOL IP'''
+
+
+def p_service_set_line_3_4(p):
+    '''service_set_line : SET PROTOCOL TCP_UDP_SCTP'''
+    object_dict[p_info['current_object']].append({'protocol': Operator('EQ', Protocol('tcp'))})
+    object_dict[p_info['current_object']].append({'protocol': Operator('EQ', Protocol('udp'))})
+    object_dict[p_info['current_object']].append({'protocol': Operator('EQ', Protocol('sctp'))})
 
 
 ### sctp port range
@@ -476,7 +562,12 @@ def p_port_service_3(p):
 def p_member_list(p):
     '''member_list : WORD
                    | WORD member_list'''
-    object_dict[p_info['current_object']].append({'object': remove_quote(p[1])})
+    if get_state() in ('address', 'address_group', 'service', 'service_group'):
+        object_dict[p_info['current_object']].append({'object': remove_quote(p[1])})
+    elif get_state() == 'interface':
+        if p_info['current_interface'].nameif not in p_info['zone_list']:
+            p_info['zone_list'][p_info['current_interface'].nameif] = []
+        p_info['zone_list'][p_info['current_interface'].nameif].append(remove_quote(p[1]))
 
 
 ### group set line
@@ -511,14 +602,46 @@ def p_interface_line(p):
 ### interface ip addr
 def p_interface_set_line_1(p):
     '''interface_set_line : SET IP IP_ADDR IP_ADDR'''
-    p_info['current_interface'].network = Ip(p[3], p[4])
+    if get_state() == 'interface':
+        p_info['current_interface'].network = Ip(p[3], p[4])
 
 
 ### interface name
 def p_interface_set_line_2(p):
     '''interface_set_line : SET ALIAS WORD'''
-    p_info['current_interface'].name = remove_quote(p[3])
+    if get_state() == 'interface':
+        if p_info['current_interface'].name:
+            p_info['current_interface'].name += remove_quote(p[3])
+        else:
+            p_info['current_interface'].name = remove_quote(p[3])
 
+
+# zone
+
+### zone line
+def p_zone_line(p):
+    '''zone_line : CONFIG SYSTEM ZONE'''
+    push_state('zone')
+
+
+### zone_set
+def p_zone_set_line(p):
+    '''zone_set_line : SET INTERFACE zone_words'''
+
+
+def p_zone_words(p):
+    '''zone_words : WORD
+                  | WORD zone_words'''
+    if get_state() == 'zone' and p_info['current_zone']:
+        p_info['zone_list'][p_info['current_zone']].append(remove_quote(p[1]))
+    elif get_state() == 'interface' and p_info['current_interface']:
+        if p_info['current_interface'].name:
+            p_info['current_interface'].name += ', '
+        else:
+            p_info['current_interface'].name = ''
+        p_info['current_interface'].name += remove_quote(p[1])
+        if remove_quote(p[1]) in p_info['zone_list']:
+            p_info['current_interface'].name += ' (' + ', '.join(p_info['zone_list'][remove_quote(p[1])]) + ')'
 
 # policy parse
 
@@ -558,7 +681,7 @@ def p_dst_address_words(p):
 def p_policy_set_line_4(p):
     '''policy_set_line : SET LABEL words'''
     if get_state() == 'policy':
-        p_info['current_rule'].name = remove_quote(p[2])
+        p_info['current_rule'].name = remove_quote(p[3])
 
 
 ### service line
@@ -571,7 +694,7 @@ def p_service_words(p):
     '''service_words : WORD service_words
                      | WORD'''
     if get_state() == 'policy':
-        resolve(remove_quote(p[1]))
+        resolve(remove_quote(p[1]), 'service')
 
 
 ### src address line
@@ -589,19 +712,41 @@ def p_src_addr_words(p):
 
 ### interface line
 def p_policy_set_line_7(p):
-    '''policy_set_line : SET SRC_INTF words'''
+    '''policy_set_line : SET SRC_INTF itf_words'''
     if get_state() == 'policy':
-        p_info['srcintf'] = remove_quote(p[3])
+        p_info['srcintf'] = p[3]
         if p_info['dstintf']:
             add_rule(p_info['current_rule'])
 
 
 def p_policy_set_line_8(p):
-    '''policy_set_line : SET DST_INTF words'''
+    '''policy_set_line : SET DST_INTF itf_words'''
     if get_state() == 'policy':
-        p_info['dstintf'] = remove_quote(p[3])
+        p_info['dstintf'] = p[3]
         if p_info['srcintf']:
             add_rule(p_info['current_rule'])
+
+
+def p_itf_words_1(p):
+    '''itf_words : WORD'''
+    test = remove_quote(p[1])
+    if re.search('any', test, re.I):
+        p[0] = [itf[0].nameif for itf in p_info['interface_list']]
+    if test in p_info['zone_list']:
+        p[0] = p_info['zone_list'][test]
+    else:
+        p[0] = [test]
+
+
+def p_itf_words_2(p):
+    '''itf_words : WORD itf_words'''
+    test = remove_quote(p[1])
+    if re.search('any', test, re.I):
+        p[0] = [itf[0].nameif for itf in p_info['interface_list']] + p[2]
+    elif test in p_info['zone_list']:
+        p[0] = p_info['zone_list'][test] + p[2]
+    else:
+        p[0] = [test] + p[2]
 
 
 def p_policy_set_line_9(p):
@@ -610,11 +755,39 @@ def p_policy_set_line_9(p):
         remove_rule(p_info['current_rule'].identifier)
 
 
-# config word
+def p_policy_set_line_10(p):
+    '''policy_set_line : SET PERMIT_ANY_HOST WORD
+                       | SET PERMIT_STUN_HOST WORD'''
+    if get_state() == 'policy':
+        if re.search('enable', p[3], re.I):
+            p_info['current_rule'].protocol.append(Operator('EQ', Protocol('udp')))
 
-def p_config_word(p):
-    '''config_line : CONFIG words'''
-    push_state(p[2])
+
+### dst address negate
+def p_policy_set_line_11(p):
+    '''policy_set_line : SET DST_ADDR_NEGATE WORD'''
+    if re.match('enable', p[3], re.I):
+        res = []
+        for op in p_info['current_rule'].ip_dest:
+            res += op.toggle()
+        p_info['current_rule'].ip_dest = res
+
+
+### src address negate
+def p_policy_set_line_12(p):
+    '''policy_set_line : SET SRC_ADDR_NEGATE WORD'''
+    if re.match('enable', p[3], re.I):
+        res = []
+        for op in p_info['current_rule'].ip_source:
+            res += op.toggle()
+        p_info['current_rule'].ip_source = res
+
+
+# config error
+
+def p_config_error(p):
+    '''config_line : CONFIG error'''
+    push_state('error-' + p[2].value)
 
 
 # end_next_line

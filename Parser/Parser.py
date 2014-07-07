@@ -5,12 +5,13 @@
 
 import gtk
 import time
+import re
 
-# Parser list with tuple of module path, parser name and start line
+# Parser list with tuple of module path, parser name and start line regex
 parser_list = [('Parser.CiscoAsa.CiscoAsaYacc', 'Cisco Asa', ['access-list']),
-               ('Parser.JuniperNetscreen.JuniperNetscreenYacc', 'Juniper Netscreen', ['set policy']),
-               ('Parser.FortiGate.FortiGateYacc', 'Fortinet FortiGate', ['config firewall']),
-               ('Parser.IpTables.IpTablesYacc', 'Iptables', ['iptables', '*filter'])]
+               ('Parser.JuniperNetscreen.JuniperNetscreenYacc', 'Juniper Netscreen', ['set policy.*from.*to']),
+               ('Parser.FortiGate.FortiGateYacc', 'Fortinet FortiGate', ['config firewall policy']),
+               ('Parser.IpTables.IpTablesYacc', 'Iptables', ['iptables', '\*filter'])]
 
 
 def parser(file_name, yacc_parser, progressBar):
@@ -98,7 +99,7 @@ def suppose_type(fname):
             # test if line start with one proposed by parsers
             for j in xrange(len(parser_list)):
                 for pattern in parser_list[j][2]:
-                    if l.lstrip().startswith(pattern):
+                    if re.match(pattern, l.lstrip()):
                         try:
                             # verify by trying to parse
                             _parse_kit[j].parser.parse(l, _parse_kit[j].lexer)

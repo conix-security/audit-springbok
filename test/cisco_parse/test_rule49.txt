@@ -1,0 +1,10 @@
+# test port range rule
+
+interface GigabitEthernet0/0
+ nameif outside
+ ip address 192.168.0.0 255.255.255.0
+!
+
+access-list test extended deny tcp any range 1200 1300 any
+
+access-group test in interface outside

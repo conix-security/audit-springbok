@@ -1,0 +1,10 @@
+# test simple rule
+
+interface GigabitEthernet0/0
+ nameif outside
+ ip address 192.168.0.0 255.255.255.0
+!
+
+access-list test extended deny ip any any
+
+access-group test in interface outside

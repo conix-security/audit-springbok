@@ -7,6 +7,7 @@ from Parser.ply import lex
 reserved = {
     r'any|\"any\"$': 'ANY',
     r'set$': 'SET',
+    r'unset$': 'UNSET',
     r'policy$': 'POLICY',
     r'global$': 'GLOBAL',
     r'id$': 'ID',

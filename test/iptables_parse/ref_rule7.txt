@@ -1,0 +1,5 @@
+id: 1 .*  protocol: \[\]   ip_source: \[\]   port_source: \[\]   ip_dest: \[\]   port_dest: \[\]   action: deny
+.*id: 0 .*  protocol: \[\]   ip_source: \[\]   port_source: \[\]   ip_dest: \[\]   port_dest: \[\]   action: permit
+.*id: -1   name: default   protocol: \[\]   ip_source: \[\]   port_source: \[\]   ip_dest: \[\]   port_dest: \[\]   action: permit
+.*id: -1   name: default   protocol: \[\]   ip_source: \[\]   port_source: \[\]   ip_dest: \[\]   port_dest: \[\]   action: permit
+.*id: -1   name: default   protocol: \[\]   ip_source: \[\]   port_source: \[\]   ip_dest: \[\]   port_dest: \[\]   action: permit

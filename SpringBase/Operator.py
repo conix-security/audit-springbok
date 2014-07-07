@@ -147,6 +147,26 @@ class Operator:
 
         return res
 
+    def toggle(self):
+        """Return the invert of the current Operator
+
+        Return
+        ------
+        Return a list of operators matching the invert of the current operator
+        """
+        if self.operator == 'LT':
+            return [Operator('GT', self.v1, self.v2)]
+        elif self.operator == 'GT':
+            return [Operator('LT', self.v1, self.v2)]
+        elif self.operator == 'EQ':
+            return [Operator('NEQ', self.v1, self.v2)]
+        elif self.operator == 'NEQ':
+            return [Operator('EQ', self.v1, self.v2)]
+        elif self.operator == 'RANGE':
+            return [Operator('LT', self.v1, None), Operator('GT', self.v2, None)]
+        else:
+            return [self]
+
     def to_string(self):
         """Return the operator in string format"""
         if self.operator == 'LT':

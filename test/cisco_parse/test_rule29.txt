@@ -1,0 +1,10 @@
+# test dst ip mask rule
+
+interface GigabitEthernet0/0
+ nameif outside
+ ip address 192.168.0.0 255.255.255.0
+!
+
+access-list test extended deny ip any 1.1.1.1 255.0.0.0
+
+access-group test in interface outside

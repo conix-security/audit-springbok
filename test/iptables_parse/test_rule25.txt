@@ -1,0 +1,8 @@
+# test simple rule
+
+eth0      Link encap:Ethernet  HWaddr d4:be:d9:c6:15:71
+          inet addr:192.168.0.0 Mask:255.255.255.0
+eth1      Link encap:Ethernet  HWaddr d4:be:d9:c6:15:71
+          inet addr:192.168.1.0 Mask:255.255.255.0
+
+iptables -A INPUT -o eth1 -j ACCEPT

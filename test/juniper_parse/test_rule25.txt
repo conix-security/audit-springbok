@@ -1,0 +1,8 @@
+# test sess-limit alarm rule
+
+set interface "ethernet0/0" zone "Trust"
+set interface "ethernet0/0" ip 192.168.0.0/24
+set interface "ethernet0/1" zone "Untrust"
+set interface "ethernet0/1" ip 192.168.1.0/24
+
+set policy id 0 from "Untrust" to "Trust" any any any deny sess-limit per-src-ip session-count alarm-no-drop

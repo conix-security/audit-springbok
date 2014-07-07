@@ -1,0 +1,10 @@
+# test rule name
+
+interface GigabitEthernet0/0
+ nameif outside
+ ip address 192.168.0.0 255.255.255.0
+!
+
+access-list ASDSADW35a4d35841gf57sesg864we41f1w extended deny ip any any
+
+access-group ASDSADW35a4d35841gf57sesg864we41f1w in interface outside
