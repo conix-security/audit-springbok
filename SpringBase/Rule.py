@@ -87,7 +87,7 @@ class Rule:
         [match.append(e) for s in self.ip_dest_name for e in test_match(s, pattern)]
         match += [s for e in self.port_dest for s in e.search(pattern) if s]
         [match.append(e) for s in self.port_dest_name for e in test_match(s, pattern)]
-        match += self.action.search(pattern)
+        match += check_not_none(self.action.search(pattern))
 
         return match
 
