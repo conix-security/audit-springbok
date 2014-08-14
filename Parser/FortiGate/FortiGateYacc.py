@@ -616,6 +616,12 @@ def p_interface_set_line_2(p):
             p_info['current_interface'].name = remove_quote(p[3])
 
 
+### interface vland
+def p_interface_set_line_3(p):
+    '''interface_set_line : SET VLANID NUMBER'''
+    if get_state() == 'interface':
+        p_info['current_interface'].attributes['vlanid'] = p[3]
+
 # zone
 
 ### zone line

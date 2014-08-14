@@ -5,6 +5,7 @@ import pygtk
 pygtk.require("2.0")
 from Gtk.Gtk_HelpMessage import Gtk_Message
 import gtk
+import csv
 import collections
 import threading
 import Gtk_Main
@@ -83,6 +84,12 @@ class Gtk_NewtworkPopupMenu:
             self.service_menu = gtk.MenuItem("Service list")
             self.menu.append(self.service_menu)
             self.service_menu.connect("activate", self.on_service_menu)
+
+        # Export Interfaces #
+        if isinstance(self.node.object, Firewall.Firewall):
+            self.export_itf_menu = gtk.MenuItem("Export interfaces list")
+            self.menu.append(self.export_itf_menu)
+            self.export_itf_menu.connect("activate", self.on_export_itf_list)
 
         # Error conf #
         if isinstance(self.node.object, Firewall.Firewall):
@@ -417,6 +424,41 @@ class Gtk_NewtworkPopupMenu:
                                              can_close=True)
         Gtk_Main.Gtk_Main().lateral_pane.help_message.change_message(Gtk_Message.ON_SHOW_SERVICE)
 
+    def on_export_itf_list(self, item):
+        """Launch parser and generate an anonymous configuration file with parsed token"""
+        filename = None
+
+        dialog = gtk.FileChooserDialog('Save interfaces list',
+                                       None,
+                                       gtk.FILE_CHOOSER_ACTION_SAVE,
+                                       (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                        gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+        dialog.set_default_response(gtk.RESPONSE_OK)
+        response = dialog.run()
+
+        if response == gtk.RESPONSE_OK:
+            filename = dialog.get_filename()
+
+        dialog.destroy()
+
+        if not filename:
+            return
+
+        try:
+            with open(filename, 'wb') as csvfile:
+                spamwriter = csv.writer(csvfile)
+                g = NetworkGraph.NetworkGraph()
+                tmp_intf = [e[2]['object'].object for e in g.graph.edges(self.node.object, data=True)]
+                for e in sorted(tmp_intf, key=lambda tmp_intf: tmp_intf.nameif):
+                    message = [e.nameif, e.name, e.network.to_string()]
+                    for key, value in e.attributes.items():
+                        message.append("%s : %s" % (key, value))
+                    spamwriter.writerow(message)
+        except Exception as e:
+            Gtk_DialogBox(e.message)
+        except:
+            Gtk_DialogBox("An error occurred.")
+
     def on_error_conf(self, item):
         """Launch parser and generate an anonymous configuration file with parsed token"""
         filename = None
@@ -440,7 +482,7 @@ class Gtk_NewtworkPopupMenu:
         try:
             Parser.generate_debug_conf(filename, self.node.object.name, self.node.object.type)
         except Exception as e:
-            Gtk_DialogBox(e)
+            Gtk_DialogBox(e.message)
         except:
             Gtk_DialogBox("An error occurred.")
 

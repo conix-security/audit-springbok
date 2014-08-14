@@ -54,6 +54,7 @@ reserved = {
     r'tcp/udp/sctp$': 'TCP_UDP_SCTP',
     r'zone$': 'ZONE',
     r'wildcard$': 'WILDCARD',
+    r'vlanid$': 'VLANID',
 }
 
 tokens = [
