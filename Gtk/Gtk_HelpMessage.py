@@ -62,6 +62,8 @@ class Gtk_Message(object):
                            "For more details see the 'Help' section."
     ON_EXPORT_RESULT = "Exporting results enable you to have result as raw text format.\n" \
                        "For more details see the 'Help' section."
+    ON_IMPORT_MATRIX_FLOW = "This tab allow you to edit the matrix flow before\n" \
+                            "start the matrix verification"
 
 
 class Gtk_HelpMessage:

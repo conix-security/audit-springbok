@@ -6,12 +6,14 @@
 import gtk
 import time
 import re
+import os
 
 # Parser list with tuple of module path, parser name and start line regex
 parser_list = [('Parser.CiscoAsa.CiscoAsaYacc', 'Cisco Asa', ['access-list']),
-               ('Parser.JuniperNetscreen.JuniperNetscreenYacc', 'Juniper Netscreen', ['set policy.*from.*to']),
+               ('Parser.Juniper_JunOS_11.JuniperNetscreenYacc', 'Juniper Netscreen', ['set policy.*from.*to']),
                ('Parser.FortiGate.FortiGateYacc', 'Fortinet FortiGate', ['config firewall policy']),
-               ('Parser.IpTables.IpTablesYacc', 'Iptables', ['iptables', '\*filter'])]
+               ('Parser.IpTables.IpTablesYacc', 'Iptables', ['iptables', '\*filter']),
+               ('Parser.CheckPoint.CheckPointYacc', 'CheckPoint', ['\(\n'])]
 
 
 def parser(file_name, yacc_parser, progressBar):
@@ -43,13 +45,19 @@ def parser(file_name, yacc_parser, progressBar):
     _parse_kit.init(file_name)
 
     t0 = time.time()  # start timer
-    count = 0
+    count , ctr = 0, 0
+
+    os.system("rm ../parse*")
+
+
     for line in fd:
         _parse_kit.update()
+        ctr += 1
         try:
-            _parse_kit.parser.parse(line, _parse_kit.lexer)
+            _parse_kit.parser.parse(line, _parse_kit.lexer, debug=0)
         except:
-            print 'Error while parsing line: %s' % line
+            print 'Error while parsing line: %s' % line, ctr
+            #raise SyntaxError
         count += 1
         if progressBar and count % (max(1, len / 100)) == 0:
             progressBar.set_fraction(1. * count / len)

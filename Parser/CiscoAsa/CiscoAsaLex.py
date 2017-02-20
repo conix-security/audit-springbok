@@ -72,6 +72,26 @@ reserved = {
     r'eq$': 'OP_EQ',
     r'neq$': 'OP_NEQ',
     r'range$': 'OP_RANGE',
+    r'route$' : 'ROUTE',
+    r'static$': 'STATIC',
+    r'nat$': 'NAT',
+    r'global$': 'GLOBAL',
+    r'alias$': 'ALIAS',
+    r'netmask$': 'NETMASK',
+    r'enable$': 'ENABLE',
+    r'crypto$': 'CRYPTO',
+    r'ipsec$': 'IPSEC',
+    r'transform-set$': 'TRANSFORMSET',
+    r'dynamic-map$': 'DYNAMICMAP',
+    r'map$': 'MAP',
+    r'isakmp$': 'ISAKMP',
+    r'policy$': 'POLICY',
+    r'match$': 'MATCH',
+    r'set$': 'SET',
+    r'peer$': 'PEER',
+
+
+
 }
 
 tokens = [
@@ -81,6 +101,11 @@ tokens = [
              'WS',
              'NL',
              'WORD',
+             'LPAREN',
+             'RPAREN',
+             'HYPHEN',
+             'COMA',
+
          ] + list(reserved.values())
 
 
@@ -91,6 +116,18 @@ tokens = [
 
 def t_BANG(t):
     r'!'
+    return t
+
+def t_HYPHEN(t):
+    r'-'
+    return t
+
+def t_LPAREN(t):
+    r'\('
+    return t
+
+def t_RPAREN(t):
+    r'\)'
     return t
 
 
@@ -114,8 +151,13 @@ def t_NL(t):
     return t
 
 
+def t_COMA(t):
+    r','
+    return t
+
+
 def t_WORD(t):
-    r'[a-zA-Z0-9/\\\.,_-]+'
+    r'[a-zA-Z0-9/\\\._-]+'
     # Check for reserved words
     for k, v in reserved.items():
         if re.match(k, t.value, re.I):

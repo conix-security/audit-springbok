@@ -17,6 +17,8 @@ from matplotlib.cbook import get_sample_data
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from SpringBase.Firewall import Firewall
 from SpringBase.Ip import Ip
+from SpringBase.Route_info import Route_info
+from SpringBase.Interface import Interface
 
 
 class Gtk_NetworkCanvas:
@@ -74,6 +76,7 @@ class Gtk_NetworkCanvas:
         self.y_old = 0
 
         self.bg_img = None
+        self.i = 1
 
     def on_click(self, widget, event):
         """Event listener : click
@@ -180,7 +183,6 @@ class Gtk_NetworkCanvas:
                 v['object'].gtk_press = False
                 return True
         return False
-
     def on_left_click_node(self):
         """Show node details"""
         g = NetworkGraph.NetworkGraph()
@@ -189,13 +191,38 @@ class Gtk_NetworkCanvas:
                 Gtk_Main.Gtk_Main().lateral_pane.help_message.change_message(Gtk_Message.ON_CLICK_NODE)
                 Gtk_Main.Gtk_Main().lateral_pane.details.clear()
                 tmp_intf = [e[2]['object'].object for e in g.graph.edges(k, data=True)]
-                for e in sorted(tmp_intf, key=lambda tmp_intf: tmp_intf.nameif):
-                    message = "%s:\n- %s\n- %s" % (e.nameif, e.name, e.network.to_string())
-                    for key, value in e.attributes.items():
-                        message += "\n- %s : %s" % (key, value)
-                    Gtk_Main.Gtk_Main().lateral_pane.details.add_row(message)
-                    Gtk_Main.Gtk_Main().lateral_pane.focus_details()
-                return True
+                if isinstance(tmp_intf, Interface):
+                    for e in sorted(tmp_intf, key=lambda tmp_intf: tmp_intf.nameif):
+                        message = "%s:\n- %s\n- %s" % (e.nameif, e.name, e.network.to_string())
+                        for key, value in e.attributes.items():
+                            message += "\n- %s : %s" % (key, value)
+                        Gtk_Main.Gtk_Main().lateral_pane.details.add_row(message)
+                        Gtk_Main.Gtk_Main().lateral_pane.focus_details()
+                    return True
+                if isinstance(v['object'].object, Route_info):
+                    lateral_pane = Gtk_Main.Gtk_Main().lateral_pane
+                    notebook_routes = Gtk_Main.Gtk_Main().lateral_pane.notebook_routes
+                    treeview_routes = Gtk_Main.Gtk_Main().lateral_pane.routes_tab_treeview
+                    scrolled_window = lateral_pane.routes_tab_treeview.scrolled_window
+                    data = v['object'].object.data
+                    notebook_routes.notebook.set_tab_label(scrolled_window, gtk.Label(
+                            'Networks reached by ' + v['object'].object.iface.nameif))
+                    treeview_routes.clear()
+
+                    for gateway, networks in data.iteritems():
+                        parent = treeview_routes.add_row(None, gateway, foreground='black', background='grey')
+                        for network in networks:
+                            treeview_routes.add_row(parent, network)
+
+                    if lateral_pane.vpane.get_child1() == lateral_pane.notebook_path.notebook:
+                        lateral_pane.vpane.remove(lateral_pane.notebook_path.notebook)
+                    elif lateral_pane.vpane.get_child1() == lateral_pane.notebook_details.notebook:
+                        lateral_pane.vpane.remove(lateral_pane.notebook_details.notebook)
+                    lateral_pane.vpane.pack1(lateral_pane.notebook_routes.notebook, True, False)
+                    lateral_pane.vpane.pack2(lateral_pane.help_message.eb, True, False)
+                    Gtk_Main.Gtk_Main().hpaned.set_position(4 * Gtk_Main.Gtk_Main().window.get_size()[0] / 5)
+                    lateral_pane.vpane.show_all()
+
         return False
 
     def on_left_click_edge(self):

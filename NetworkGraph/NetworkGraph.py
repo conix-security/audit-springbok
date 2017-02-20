@@ -8,6 +8,14 @@ from SpringBase.Ip import Ip
 from SpringBase.Interface import Interface
 
 
+
+######## Modification of the class by Maurice TCHAMGOUE N. on 22-06-2015
+###          * Adding _new_get_all_simple_paths and __new_all_simple_paths methods :
+###            these methods are intends to replace the old algorithm used by
+###            query path
+
+
+
 class NetworkGraph(object):
     """NetworkGraph class.
     The NetworkGraph class use singleton pattern.
@@ -54,6 +62,7 @@ class NetworkGraph(object):
             self._add_interface(firewall, i)
             for sub_if in i.sub_interfaces:
                 self._add_interface(firewall, sub_if)
+        print len(self.graph.edges()), self.graph.edges()
 
     def _add_interface(self, firewall, interface):
         """Find or add the network interface if it doesn't exist and link the network with firewall
@@ -71,6 +80,15 @@ class NetworkGraph(object):
                 self.graph.add_edge(firewall, interface.network, object=Edge(interface, firewall))
             else:
                 self.graph.add_edge(firewall, res, object=Edge(interface, firewall))
+
+    def _add_route_info(self, firewall, data, interface, edge):
+        """Add informations about gateways and destinations network, and link them with the corresponding
+           firewall and network.
+        """
+        self.graph.add_node(data, object=Node(data))
+        self.graph.add_edge(firewall, data, object=Edge(data, firewall))
+        self.graph.add_edge(data, interface.network, object=Edge(data, interface))
+
 
     def bind_acl(self, acl, firewall, ip1, ip2):
         """Find or add nodes ip1 and ip2 if they don't exist and link them with the firewall and the acl as attribute
@@ -178,7 +196,34 @@ class NetworkGraph(object):
                 or not dest_node or not self.multidigraph.has_node(dest_node):
             raise
 
-        return nx.all_simple_paths(self.multidigraph, source_node, dest_node)
+        self._new_get_all_simple_paths(source_node, dest_node)
+        #print 'len res', len(self.res), self.res
+        return self.res
+
+        #return nx.all_simple_paths(self.multidigraph, source_node, dest_node)
+
+    def _new_get_all_simple_paths(self, source_node, dest_node):
+        """Retrieve all simple paths between two node of the graph.
+        """
+        self.res, self.marks, source_node, dest_node = [], [], source_node, dest_node
+        self.marks.append(source_node)
+        self.__new_all_simple_paths(source_node, dest_node)
+
+    def __new_all_simple_paths(self, source_node, dest_node):
+        """Recursive implementation of DSF search algorithm to find all simple paths
+           between two nodes
+        """
+        for son in self.multidigraph.neighbors(source_node):
+            if son == dest_node:
+                tmp_list = []
+                for node in self.marks:
+                    tmp_list.append(node)
+                tmp_list.append(dest_node)
+                self.res.append(list(tmp_list))
+            elif son not in self.marks:
+                self.marks.append(son)
+                self.__new_all_simple_paths(son, dest_node)
+                self.marks.pop()
 
     def get_acl_list(self, src=None, dst=None, firewall=None):
         """Get all acl filtered by optional parameters

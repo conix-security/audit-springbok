@@ -1,0 +1,13 @@
+protocol : tcp
+ip-source : 192.168.20
+ip-destination : 192.168.10
+port-src : 
+port-dst : 
+action : accept
+--
+protocol : udp
+ip-source : 192.168.11
+ip-destination : 
+port-src : 651
+port-dst : 
+action : deny

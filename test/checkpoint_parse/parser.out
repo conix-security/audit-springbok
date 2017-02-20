@@ -1,0 +1,2593 @@
+Created by PLY version 3.4 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    WS
+    COLONPORT
+    RULES
+    COLONPROTO
+    APOS
+    RBRACE
+    LBRACE
+
+Grammar
+
+Rule 0     S' -> lines
+Rule 1     lines -> line
+Rule 2     lines -> lines line
+Rule 3     line -> error NL
+Rule 4     empty -> <empty>
+Rule 5     item -> WORD
+Rule 6     optitem -> item
+Rule 7     optitem -> empty
+Rule 8     words -> WORD
+Rule 9     words -> WORD words
+Rule 10    begin_line -> LPAREN
+Rule 11    usefull_line -> COLON ANYOBJ LPAREN ANY
+Rule 12    usefull_line -> COLON SUPERANYOBJ LPAREN
+Rule 13    usefull_line -> COLON SOFAWARE_GW_TYPES LPAREN
+Rule 14    usefull_line -> COLON ATLAS_GATEWAY_PROPERTIES LPAREN
+Rule 15    usefull_line -> COLON ATLAS_GENERAL_PROPERTIES LPAREN
+Rule 16    usefull_line -> COLON POLICIES_COLLECTIONS LPAREN
+Rule 17    usefull_line -> COLON WORD LPAREN SOFAWARE_GW_TYPES RPAREN
+Rule 18    begin_net_obj -> COLON NETOBJ LPAREN
+Rule 19    obj_name_line -> COLON LPAREN WORD
+Rule 20    obj_name_line -> COLON LPAREN NUMBER WORD
+Rule 21    ipaddr_line -> COLON IPADDR LPAREN IP_ADDR RPAREN
+Rule 22    bogus_ip_line -> COLON BOGUS_IP LPAREN IP_ADDR RPAREN
+Rule 23    type_line -> COLON TYPE LPAREN WORD RPAREN
+Rule 24    netmask_line -> COLON NETMASK LPAREN IP_ADDR RPAREN
+Rule 25    start_range -> COLON IPADDR_FIRST LPAREN IP_ADDR RPAREN
+Rule 26    stop_range -> COLON IPADDR_LAST LPAREN IP_ADDR RPAREN
+Rule 27    interface_begin_line -> COLON INTERFACES LPAREN
+Rule 28    interface_index -> COLON IFINDEX LPAREN NUMBER RPAREN
+Rule 29    interface_nameif -> COLON OFFICIALNAME LPAREN WORD RPAREN
+Rule 30    servobj_begin_line -> COLON SERVICES LPAREN
+Rule 31    service_port -> COLON WORD LPAREN NUMBER RPAREN
+Rule 32    service_port -> COLON WORD LPAREN NUMBER WORD RPAREN
+Rule 33    ref_object_begin -> COLON LPAREN REFERENCEOBJECT
+Rule 34    attr_line -> COLON WORD
+Rule 35    attr_line -> COLON WORD LPAREN WORD RPAREN
+Rule 36    attr_line -> COLON WORD LPAREN ANY RPAREN
+Rule 37    attr_line -> COLON LPAREN WORD RPAREN
+Rule 38    attr_line -> COLON LPAREN RPAREN
+Rule 39    attr_line -> COLON LPAREN ANY RPAREN
+Rule 40    attr_line -> COLON OVERLAP_NAT_NETMASK LPAREN IP_ADDR RPAREN
+Rule 41    attr_line -> COLON LPAREN NUMBER WORD RPAREN
+Rule 42    attr_line -> COLON WORD LPAREN NUMBER WORD RPAREN
+Rule 43    attr_line -> COLON VALID_IPADDR LPAREN IP_ADDR RPAREN
+Rule 44    attr_line -> COLON VERSION LPAREN RPAREN
+Rule 45    attr_line -> COLON VERSION LPAREN IP_ADDR RPAREN
+Rule 46    attr_line -> COLON VERSION LPAREN NUMBER RPAREN
+Rule 47    attr_line -> COLON VERSION LPAREN NUMBER WORD RPAREN
+Rule 48    attr_line -> COLON VERSION LPAREN WORD RPAREN
+Rule 49    attr_line -> COLON NETOBJ
+Rule 50    attr_line -> COLON VERSIONS LPAREN RPAREN
+Rule 51    attr_line -> COLON GX_VERSION LPAREN WORD RPAREN
+Rule 52    attr_line -> COLON GX_VERSION LPAREN NUMBER RPAREN
+Rule 53    attr_line -> COLON GX_VERSION LPAREN NUMBER WORD RPAREN
+Rule 54    attr_line -> COLON WORD LPAREN RPAREN
+Rule 55    attr_line -> COLON LPAREN NUMBER RPAREN
+Rule 56    attr_line -> COLON WORD LPAREN POLICIES_COLLECTIONS RPAREN
+Rule 57    attr_line -> COLON SERVOBJ
+Rule 58    attr_line -> COLON WORD NUMBER
+Rule 59    attr_line -> COLON ACTION LPAREN RPAREN
+Rule 60    attr_line -> COLON WORD LPAREN SERVICES RPAREN
+Rule 61    attr_line -> COLON TYPE LPAREN DST RPAREN
+Rule 62    attr_line -> COLON TYPE LPAREN SRC RPAREN
+Rule 63    attr_line -> COLON WORD LPAREN SRC RPAREN
+Rule 64    attr_line -> COLON WORD LPAREN DST RPAREN
+Rule 65    attr_line -> COLON EDGES LPAREN RPAREN
+Rule 66    attr_line -> COLON IPADDR LPAREN RPAREN
+Rule 67    attr_line -> COLON NETMASK LPAREN RPAREN
+Rule 68    attr_line -> COLON WORD LPAREN NETACCESS RPAREN
+Rule 69    attr_line -> COLON WORD LPAREN NETOBJ RPAREN
+Rule 70    attr_line -> COLON INTERFACES LPAREN RPAREN
+Rule 71    attr_line -> COLON IP_ADDRESS LPAREN IP_ADDR RPAREN
+Rule 72    attr_line -> COLON NETWORK_PUBLISH_MASK LPAREN IP_ADDR RPAREN
+Rule 73    attr_line -> COLON TYPE LPAREN NUMBER WORD RPAREN
+Rule 74    end_obj_line -> RPAREN
+Rule 75    begin_rules_line -> COLON RULEBASE LPAREN WORD
+Rule 76    new_rule_line -> COLON RULE LPAREN
+Rule 77    begin_action -> COLON ACTION LPAREN
+Rule 78    begin_dst -> COLON DST LPAREN
+Rule 79    begin_install -> COLON INSTALL LPAREN
+Rule 80    begin_src -> COLON SRC LPAREN
+Rule 81    exception_line -> COLON EXCEPTION LPAREN REFERENCEOBJECT
+Rule 82    sub_obj_attr -> COLON LPAREN
+Rule 83    sub_obj_attr -> COLON WORD LPAREN
+Rule 84    sub_obj_attr -> COLON WORD LPAREN WORD
+Rule 85    sub_obj_attr -> COLON WORD LPAREN REFERENCEOBJECT
+Rule 86    sub_obj_attr -> COLON NETACCESS LPAREN
+Rule 87    sub_obj_attr -> COLON EDGES LPAREN
+Rule 88    sub_obj_attr -> COLON RESOURCE LPAREN
+Rule 89    sub_obj_attr -> COLON NUMBER LPAREN
+Rule 90    sub_obj_attr -> COLON RESOURCE LPAREN REFERENCEOBJECT
+Rule 91    sub_obj_attr -> COLON NUMBER LPAREN REFERENCEOBJECT
+Rule 92    sub_obj_attr -> COLON VERSIONS LPAREN
+Rule 93    sub_obj_attr -> COLON LPAREN ANY
+Rule 94    sub_obj_attr -> COLON LPAREN IPADDR
+Rule 95    sub_obj_attr -> COLON LPAREN DST
+Rule 96    sub_obj_attr -> COLON LPAREN SRC
+Rule 97    sub_obj_attr -> COLON LPAREN IP_ADDR
+Rule 98    sub_obj_attr -> COLON PORTALS LPAREN
+Rule 99    line -> begin_line NL
+Rule 100   line -> begin_net_obj NL
+Rule 101   line -> obj_name_line NL
+Rule 102   line -> ipaddr_line NL
+Rule 103   line -> type_line NL
+Rule 104   line -> netmask_line NL
+Rule 105   line -> start_range NL
+Rule 106   line -> stop_range NL
+Rule 107   line -> interface_index NL
+Rule 108   line -> interface_nameif NL
+Rule 109   line -> interface_begin_line NL
+Rule 110   line -> end_obj_line NL
+Rule 111   line -> sub_obj_attr NL
+Rule 112   line -> attr_line NL
+Rule 113   line -> usefull_line NL
+Rule 114   line -> bogus_ip_line NL
+Rule 115   line -> service_port NL
+Rule 116   line -> servobj_begin_line NL
+Rule 117   line -> begin_rules_line NL
+Rule 118   line -> begin_dst NL
+Rule 119   line -> begin_action NL
+Rule 120   line -> begin_src NL
+Rule 121   line -> begin_install NL
+Rule 122   line -> exception_line NL
+Rule 123   line -> ref_object_begin NL
+Rule 124   line -> new_rule_line NL
+Rule 125   line -> NL
+
+Terminals, with rules where they appear
+
+ACTION               : 59 77
+ANY                  : 11 36 39 93
+ANYOBJ               : 11
+APOS                 : 
+ATLAS_GATEWAY_PROPERTIES : 14
+ATLAS_GENERAL_PROPERTIES : 15
+BOGUS_IP             : 22
+COLON                : 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98
+COLONPORT            : 
+COLONPROTO           : 
+DST                  : 61 64 78 95
+EDGES                : 65 87
+EXCEPTION            : 81
+GX_VERSION           : 51 52 53
+IFINDEX              : 28
+INSTALL              : 79
+INTERFACES           : 27 70
+IPADDR               : 21 66 94
+IPADDR_FIRST         : 25
+IPADDR_LAST          : 26
+IP_ADDR              : 21 22 24 25 26 40 43 45 71 72 97
+IP_ADDRESS           : 71
+LBRACE               : 
+LPAREN               : 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 35 36 37 38 39 40 41 42 43 44 45 46 47 48 50 51 52 53 54 55 56 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98
+NETACCESS            : 68 86
+NETMASK              : 24 67
+NETOBJ               : 18 49 69
+NETWORK_PUBLISH_MASK : 72
+NL                   : 3 99 100 101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 121 122 123 124 125
+NUMBER               : 20 28 31 32 41 42 46 47 52 53 55 58 73 89 91
+OFFICIALNAME         : 29
+OVERLAP_NAT_NETMASK  : 40
+POLICIES_COLLECTIONS : 16 56
+PORTALS              : 98
+RBRACE               : 
+REFERENCEOBJECT      : 33 81 85 90 91
+RESOURCE             : 88 90
+RPAREN               : 17 21 22 23 24 25 26 28 29 31 32 35 36 37 38 39 40 41 42 43 44 45 46 47 48 50 51 52 53 54 55 56 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74
+RULE                 : 76
+RULEBASE             : 75
+RULES                : 
+SERVICES             : 30 60
+SERVOBJ              : 57
+SOFAWARE_GW_TYPES    : 13 17
+SRC                  : 62 63 80 96
+SUPERANYOBJ          : 12
+TYPE                 : 23 61 62 73
+VALID_IPADDR         : 43
+VERSION              : 44 45 46 47 48
+VERSIONS             : 50 92
+WORD                 : 5 8 9 17 19 20 23 29 31 32 32 34 35 35 36 37 41 42 42 47 48 51 53 54 56 58 60 63 64 68 69 73 75 83 84 84 85
+WS                   : 
+error                : 3
+
+Nonterminals, with rules where they appear
+
+attr_line            : 112
+begin_action         : 119
+begin_dst            : 118
+begin_install        : 121
+begin_line           : 99
+begin_net_obj        : 100
+begin_rules_line     : 117
+begin_src            : 120
+bogus_ip_line        : 114
+empty                : 7
+end_obj_line         : 110
+exception_line       : 122
+interface_begin_line : 109
+interface_index      : 107
+interface_nameif     : 108
+ipaddr_line          : 102
+item                 : 6
+line                 : 1 2
+lines                : 2 0
+netmask_line         : 104
+new_rule_line        : 124
+obj_name_line        : 101
+optitem              : 
+ref_object_begin     : 123
+service_port         : 115
+servobj_begin_line   : 116
+start_range          : 105
+stop_range           : 106
+sub_obj_attr         : 111
+type_line            : 103
+usefull_line         : 113
+words                : 9
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . lines
+    (1) lines -> . line
+    (2) lines -> . lines line
+    (3) line -> . error NL
+    (99) line -> . begin_line NL
+    (100) line -> . begin_net_obj NL
+    (101) line -> . obj_name_line NL
+    (102) line -> . ipaddr_line NL
+    (103) line -> . type_line NL
+    (104) line -> . netmask_line NL
+    (105) line -> . start_range NL
+    (106) line -> . stop_range NL
+    (107) line -> . interface_index NL
+    (108) line -> . interface_nameif NL
+    (109) line -> . interface_begin_line NL
+    (110) line -> . end_obj_line NL
+    (111) line -> . sub_obj_attr NL
+    (112) line -> . attr_line NL
+    (113) line -> . usefull_line NL
+    (114) line -> . bogus_ip_line NL
+    (115) line -> . service_port NL
+    (116) line -> . servobj_begin_line NL
+    (117) line -> . begin_rules_line NL
+    (118) line -> . begin_dst NL
+    (119) line -> . begin_action NL
+    (120) line -> . begin_src NL
+    (121) line -> . begin_install NL
+    (122) line -> . exception_line NL
+    (123) line -> . ref_object_begin NL
+    (124) line -> . new_rule_line NL
+    (125) line -> . NL
+    (10) begin_line -> . LPAREN
+    (18) begin_net_obj -> . COLON NETOBJ LPAREN
+    (19) obj_name_line -> . COLON LPAREN WORD
+    (20) obj_name_line -> . COLON LPAREN NUMBER WORD
+    (21) ipaddr_line -> . COLON IPADDR LPAREN IP_ADDR RPAREN
+    (23) type_line -> . COLON TYPE LPAREN WORD RPAREN
+    (24) netmask_line -> . COLON NETMASK LPAREN IP_ADDR RPAREN
+    (25) start_range -> . COLON IPADDR_FIRST LPAREN IP_ADDR RPAREN
+    (26) stop_range -> . COLON IPADDR_LAST LPAREN IP_ADDR RPAREN
+    (28) interface_index -> . COLON IFINDEX LPAREN NUMBER RPAREN
+    (29) interface_nameif -> . COLON OFFICIALNAME LPAREN WORD RPAREN
+    (27) interface_begin_line -> . COLON INTERFACES LPAREN
+    (74) end_obj_line -> . RPAREN
+    (82) sub_obj_attr -> . COLON LPAREN
+    (83) sub_obj_attr -> . COLON WORD LPAREN
+    (84) sub_obj_attr -> . COLON WORD LPAREN WORD
+    (85) sub_obj_attr -> . COLON WORD LPAREN REFERENCEOBJECT
+    (86) sub_obj_attr -> . COLON NETACCESS LPAREN
+    (87) sub_obj_attr -> . COLON EDGES LPAREN
+    (88) sub_obj_attr -> . COLON RESOURCE LPAREN
+    (89) sub_obj_attr -> . COLON NUMBER LPAREN
+    (90) sub_obj_attr -> . COLON RESOURCE LPAREN REFERENCEOBJECT
+    (91) sub_obj_attr -> . COLON NUMBER LPAREN REFERENCEOBJECT
+    (92) sub_obj_attr -> . COLON VERSIONS LPAREN
+    (93) sub_obj_attr -> . COLON LPAREN ANY
+    (94) sub_obj_attr -> . COLON LPAREN IPADDR
+    (95) sub_obj_attr -> . COLON LPAREN DST
+    (96) sub_obj_attr -> . COLON LPAREN SRC
+    (97) sub_obj_attr -> . COLON LPAREN IP_ADDR
+    (98) sub_obj_attr -> . COLON PORTALS LPAREN
+    (34) attr_line -> . COLON WORD
+    (35) attr_line -> . COLON WORD LPAREN WORD RPAREN
+    (36) attr_line -> . COLON WORD LPAREN ANY RPAREN
+    (37) attr_line -> . COLON LPAREN WORD RPAREN
+    (38) attr_line -> . COLON LPAREN RPAREN
+    (39) attr_line -> . COLON LPAREN ANY RPAREN
+    (40) attr_line -> . COLON OVERLAP_NAT_NETMASK LPAREN IP_ADDR RPAREN
+    (41) attr_line -> . COLON LPAREN NUMBER WORD RPAREN
+    (42) attr_line -> . COLON WORD LPAREN NUMBER WORD RPAREN
+    (43) attr_line -> . COLON VALID_IPADDR LPAREN IP_ADDR RPAREN
+    (44) attr_line -> . COLON VERSION LPAREN RPAREN
+    (45) attr_line -> . COLON VERSION LPAREN IP_ADDR RPAREN
+    (46) attr_line -> . COLON VERSION LPAREN NUMBER RPAREN
+    (47) attr_line -> . COLON VERSION LPAREN NUMBER WORD RPAREN
+    (48) attr_line -> . COLON VERSION LPAREN WORD RPAREN
+    (49) attr_line -> . COLON NETOBJ
+    (50) attr_line -> . COLON VERSIONS LPAREN RPAREN
+    (51) attr_line -> . COLON GX_VERSION LPAREN WORD RPAREN
+    (52) attr_line -> . COLON GX_VERSION LPAREN NUMBER RPAREN
+    (53) attr_line -> . COLON GX_VERSION LPAREN NUMBER WORD RPAREN
+    (54) attr_line -> . COLON WORD LPAREN RPAREN
+    (55) attr_line -> . COLON LPAREN NUMBER RPAREN
+    (56) attr_line -> . COLON WORD LPAREN POLICIES_COLLECTIONS RPAREN
+    (57) attr_line -> . COLON SERVOBJ
+    (58) attr_line -> . COLON WORD NUMBER
+    (59) attr_line -> . COLON ACTION LPAREN RPAREN
+    (60) attr_line -> . COLON WORD LPAREN SERVICES RPAREN
+    (61) attr_line -> . COLON TYPE LPAREN DST RPAREN
+    (62) attr_line -> . COLON TYPE LPAREN SRC RPAREN
+    (63) attr_line -> . COLON WORD LPAREN SRC RPAREN
+    (64) attr_line -> . COLON WORD LPAREN DST RPAREN
+    (65) attr_line -> . COLON EDGES LPAREN RPAREN
+    (66) attr_line -> . COLON IPADDR LPAREN RPAREN
+    (67) attr_line -> . COLON NETMASK LPAREN RPAREN
+    (68) attr_line -> . COLON WORD LPAREN NETACCESS RPAREN
+    (69) attr_line -> . COLON WORD LPAREN NETOBJ RPAREN
+    (70) attr_line -> . COLON INTERFACES LPAREN RPAREN
+    (71) attr_line -> . COLON IP_ADDRESS LPAREN IP_ADDR RPAREN
+    (72) attr_line -> . COLON NETWORK_PUBLISH_MASK LPAREN IP_ADDR RPAREN
+    (73) attr_line -> . COLON TYPE LPAREN NUMBER WORD RPAREN
+    (11) usefull_line -> . COLON ANYOBJ LPAREN ANY
+    (12) usefull_line -> . COLON SUPERANYOBJ LPAREN
+    (13) usefull_line -> . COLON SOFAWARE_GW_TYPES LPAREN
+    (14) usefull_line -> . COLON ATLAS_GATEWAY_PROPERTIES LPAREN
+    (15) usefull_line -> . COLON ATLAS_GENERAL_PROPERTIES LPAREN
+    (16) usefull_line -> . COLON POLICIES_COLLECTIONS LPAREN
+    (17) usefull_line -> . COLON WORD LPAREN SOFAWARE_GW_TYPES RPAREN
+    (22) bogus_ip_line -> . COLON BOGUS_IP LPAREN IP_ADDR RPAREN
+    (31) service_port -> . COLON WORD LPAREN NUMBER RPAREN
+    (32) service_port -> . COLON WORD LPAREN NUMBER WORD RPAREN
+    (30) servobj_begin_line -> . COLON SERVICES LPAREN
+    (75) begin_rules_line -> . COLON RULEBASE LPAREN WORD
+    (78) begin_dst -> . COLON DST LPAREN
+    (77) begin_action -> . COLON ACTION LPAREN
+    (80) begin_src -> . COLON SRC LPAREN
+    (79) begin_install -> . COLON INSTALL LPAREN
+    (81) exception_line -> . COLON EXCEPTION LPAREN REFERENCEOBJECT
+    (33) ref_object_begin -> . COLON LPAREN REFERENCEOBJECT
+    (76) new_rule_line -> . COLON RULE LPAREN
+
+    error           shift and go to state 32
+    NL              shift and go to state 9
+    LPAREN          shift and go to state 2
+    COLON           shift and go to state 14
+    RPAREN          shift and go to state 11
+
+    bogus_ip_line                  shift and go to state 1
+    end_obj_line                   shift and go to state 3
+    ipaddr_line                    shift and go to state 4
+    obj_name_line                  shift and go to state 5
+    attr_line                      shift and go to state 6
+    servobj_begin_line             shift and go to state 7
+    start_range                    shift and go to state 8
+    exception_line                 shift and go to state 10
+    begin_dst                      shift and go to state 12
+    netmask_line                   shift and go to state 13
+    begin_src                      shift and go to state 15
+    new_rule_line                  shift and go to state 16
+    ref_object_begin               shift and go to state 17
+    type_line                      shift and go to state 18
+    begin_rules_line               shift and go to state 19
+    usefull_line                   shift and go to state 20
+    begin_net_obj                  shift and go to state 21
+    interface_nameif               shift and go to state 22
+    begin_line                     shift and go to state 23
+    line                           shift and go to state 24
+    stop_range                     shift and go to state 25
+    sub_obj_attr                   shift and go to state 26
+    interface_index                shift and go to state 27
+    interface_begin_line           shift and go to state 28
+    service_port                   shift and go to state 29
+    lines                          shift and go to state 30
+    begin_action                   shift and go to state 31
+    begin_install                  shift and go to state 33
+
+state 1
+
+    (114) line -> bogus_ip_line . NL
+
+    NL              shift and go to state 34
+
+
+state 2
+
+    (10) begin_line -> LPAREN .
+
+    NL              reduce using rule 10 (begin_line -> LPAREN .)
+
+
+state 3
+
+    (110) line -> end_obj_line . NL
+
+    NL              shift and go to state 35
+
+
+state 4
+
+    (102) line -> ipaddr_line . NL
+
+    NL              shift and go to state 36
+
+
+state 5
+
+    (101) line -> obj_name_line . NL
+
+    NL              shift and go to state 37
+
+
+state 6
+
+    (112) line -> attr_line . NL
+
+    NL              shift and go to state 38
+
+
+state 7
+
+    (116) line -> servobj_begin_line . NL
+
+    NL              shift and go to state 39
+
+
+state 8
+
+    (105) line -> start_range . NL
+
+    NL              shift and go to state 40
+
+
+state 9
+
+    (125) line -> NL .
+
+    error           reduce using rule 125 (line -> NL .)
+    NL              reduce using rule 125 (line -> NL .)
+    LPAREN          reduce using rule 125 (line -> NL .)
+    COLON           reduce using rule 125 (line -> NL .)
+    RPAREN          reduce using rule 125 (line -> NL .)
+    $end            reduce using rule 125 (line -> NL .)
+
+
+state 10
+
+    (122) line -> exception_line . NL
+
+    NL              shift and go to state 41
+
+
+state 11
+
+    (74) end_obj_line -> RPAREN .
+
+    NL              reduce using rule 74 (end_obj_line -> RPAREN .)
+
+
+state 12
+
+    (118) line -> begin_dst . NL
+
+    NL              shift and go to state 42
+
+
+state 13
+
+    (104) line -> netmask_line . NL
+
+    NL              shift and go to state 43
+
+
+state 14
+
+    (18) begin_net_obj -> COLON . NETOBJ LPAREN
+    (19) obj_name_line -> COLON . LPAREN WORD
+    (20) obj_name_line -> COLON . LPAREN NUMBER WORD
+    (21) ipaddr_line -> COLON . IPADDR LPAREN IP_ADDR RPAREN
+    (23) type_line -> COLON . TYPE LPAREN WORD RPAREN
+    (24) netmask_line -> COLON . NETMASK LPAREN IP_ADDR RPAREN
+    (25) start_range -> COLON . IPADDR_FIRST LPAREN IP_ADDR RPAREN
+    (26) stop_range -> COLON . IPADDR_LAST LPAREN IP_ADDR RPAREN
+    (28) interface_index -> COLON . IFINDEX LPAREN NUMBER RPAREN
+    (29) interface_nameif -> COLON . OFFICIALNAME LPAREN WORD RPAREN
+    (27) interface_begin_line -> COLON . INTERFACES LPAREN
+    (82) sub_obj_attr -> COLON . LPAREN
+    (83) sub_obj_attr -> COLON . WORD LPAREN
+    (84) sub_obj_attr -> COLON . WORD LPAREN WORD
+    (85) sub_obj_attr -> COLON . WORD LPAREN REFERENCEOBJECT
+    (86) sub_obj_attr -> COLON . NETACCESS LPAREN
+    (87) sub_obj_attr -> COLON . EDGES LPAREN
+    (88) sub_obj_attr -> COLON . RESOURCE LPAREN
+    (89) sub_obj_attr -> COLON . NUMBER LPAREN
+    (90) sub_obj_attr -> COLON . RESOURCE LPAREN REFERENCEOBJECT
+    (91) sub_obj_attr -> COLON . NUMBER LPAREN REFERENCEOBJECT
+    (92) sub_obj_attr -> COLON . VERSIONS LPAREN
+    (93) sub_obj_attr -> COLON . LPAREN ANY
+    (94) sub_obj_attr -> COLON . LPAREN IPADDR
+    (95) sub_obj_attr -> COLON . LPAREN DST
+    (96) sub_obj_attr -> COLON . LPAREN SRC
+    (97) sub_obj_attr -> COLON . LPAREN IP_ADDR
+    (98) sub_obj_attr -> COLON . PORTALS LPAREN
+    (34) attr_line -> COLON . WORD
+    (35) attr_line -> COLON . WORD LPAREN WORD RPAREN
+    (36) attr_line -> COLON . WORD LPAREN ANY RPAREN
+    (37) attr_line -> COLON . LPAREN WORD RPAREN
+    (38) attr_line -> COLON . LPAREN RPAREN
+    (39) attr_line -> COLON . LPAREN ANY RPAREN
+    (40) attr_line -> COLON . OVERLAP_NAT_NETMASK LPAREN IP_ADDR RPAREN
+    (41) attr_line -> COLON . LPAREN NUMBER WORD RPAREN
+    (42) attr_line -> COLON . WORD LPAREN NUMBER WORD RPAREN
+    (43) attr_line -> COLON . VALID_IPADDR LPAREN IP_ADDR RPAREN
+    (44) attr_line -> COLON . VERSION LPAREN RPAREN
+    (45) attr_line -> COLON . VERSION LPAREN IP_ADDR RPAREN
+    (46) attr_line -> COLON . VERSION LPAREN NUMBER RPAREN
+    (47) attr_line -> COLON . VERSION LPAREN NUMBER WORD RPAREN
+    (48) attr_line -> COLON . VERSION LPAREN WORD RPAREN
+    (49) attr_line -> COLON . NETOBJ
+    (50) attr_line -> COLON . VERSIONS LPAREN RPAREN
+    (51) attr_line -> COLON . GX_VERSION LPAREN WORD RPAREN
+    (52) attr_line -> COLON . GX_VERSION LPAREN NUMBER RPAREN
+    (53) attr_line -> COLON . GX_VERSION LPAREN NUMBER WORD RPAREN
+    (54) attr_line -> COLON . WORD LPAREN RPAREN
+    (55) attr_line -> COLON . LPAREN NUMBER RPAREN
+    (56) attr_line -> COLON . WORD LPAREN POLICIES_COLLECTIONS RPAREN
+    (57) attr_line -> COLON . SERVOBJ
+    (58) attr_line -> COLON . WORD NUMBER
+    (59) attr_line -> COLON . ACTION LPAREN RPAREN
+    (60) attr_line -> COLON . WORD LPAREN SERVICES RPAREN
+    (61) attr_line -> COLON . TYPE LPAREN DST RPAREN
+    (62) attr_line -> COLON . TYPE LPAREN SRC RPAREN
+    (63) attr_line -> COLON . WORD LPAREN SRC RPAREN
+    (64) attr_line -> COLON . WORD LPAREN DST RPAREN
+    (65) attr_line -> COLON . EDGES LPAREN RPAREN
+    (66) attr_line -> COLON . IPADDR LPAREN RPAREN
+    (67) attr_line -> COLON . NETMASK LPAREN RPAREN
+    (68) attr_line -> COLON . WORD LPAREN NETACCESS RPAREN
+    (69) attr_line -> COLON . WORD LPAREN NETOBJ RPAREN
+    (70) attr_line -> COLON . INTERFACES LPAREN RPAREN
+    (71) attr_line -> COLON . IP_ADDRESS LPAREN IP_ADDR RPAREN
+    (72) attr_line -> COLON . NETWORK_PUBLISH_MASK LPAREN IP_ADDR RPAREN
+    (73) attr_line -> COLON . TYPE LPAREN NUMBER WORD RPAREN
+    (11) usefull_line -> COLON . ANYOBJ LPAREN ANY
+    (12) usefull_line -> COLON . SUPERANYOBJ LPAREN
+    (13) usefull_line -> COLON . SOFAWARE_GW_TYPES LPAREN
+    (14) usefull_line -> COLON . ATLAS_GATEWAY_PROPERTIES LPAREN
+    (15) usefull_line -> COLON . ATLAS_GENERAL_PROPERTIES LPAREN
+    (16) usefull_line -> COLON . POLICIES_COLLECTIONS LPAREN
+    (17) usefull_line -> COLON . WORD LPAREN SOFAWARE_GW_TYPES RPAREN
+    (22) bogus_ip_line -> COLON . BOGUS_IP LPAREN IP_ADDR RPAREN
+    (31) service_port -> COLON . WORD LPAREN NUMBER RPAREN
+    (32) service_port -> COLON . WORD LPAREN NUMBER WORD RPAREN
+    (30) servobj_begin_line -> COLON . SERVICES LPAREN
+    (75) begin_rules_line -> COLON . RULEBASE LPAREN WORD
+    (78) begin_dst -> COLON . DST LPAREN
+    (77) begin_action -> COLON . ACTION LPAREN
+    (80) begin_src -> COLON . SRC LPAREN
+    (79) begin_install -> COLON . INSTALL LPAREN
+    (81) exception_line -> COLON . EXCEPTION LPAREN REFERENCEOBJECT
+    (33) ref_object_begin -> COLON . LPAREN REFERENCEOBJECT
+    (76) new_rule_line -> COLON . RULE LPAREN
+
+    NETOBJ          shift and go to state 77
+    LPAREN          shift and go to state 71
+    IPADDR          shift and go to state 78
+    TYPE            shift and go to state 82
+    NETMASK         shift and go to state 60
+    IPADDR_FIRST    shift and go to state 66
+    IPADDR_LAST     shift and go to state 81
+    IFINDEX         shift and go to state 52
+    OFFICIALNAME    shift and go to state 74
+    INTERFACES      shift and go to state 67
+    WORD            shift and go to state 54
+    NETACCESS       shift and go to state 79
+    EDGES           shift and go to state 80
+    RESOURCE        shift and go to state 72
+    NUMBER          shift and go to state 47
+    VERSIONS        shift and go to state 56
+    PORTALS         shift and go to state 75
+    OVERLAP_NAT_NETMASK shift and go to state 53
+    VALID_IPADDR    shift and go to state 61
+    VERSION         shift and go to state 70
+    GX_VERSION      shift and go to state 55
+    SERVOBJ         shift and go to state 68
+    ACTION          shift and go to state 69
+    IP_ADDRESS      shift and go to state 64
+    NETWORK_PUBLISH_MASK shift and go to state 59
+    ANYOBJ          shift and go to state 73
+    SUPERANYOBJ     shift and go to state 63
+    SOFAWARE_GW_TYPES shift and go to state 46
+    ATLAS_GATEWAY_PROPERTIES shift and go to state 48
+    ATLAS_GENERAL_PROPERTIES shift and go to state 76
+    POLICIES_COLLECTIONS shift and go to state 62
+    BOGUS_IP        shift and go to state 50
+    SERVICES        shift and go to state 49
+    RULEBASE        shift and go to state 57
+    DST             shift and go to state 65
+    SRC             shift and go to state 45
+    INSTALL         shift and go to state 51
+    EXCEPTION       shift and go to state 44
+    RULE            shift and go to state 58
+
+
+state 15
+
+    (120) line -> begin_src . NL
+
+    NL              shift and go to state 83
+
+
+state 16
+
+    (124) line -> new_rule_line . NL
+
+    NL              shift and go to state 84
+
+
+state 17
+
+    (123) line -> ref_object_begin . NL
+
+    NL              shift and go to state 85
+
+
+state 18
+
+    (103) line -> type_line . NL
+
+    NL              shift and go to state 86
+
+
+state 19
+
+    (117) line -> begin_rules_line . NL
+
+    NL              shift and go to state 87
+
+
+state 20
+
+    (113) line -> usefull_line . NL
+
+    NL              shift and go to state 88
+
+
+state 21
+
+    (100) line -> begin_net_obj . NL
+
+    NL              shift and go to state 89
+
+
+state 22
+
+    (108) line -> interface_nameif . NL
+
+    NL              shift and go to state 90
+
+
+state 23
+
+    (99) line -> begin_line . NL
+
+    NL              shift and go to state 91
+
+
+state 24
+
+    (1) lines -> line .
+
+    error           reduce using rule 1 (lines -> line .)
+    NL              reduce using rule 1 (lines -> line .)
+    LPAREN          reduce using rule 1 (lines -> line .)
+    COLON           reduce using rule 1 (lines -> line .)
+    RPAREN          reduce using rule 1 (lines -> line .)
+    $end            reduce using rule 1 (lines -> line .)
+
+
+state 25
+
+    (106) line -> stop_range . NL
+
+    NL              shift and go to state 92
+
+
+state 26
+
+    (111) line -> sub_obj_attr . NL
+
+    NL              shift and go to state 93
+
+
+state 27
+
+    (107) line -> interface_index . NL
+
+    NL              shift and go to state 94
+
+
+state 28
+
+    (109) line -> interface_begin_line . NL
+
+    NL              shift and go to state 95
+
+
+state 29
+
+    (115) line -> service_port . NL
+
+    NL              shift and go to state 96
+
+
+state 30
+
+    (0) S' -> lines .
+    (2) lines -> lines . line
+    (3) line -> . error NL
+    (99) line -> . begin_line NL
+    (100) line -> . begin_net_obj NL
+    (101) line -> . obj_name_line NL
+    (102) line -> . ipaddr_line NL
+    (103) line -> . type_line NL
+    (104) line -> . netmask_line NL
+    (105) line -> . start_range NL
+    (106) line -> . stop_range NL
+    (107) line -> . interface_index NL
+    (108) line -> . interface_nameif NL
+    (109) line -> . interface_begin_line NL
+    (110) line -> . end_obj_line NL
+    (111) line -> . sub_obj_attr NL
+    (112) line -> . attr_line NL
+    (113) line -> . usefull_line NL
+    (114) line -> . bogus_ip_line NL
+    (115) line -> . service_port NL
+    (116) line -> . servobj_begin_line NL
+    (117) line -> . begin_rules_line NL
+    (118) line -> . begin_dst NL
+    (119) line -> . begin_action NL
+    (120) line -> . begin_src NL
+    (121) line -> . begin_install NL
+    (122) line -> . exception_line NL
+    (123) line -> . ref_object_begin NL
+    (124) line -> . new_rule_line NL
+    (125) line -> . NL
+    (10) begin_line -> . LPAREN
+    (18) begin_net_obj -> . COLON NETOBJ LPAREN
+    (19) obj_name_line -> . COLON LPAREN WORD
+    (20) obj_name_line -> . COLON LPAREN NUMBER WORD
+    (21) ipaddr_line -> . COLON IPADDR LPAREN IP_ADDR RPAREN
+    (23) type_line -> . COLON TYPE LPAREN WORD RPAREN
+    (24) netmask_line -> . COLON NETMASK LPAREN IP_ADDR RPAREN
+    (25) start_range -> . COLON IPADDR_FIRST LPAREN IP_ADDR RPAREN
+    (26) stop_range -> . COLON IPADDR_LAST LPAREN IP_ADDR RPAREN
+    (28) interface_index -> . COLON IFINDEX LPAREN NUMBER RPAREN
+    (29) interface_nameif -> . COLON OFFICIALNAME LPAREN WORD RPAREN
+    (27) interface_begin_line -> . COLON INTERFACES LPAREN
+    (74) end_obj_line -> . RPAREN
+    (82) sub_obj_attr -> . COLON LPAREN
+    (83) sub_obj_attr -> . COLON WORD LPAREN
+    (84) sub_obj_attr -> . COLON WORD LPAREN WORD
+    (85) sub_obj_attr -> . COLON WORD LPAREN REFERENCEOBJECT
+    (86) sub_obj_attr -> . COLON NETACCESS LPAREN
+    (87) sub_obj_attr -> . COLON EDGES LPAREN
+    (88) sub_obj_attr -> . COLON RESOURCE LPAREN
+    (89) sub_obj_attr -> . COLON NUMBER LPAREN
+    (90) sub_obj_attr -> . COLON RESOURCE LPAREN REFERENCEOBJECT
+    (91) sub_obj_attr -> . COLON NUMBER LPAREN REFERENCEOBJECT
+    (92) sub_obj_attr -> . COLON VERSIONS LPAREN
+    (93) sub_obj_attr -> . COLON LPAREN ANY
+    (94) sub_obj_attr -> . COLON LPAREN IPADDR
+    (95) sub_obj_attr -> . COLON LPAREN DST
+    (96) sub_obj_attr -> . COLON LPAREN SRC
+    (97) sub_obj_attr -> . COLON LPAREN IP_ADDR
+    (98) sub_obj_attr -> . COLON PORTALS LPAREN
+    (34) attr_line -> . COLON WORD
+    (35) attr_line -> . COLON WORD LPAREN WORD RPAREN
+    (36) attr_line -> . COLON WORD LPAREN ANY RPAREN
+    (37) attr_line -> . COLON LPAREN WORD RPAREN
+    (38) attr_line -> . COLON LPAREN RPAREN
+    (39) attr_line -> . COLON LPAREN ANY RPAREN
+    (40) attr_line -> . COLON OVERLAP_NAT_NETMASK LPAREN IP_ADDR RPAREN
+    (41) attr_line -> . COLON LPAREN NUMBER WORD RPAREN
+    (42) attr_line -> . COLON WORD LPAREN NUMBER WORD RPAREN
+    (43) attr_line -> . COLON VALID_IPADDR LPAREN IP_ADDR RPAREN
+    (44) attr_line -> . COLON VERSION LPAREN RPAREN
+    (45) attr_line -> . COLON VERSION LPAREN IP_ADDR RPAREN
+    (46) attr_line -> . COLON VERSION LPAREN NUMBER RPAREN
+    (47) attr_line -> . COLON VERSION LPAREN NUMBER WORD RPAREN
+    (48) attr_line -> . COLON VERSION LPAREN WORD RPAREN
+    (49) attr_line -> . COLON NETOBJ
+    (50) attr_line -> . COLON VERSIONS LPAREN RPAREN
+    (51) attr_line -> . COLON GX_VERSION LPAREN WORD RPAREN
+    (52) attr_line -> . COLON GX_VERSION LPAREN NUMBER RPAREN
+    (53) attr_line -> . COLON GX_VERSION LPAREN NUMBER WORD RPAREN
+    (54) attr_line -> . COLON WORD LPAREN RPAREN
+    (55) attr_line -> . COLON LPAREN NUMBER RPAREN
+    (56) attr_line -> . COLON WORD LPAREN POLICIES_COLLECTIONS RPAREN
+    (57) attr_line -> . COLON SERVOBJ
+    (58) attr_line -> . COLON WORD NUMBER
+    (59) attr_line -> . COLON ACTION LPAREN RPAREN
+    (60) attr_line -> . COLON WORD LPAREN SERVICES RPAREN
+    (61) attr_line -> . COLON TYPE LPAREN DST RPAREN
+    (62) attr_line -> . COLON TYPE LPAREN SRC RPAREN
+    (63) attr_line -> . COLON WORD LPAREN SRC RPAREN
+    (64) attr_line -> . COLON WORD LPAREN DST RPAREN
+    (65) attr_line -> . COLON EDGES LPAREN RPAREN
+    (66) attr_line -> . COLON IPADDR LPAREN RPAREN
+    (67) attr_line -> . COLON NETMASK LPAREN RPAREN
+    (68) attr_line -> . COLON WORD LPAREN NETACCESS RPAREN
+    (69) attr_line -> . COLON WORD LPAREN NETOBJ RPAREN
+    (70) attr_line -> . COLON INTERFACES LPAREN RPAREN
+    (71) attr_line -> . COLON IP_ADDRESS LPAREN IP_ADDR RPAREN
+    (72) attr_line -> . COLON NETWORK_PUBLISH_MASK LPAREN IP_ADDR RPAREN
+    (73) attr_line -> . COLON TYPE LPAREN NUMBER WORD RPAREN
+    (11) usefull_line -> . COLON ANYOBJ LPAREN ANY
+    (12) usefull_line -> . COLON SUPERANYOBJ LPAREN
+    (13) usefull_line -> . COLON SOFAWARE_GW_TYPES LPAREN
+    (14) usefull_line -> . COLON ATLAS_GATEWAY_PROPERTIES LPAREN
+    (15) usefull_line -> . COLON ATLAS_GENERAL_PROPERTIES LPAREN
+    (16) usefull_line -> . COLON POLICIES_COLLECTIONS LPAREN
+    (17) usefull_line -> . COLON WORD LPAREN SOFAWARE_GW_TYPES RPAREN
+    (22) bogus_ip_line -> . COLON BOGUS_IP LPAREN IP_ADDR RPAREN
+    (31) service_port -> . COLON WORD LPAREN NUMBER RPAREN
+    (32) service_port -> . COLON WORD LPAREN NUMBER WORD RPAREN
+    (30) servobj_begin_line -> . COLON SERVICES LPAREN
+    (75) begin_rules_line -> . COLON RULEBASE LPAREN WORD
+    (78) begin_dst -> . COLON DST LPAREN
+    (77) begin_action -> . COLON ACTION LPAREN
+    (80) begin_src -> . COLON SRC LPAREN
+    (79) begin_install -> . COLON INSTALL LPAREN
+    (81) exception_line -> . COLON EXCEPTION LPAREN REFERENCEOBJECT
+    (33) ref_object_begin -> . COLON LPAREN REFERENCEOBJECT
+    (76) new_rule_line -> . COLON RULE LPAREN
+
+    error           shift and go to state 32
+    NL              shift and go to state 9
+    LPAREN          shift and go to state 2
+    COLON           shift and go to state 14
+    RPAREN          shift and go to state 11
+
+    bogus_ip_line                  shift and go to state 1
+    end_obj_line                   shift and go to state 3
+    ipaddr_line                    shift and go to state 4
+    obj_name_line                  shift and go to state 5
+    attr_line                      shift and go to state 6
+    servobj_begin_line             shift and go to state 7
+    start_range                    shift and go to state 8
+    exception_line                 shift and go to state 10
+    begin_dst                      shift and go to state 12
+    netmask_line                   shift and go to state 13
+    begin_src                      shift and go to state 15
+    new_rule_line                  shift and go to state 16
+    ref_object_begin               shift and go to state 17
+    type_line                      shift and go to state 18
+    begin_rules_line               shift and go to state 19
+    usefull_line                   shift and go to state 20
+    begin_net_obj                  shift and go to state 21
+    interface_nameif               shift and go to state 22
+    begin_line                     shift and go to state 23
+    line                           shift and go to state 97
+    stop_range                     shift and go to state 25
+    sub_obj_attr                   shift and go to state 26
+    interface_index                shift and go to state 27
+    interface_begin_line           shift and go to state 28
+    service_port                   shift and go to state 29
+    begin_action                   shift and go to state 31
+    begin_install                  shift and go to state 33
+
+state 31
+
+    (119) line -> begin_action . NL
+
+    NL              shift and go to state 98
+
+
+state 32
+
+    (3) line -> error . NL
+
+    NL              shift and go to state 99
+
+
+state 33
+
+    (121) line -> begin_install . NL
+
+    NL              shift and go to state 100
+
+
+state 34
+
+    (114) line -> bogus_ip_line NL .
+
+    error           reduce using rule 114 (line -> bogus_ip_line NL .)
+    NL              reduce using rule 114 (line -> bogus_ip_line NL .)
+    LPAREN          reduce using rule 114 (line -> bogus_ip_line NL .)
+    COLON           reduce using rule 114 (line -> bogus_ip_line NL .)
+    RPAREN          reduce using rule 114 (line -> bogus_ip_line NL .)
+    $end            reduce using rule 114 (line -> bogus_ip_line NL .)
+
+
+state 35
+
+    (110) line -> end_obj_line NL .
+
+    error           reduce using rule 110 (line -> end_obj_line NL .)
+    NL              reduce using rule 110 (line -> end_obj_line NL .)
+    LPAREN          reduce using rule 110 (line -> end_obj_line NL .)
+    COLON           reduce using rule 110 (line -> end_obj_line NL .)
+    RPAREN          reduce using rule 110 (line -> end_obj_line NL .)
+    $end            reduce using rule 110 (line -> end_obj_line NL .)
+
+
+state 36
+
+    (102) line -> ipaddr_line NL .
+
+    error           reduce using rule 102 (line -> ipaddr_line NL .)
+    NL              reduce using rule 102 (line -> ipaddr_line NL .)
+    LPAREN          reduce using rule 102 (line -> ipaddr_line NL .)
+    COLON           reduce using rule 102 (line -> ipaddr_line NL .)
+    RPAREN          reduce using rule 102 (line -> ipaddr_line NL .)
+    $end            reduce using rule 102 (line -> ipaddr_line NL .)
+
+
+state 37
+
+    (101) line -> obj_name_line NL .
+
+    error           reduce using rule 101 (line -> obj_name_line NL .)
+    NL              reduce using rule 101 (line -> obj_name_line NL .)
+    LPAREN          reduce using rule 101 (line -> obj_name_line NL .)
+    COLON           reduce using rule 101 (line -> obj_name_line NL .)
+    RPAREN          reduce using rule 101 (line -> obj_name_line NL .)
+    $end            reduce using rule 101 (line -> obj_name_line NL .)
+
+
+state 38
+
+    (112) line -> attr_line NL .
+
+    error           reduce using rule 112 (line -> attr_line NL .)
+    NL              reduce using rule 112 (line -> attr_line NL .)
+    LPAREN          reduce using rule 112 (line -> attr_line NL .)
+    COLON           reduce using rule 112 (line -> attr_line NL .)
+    RPAREN          reduce using rule 112 (line -> attr_line NL .)
+    $end            reduce using rule 112 (line -> attr_line NL .)
+
+
+state 39
+
+    (116) line -> servobj_begin_line NL .
+
+    error           reduce using rule 116 (line -> servobj_begin_line NL .)
+    NL              reduce using rule 116 (line -> servobj_begin_line NL .)
+    LPAREN          reduce using rule 116 (line -> servobj_begin_line NL .)
+    COLON           reduce using rule 116 (line -> servobj_begin_line NL .)
+    RPAREN          reduce using rule 116 (line -> servobj_begin_line NL .)
+    $end            reduce using rule 116 (line -> servobj_begin_line NL .)
+
+
+state 40
+
+    (105) line -> start_range NL .
+
+    error           reduce using rule 105 (line -> start_range NL .)
+    NL              reduce using rule 105 (line -> start_range NL .)
+    LPAREN          reduce using rule 105 (line -> start_range NL .)
+    COLON           reduce using rule 105 (line -> start_range NL .)
+    RPAREN          reduce using rule 105 (line -> start_range NL .)
+    $end            reduce using rule 105 (line -> start_range NL .)
+
+
+state 41
+
+    (122) line -> exception_line NL .
+
+    error           reduce using rule 122 (line -> exception_line NL .)
+    NL              reduce using rule 122 (line -> exception_line NL .)
+    LPAREN          reduce using rule 122 (line -> exception_line NL .)
+    COLON           reduce using rule 122 (line -> exception_line NL .)
+    RPAREN          reduce using rule 122 (line -> exception_line NL .)
+    $end            reduce using rule 122 (line -> exception_line NL .)
+
+
+state 42
+
+    (118) line -> begin_dst NL .
+
+    error           reduce using rule 118 (line -> begin_dst NL .)
+    NL              reduce using rule 118 (line -> begin_dst NL .)
+    LPAREN          reduce using rule 118 (line -> begin_dst NL .)
+    COLON           reduce using rule 118 (line -> begin_dst NL .)
+    RPAREN          reduce using rule 118 (line -> begin_dst NL .)
+    $end            reduce using rule 118 (line -> begin_dst NL .)
+
+
+state 43
+
+    (104) line -> netmask_line NL .
+
+    error           reduce using rule 104 (line -> netmask_line NL .)
+    NL              reduce using rule 104 (line -> netmask_line NL .)
+    LPAREN          reduce using rule 104 (line -> netmask_line NL .)
+    COLON           reduce using rule 104 (line -> netmask_line NL .)
+    RPAREN          reduce using rule 104 (line -> netmask_line NL .)
+    $end            reduce using rule 104 (line -> netmask_line NL .)
+
+
+state 44
+
+    (81) exception_line -> COLON EXCEPTION . LPAREN REFERENCEOBJECT
+
+    LPAREN          shift and go to state 101
+
+
+state 45
+
+    (80) begin_src -> COLON SRC . LPAREN
+
+    LPAREN          shift and go to state 102
+
+
+state 46
+
+    (13) usefull_line -> COLON SOFAWARE_GW_TYPES . LPAREN
+
+    LPAREN          shift and go to state 103
+
+
+state 47
+
+    (89) sub_obj_attr -> COLON NUMBER . LPAREN
+    (91) sub_obj_attr -> COLON NUMBER . LPAREN REFERENCEOBJECT
+
+    LPAREN          shift and go to state 104
+
+
+state 48
+
+    (14) usefull_line -> COLON ATLAS_GATEWAY_PROPERTIES . LPAREN
+
+    LPAREN          shift and go to state 105
+
+
+state 49
+
+    (30) servobj_begin_line -> COLON SERVICES . LPAREN
+
+    LPAREN          shift and go to state 106
+
+
+state 50
+
+    (22) bogus_ip_line -> COLON BOGUS_IP . LPAREN IP_ADDR RPAREN
+
+    LPAREN          shift and go to state 107
+
+
+state 51
+
+    (79) begin_install -> COLON INSTALL . LPAREN
+
+    LPAREN          shift and go to state 108
+
+
+state 52
+
+    (28) interface_index -> COLON IFINDEX . LPAREN NUMBER RPAREN
+
+    LPAREN          shift and go to state 109
+
+
+state 53
+
+    (40) attr_line -> COLON OVERLAP_NAT_NETMASK . LPAREN IP_ADDR RPAREN
+
+    LPAREN          shift and go to state 110
+
+
+state 54
+
+    (83) sub_obj_attr -> COLON WORD . LPAREN
+    (84) sub_obj_attr -> COLON WORD . LPAREN WORD
+    (85) sub_obj_attr -> COLON WORD . LPAREN REFERENCEOBJECT
+    (34) attr_line -> COLON WORD .
+    (35) attr_line -> COLON WORD . LPAREN WORD RPAREN
+    (36) attr_line -> COLON WORD . LPAREN ANY RPAREN
+    (42) attr_line -> COLON WORD . LPAREN NUMBER WORD RPAREN
+    (54) attr_line -> COLON WORD . LPAREN RPAREN
+    (56) attr_line -> COLON WORD . LPAREN POLICIES_COLLECTIONS RPAREN
+    (58) attr_line -> COLON WORD . NUMBER
+    (60) attr_line -> COLON WORD . LPAREN SERVICES RPAREN
+    (63) attr_line -> COLON WORD . LPAREN SRC RPAREN
+    (64) attr_line -> COLON WORD . LPAREN DST RPAREN
+    (68) attr_line -> COLON WORD . LPAREN NETACCESS RPAREN
+    (69) attr_line -> COLON WORD . LPAREN NETOBJ RPAREN
+    (17) usefull_line -> COLON WORD . LPAREN SOFAWARE_GW_TYPES RPAREN
+    (31) service_port -> COLON WORD . LPAREN NUMBER RPAREN
+    (32) service_port -> COLON WORD . LPAREN NUMBER WORD RPAREN
+
+    LPAREN          shift and go to state 112
+    NL              reduce using rule 34 (attr_line -> COLON WORD .)
+    NUMBER          shift and go to state 111
+
+
+state 55
+
+    (51) attr_line -> COLON GX_VERSION . LPAREN WORD RPAREN
+    (52) attr_line -> COLON GX_VERSION . LPAREN NUMBER RPAREN
+    (53) attr_line -> COLON GX_VERSION . LPAREN NUMBER WORD RPAREN
+
+    LPAREN          shift and go to state 113
+
+
+state 56
+
+    (92) sub_obj_attr -> COLON VERSIONS . LPAREN
+    (50) attr_line -> COLON VERSIONS . LPAREN RPAREN
+
+    LPAREN          shift and go to state 114
+
+
+state 57
+
+    (75) begin_rules_line -> COLON RULEBASE . LPAREN WORD
+
+    LPAREN          shift and go to state 115
+
+
+state 58
+
+    (76) new_rule_line -> COLON RULE . LPAREN
+
+    LPAREN          shift and go to state 116
+
+
+state 59
+
+    (72) attr_line -> COLON NETWORK_PUBLISH_MASK . LPAREN IP_ADDR RPAREN
+
+    LPAREN          shift and go to state 117
+
+
+state 60
+
+    (24) netmask_line -> COLON NETMASK . LPAREN IP_ADDR RPAREN
+    (67) attr_line -> COLON NETMASK . LPAREN RPAREN
+
+    LPAREN          shift and go to state 118
+
+
+state 61
+
+    (43) attr_line -> COLON VALID_IPADDR . LPAREN IP_ADDR RPAREN
+
+    LPAREN          shift and go to state 119
+
+
+state 62
+
+    (16) usefull_line -> COLON POLICIES_COLLECTIONS . LPAREN
+
+    LPAREN          shift and go to state 120
+
+
+state 63
+
+    (12) usefull_line -> COLON SUPERANYOBJ . LPAREN
+
+    LPAREN          shift and go to state 121
+
+
+state 64
+
+    (71) attr_line -> COLON IP_ADDRESS . LPAREN IP_ADDR RPAREN
+
+    LPAREN          shift and go to state 122
+
+
+state 65
+
+    (78) begin_dst -> COLON DST . LPAREN
+
+    LPAREN          shift and go to state 123
+
+
+state 66
+
+    (25) start_range -> COLON IPADDR_FIRST . LPAREN IP_ADDR RPAREN
+
+    LPAREN          shift and go to state 124
+
+
+state 67
+
+    (27) interface_begin_line -> COLON INTERFACES . LPAREN
+    (70) attr_line -> COLON INTERFACES . LPAREN RPAREN
+
+    LPAREN          shift and go to state 125
+
+
+state 68
+
+    (57) attr_line -> COLON SERVOBJ .
+
+    NL              reduce using rule 57 (attr_line -> COLON SERVOBJ .)
+
+
+state 69
+
+    (59) attr_line -> COLON ACTION . LPAREN RPAREN
+    (77) begin_action -> COLON ACTION . LPAREN
+
+    LPAREN          shift and go to state 126
+
+
+state 70
+
+    (44) attr_line -> COLON VERSION . LPAREN RPAREN
+    (45) attr_line -> COLON VERSION . LPAREN IP_ADDR RPAREN
+    (46) attr_line -> COLON VERSION . LPAREN NUMBER RPAREN
+    (47) attr_line -> COLON VERSION . LPAREN NUMBER WORD RPAREN
+    (48) attr_line -> COLON VERSION . LPAREN WORD RPAREN
+
+    LPAREN          shift and go to state 127
+
+
+state 71
+
+    (19) obj_name_line -> COLON LPAREN . WORD
+    (20) obj_name_line -> COLON LPAREN . NUMBER WORD
+    (82) sub_obj_attr -> COLON LPAREN .
+    (93) sub_obj_attr -> COLON LPAREN . ANY
+    (94) sub_obj_attr -> COLON LPAREN . IPADDR
+    (95) sub_obj_attr -> COLON LPAREN . DST
+    (96) sub_obj_attr -> COLON LPAREN . SRC
+    (97) sub_obj_attr -> COLON LPAREN . IP_ADDR
+    (37) attr_line -> COLON LPAREN . WORD RPAREN
+    (38) attr_line -> COLON LPAREN . RPAREN
+    (39) attr_line -> COLON LPAREN . ANY RPAREN
+    (41) attr_line -> COLON LPAREN . NUMBER WORD RPAREN
+    (55) attr_line -> COLON LPAREN . NUMBER RPAREN
+    (33) ref_object_begin -> COLON LPAREN . REFERENCEOBJECT
+
+    WORD            shift and go to state 129
+    NUMBER          shift and go to state 133
+    NL              reduce using rule 82 (sub_obj_attr -> COLON LPAREN .)
+    ANY             shift and go to state 135
+    IPADDR          shift and go to state 132
+    DST             shift and go to state 131
+    SRC             shift and go to state 128
+    IP_ADDR         shift and go to state 134
+    RPAREN          shift and go to state 136
+    REFERENCEOBJECT shift and go to state 130
+
+
+state 72
+
+    (88) sub_obj_attr -> COLON RESOURCE . LPAREN
+    (90) sub_obj_attr -> COLON RESOURCE . LPAREN REFERENCEOBJECT
+
+    LPAREN          shift and go to state 137
+
+
+state 73
+
+    (11) usefull_line -> COLON ANYOBJ . LPAREN ANY
+
+    LPAREN          shift and go to state 138
+
+
+state 74
+
+    (29) interface_nameif -> COLON OFFICIALNAME . LPAREN WORD RPAREN
+
+    LPAREN          shift and go to state 139
+
+
+state 75
+
+    (98) sub_obj_attr -> COLON PORTALS . LPAREN
+
+    LPAREN          shift and go to state 140
+
+
+state 76
+
+    (15) usefull_line -> COLON ATLAS_GENERAL_PROPERTIES . LPAREN
+
+    LPAREN          shift and go to state 141
+
+
+state 77
+
+    (18) begin_net_obj -> COLON NETOBJ . LPAREN
+    (49) attr_line -> COLON NETOBJ .
+
+    LPAREN          shift and go to state 142
+    NL              reduce using rule 49 (attr_line -> COLON NETOBJ .)
+
+
+state 78
+
+    (21) ipaddr_line -> COLON IPADDR . LPAREN IP_ADDR RPAREN
+    (66) attr_line -> COLON IPADDR . LPAREN RPAREN
+
+    LPAREN          shift and go to state 143
+
+
+state 79
+
+    (86) sub_obj_attr -> COLON NETACCESS . LPAREN
+
+    LPAREN          shift and go to state 144
+
+
+state 80
+
+    (87) sub_obj_attr -> COLON EDGES . LPAREN
+    (65) attr_line -> COLON EDGES . LPAREN RPAREN
+
+    LPAREN          shift and go to state 145
+
+
+state 81
+
+    (26) stop_range -> COLON IPADDR_LAST . LPAREN IP_ADDR RPAREN
+
+    LPAREN          shift and go to state 146
+
+
+state 82
+
+    (23) type_line -> COLON TYPE . LPAREN WORD RPAREN
+    (61) attr_line -> COLON TYPE . LPAREN DST RPAREN
+    (62) attr_line -> COLON TYPE . LPAREN SRC RPAREN
+    (73) attr_line -> COLON TYPE . LPAREN NUMBER WORD RPAREN
+
+    LPAREN          shift and go to state 147
+
+
+state 83
+
+    (120) line -> begin_src NL .
+
+    error           reduce using rule 120 (line -> begin_src NL .)
+    NL              reduce using rule 120 (line -> begin_src NL .)
+    LPAREN          reduce using rule 120 (line -> begin_src NL .)
+    COLON           reduce using rule 120 (line -> begin_src NL .)
+    RPAREN          reduce using rule 120 (line -> begin_src NL .)
+    $end            reduce using rule 120 (line -> begin_src NL .)
+
+
+state 84
+
+    (124) line -> new_rule_line NL .
+
+    error           reduce using rule 124 (line -> new_rule_line NL .)
+    NL              reduce using rule 124 (line -> new_rule_line NL .)
+    LPAREN          reduce using rule 124 (line -> new_rule_line NL .)
+    COLON           reduce using rule 124 (line -> new_rule_line NL .)
+    RPAREN          reduce using rule 124 (line -> new_rule_line NL .)
+    $end            reduce using rule 124 (line -> new_rule_line NL .)
+
+
+state 85
+
+    (123) line -> ref_object_begin NL .
+
+    error           reduce using rule 123 (line -> ref_object_begin NL .)
+    NL              reduce using rule 123 (line -> ref_object_begin NL .)
+    LPAREN          reduce using rule 123 (line -> ref_object_begin NL .)
+    COLON           reduce using rule 123 (line -> ref_object_begin NL .)
+    RPAREN          reduce using rule 123 (line -> ref_object_begin NL .)
+    $end            reduce using rule 123 (line -> ref_object_begin NL .)
+
+
+state 86
+
+    (103) line -> type_line NL .
+
+    error           reduce using rule 103 (line -> type_line NL .)
+    NL              reduce using rule 103 (line -> type_line NL .)
+    LPAREN          reduce using rule 103 (line -> type_line NL .)
+    COLON           reduce using rule 103 (line -> type_line NL .)
+    RPAREN          reduce using rule 103 (line -> type_line NL .)
+    $end            reduce using rule 103 (line -> type_line NL .)
+
+
+state 87
+
+    (117) line -> begin_rules_line NL .
+
+    error           reduce using rule 117 (line -> begin_rules_line NL .)
+    NL              reduce using rule 117 (line -> begin_rules_line NL .)
+    LPAREN          reduce using rule 117 (line -> begin_rules_line NL .)
+    COLON           reduce using rule 117 (line -> begin_rules_line NL .)
+    RPAREN          reduce using rule 117 (line -> begin_rules_line NL .)
+    $end            reduce using rule 117 (line -> begin_rules_line NL .)
+
+
+state 88
+
+    (113) line -> usefull_line NL .
+
+    error           reduce using rule 113 (line -> usefull_line NL .)
+    NL              reduce using rule 113 (line -> usefull_line NL .)
+    LPAREN          reduce using rule 113 (line -> usefull_line NL .)
+    COLON           reduce using rule 113 (line -> usefull_line NL .)
+    RPAREN          reduce using rule 113 (line -> usefull_line NL .)
+    $end            reduce using rule 113 (line -> usefull_line NL .)
+
+
+state 89
+
+    (100) line -> begin_net_obj NL .
+
+    error           reduce using rule 100 (line -> begin_net_obj NL .)
+    NL              reduce using rule 100 (line -> begin_net_obj NL .)
+    LPAREN          reduce using rule 100 (line -> begin_net_obj NL .)
+    COLON           reduce using rule 100 (line -> begin_net_obj NL .)
+    RPAREN          reduce using rule 100 (line -> begin_net_obj NL .)
+    $end            reduce using rule 100 (line -> begin_net_obj NL .)
+
+
+state 90
+
+    (108) line -> interface_nameif NL .
+
+    error           reduce using rule 108 (line -> interface_nameif NL .)
+    NL              reduce using rule 108 (line -> interface_nameif NL .)
+    LPAREN          reduce using rule 108 (line -> interface_nameif NL .)
+    COLON           reduce using rule 108 (line -> interface_nameif NL .)
+    RPAREN          reduce using rule 108 (line -> interface_nameif NL .)
+    $end            reduce using rule 108 (line -> interface_nameif NL .)
+
+
+state 91
+
+    (99) line -> begin_line NL .
+
+    error           reduce using rule 99 (line -> begin_line NL .)
+    NL              reduce using rule 99 (line -> begin_line NL .)
+    LPAREN          reduce using rule 99 (line -> begin_line NL .)
+    COLON           reduce using rule 99 (line -> begin_line NL .)
+    RPAREN          reduce using rule 99 (line -> begin_line NL .)
+    $end            reduce using rule 99 (line -> begin_line NL .)
+
+
+state 92
+
+    (106) line -> stop_range NL .
+
+    error           reduce using rule 106 (line -> stop_range NL .)
+    NL              reduce using rule 106 (line -> stop_range NL .)
+    LPAREN          reduce using rule 106 (line -> stop_range NL .)
+    COLON           reduce using rule 106 (line -> stop_range NL .)
+    RPAREN          reduce using rule 106 (line -> stop_range NL .)
+    $end            reduce using rule 106 (line -> stop_range NL .)
+
+
+state 93
+
+    (111) line -> sub_obj_attr NL .
+
+    error           reduce using rule 111 (line -> sub_obj_attr NL .)
+    NL              reduce using rule 111 (line -> sub_obj_attr NL .)
+    LPAREN          reduce using rule 111 (line -> sub_obj_attr NL .)
+    COLON           reduce using rule 111 (line -> sub_obj_attr NL .)
+    RPAREN          reduce using rule 111 (line -> sub_obj_attr NL .)
+    $end            reduce using rule 111 (line -> sub_obj_attr NL .)
+
+
+state 94
+
+    (107) line -> interface_index NL .
+
+    error           reduce using rule 107 (line -> interface_index NL .)
+    NL              reduce using rule 107 (line -> interface_index NL .)
+    LPAREN          reduce using rule 107 (line -> interface_index NL .)
+    COLON           reduce using rule 107 (line -> interface_index NL .)
+    RPAREN          reduce using rule 107 (line -> interface_index NL .)
+    $end            reduce using rule 107 (line -> interface_index NL .)
+
+
+state 95
+
+    (109) line -> interface_begin_line NL .
+
+    error           reduce using rule 109 (line -> interface_begin_line NL .)
+    NL              reduce using rule 109 (line -> interface_begin_line NL .)
+    LPAREN          reduce using rule 109 (line -> interface_begin_line NL .)
+    COLON           reduce using rule 109 (line -> interface_begin_line NL .)
+    RPAREN          reduce using rule 109 (line -> interface_begin_line NL .)
+    $end            reduce using rule 109 (line -> interface_begin_line NL .)
+
+
+state 96
+
+    (115) line -> service_port NL .
+
+    error           reduce using rule 115 (line -> service_port NL .)
+    NL              reduce using rule 115 (line -> service_port NL .)
+    LPAREN          reduce using rule 115 (line -> service_port NL .)
+    COLON           reduce using rule 115 (line -> service_port NL .)
+    RPAREN          reduce using rule 115 (line -> service_port NL .)
+    $end            reduce using rule 115 (line -> service_port NL .)
+
+
+state 97
+
+    (2) lines -> lines line .
+
+    error           reduce using rule 2 (lines -> lines line .)
+    NL              reduce using rule 2 (lines -> lines line .)
+    LPAREN          reduce using rule 2 (lines -> lines line .)
+    COLON           reduce using rule 2 (lines -> lines line .)
+    RPAREN          reduce using rule 2 (lines -> lines line .)
+    $end            reduce using rule 2 (lines -> lines line .)
+
+
+state 98
+
+    (119) line -> begin_action NL .
+
+    error           reduce using rule 119 (line -> begin_action NL .)
+    NL              reduce using rule 119 (line -> begin_action NL .)
+    LPAREN          reduce using rule 119 (line -> begin_action NL .)
+    COLON           reduce using rule 119 (line -> begin_action NL .)
+    RPAREN          reduce using rule 119 (line -> begin_action NL .)
+    $end            reduce using rule 119 (line -> begin_action NL .)
+
+
+state 99
+
+    (3) line -> error NL .
+
+    error           reduce using rule 3 (line -> error NL .)
+    NL              reduce using rule 3 (line -> error NL .)
+    LPAREN          reduce using rule 3 (line -> error NL .)
+    COLON           reduce using rule 3 (line -> error NL .)
+    RPAREN          reduce using rule 3 (line -> error NL .)
+    $end            reduce using rule 3 (line -> error NL .)
+
+
+state 100
+
+    (121) line -> begin_install NL .
+
+    error           reduce using rule 121 (line -> begin_install NL .)
+    NL              reduce using rule 121 (line -> begin_install NL .)
+    LPAREN          reduce using rule 121 (line -> begin_install NL .)
+    COLON           reduce using rule 121 (line -> begin_install NL .)
+    RPAREN          reduce using rule 121 (line -> begin_install NL .)
+    $end            reduce using rule 121 (line -> begin_install NL .)
+
+
+state 101
+
+    (81) exception_line -> COLON EXCEPTION LPAREN . REFERENCEOBJECT
+
+    REFERENCEOBJECT shift and go to state 148
+
+
+state 102
+
+    (80) begin_src -> COLON SRC LPAREN .
+
+    NL              reduce using rule 80 (begin_src -> COLON SRC LPAREN .)
+
+
+state 103
+
+    (13) usefull_line -> COLON SOFAWARE_GW_TYPES LPAREN .
+
+    NL              reduce using rule 13 (usefull_line -> COLON SOFAWARE_GW_TYPES LPAREN .)
+
+
+state 104
+
+    (89) sub_obj_attr -> COLON NUMBER LPAREN .
+    (91) sub_obj_attr -> COLON NUMBER LPAREN . REFERENCEOBJECT
+
+    NL              reduce using rule 89 (sub_obj_attr -> COLON NUMBER LPAREN .)
+    REFERENCEOBJECT shift and go to state 149
+
+
+state 105
+
+    (14) usefull_line -> COLON ATLAS_GATEWAY_PROPERTIES LPAREN .
+
+    NL              reduce using rule 14 (usefull_line -> COLON ATLAS_GATEWAY_PROPERTIES LPAREN .)
+
+
+state 106
+
+    (30) servobj_begin_line -> COLON SERVICES LPAREN .
+
+    NL              reduce using rule 30 (servobj_begin_line -> COLON SERVICES LPAREN .)
+
+
+state 107
+
+    (22) bogus_ip_line -> COLON BOGUS_IP LPAREN . IP_ADDR RPAREN
+
+    IP_ADDR         shift and go to state 150
+
+
+state 108
+
+    (79) begin_install -> COLON INSTALL LPAREN .
+
+    NL              reduce using rule 79 (begin_install -> COLON INSTALL LPAREN .)
+
+
+state 109
+
+    (28) interface_index -> COLON IFINDEX LPAREN . NUMBER RPAREN
+
+    NUMBER          shift and go to state 151
+
+
+state 110
+
+    (40) attr_line -> COLON OVERLAP_NAT_NETMASK LPAREN . IP_ADDR RPAREN
+
+    IP_ADDR         shift and go to state 152
+
+
+state 111
+
+    (58) attr_line -> COLON WORD NUMBER .
+
+    NL              reduce using rule 58 (attr_line -> COLON WORD NUMBER .)
+
+
+state 112
+
+    (83) sub_obj_attr -> COLON WORD LPAREN .
+    (84) sub_obj_attr -> COLON WORD LPAREN . WORD
+    (85) sub_obj_attr -> COLON WORD LPAREN . REFERENCEOBJECT
+    (35) attr_line -> COLON WORD LPAREN . WORD RPAREN
+    (36) attr_line -> COLON WORD LPAREN . ANY RPAREN
+    (42) attr_line -> COLON WORD LPAREN . NUMBER WORD RPAREN
+    (54) attr_line -> COLON WORD LPAREN . RPAREN
+    (56) attr_line -> COLON WORD LPAREN . POLICIES_COLLECTIONS RPAREN
+    (60) attr_line -> COLON WORD LPAREN . SERVICES RPAREN
+    (63) attr_line -> COLON WORD LPAREN . SRC RPAREN
+    (64) attr_line -> COLON WORD LPAREN . DST RPAREN
+    (68) attr_line -> COLON WORD LPAREN . NETACCESS RPAREN
+    (69) attr_line -> COLON WORD LPAREN . NETOBJ RPAREN
+    (17) usefull_line -> COLON WORD LPAREN . SOFAWARE_GW_TYPES RPAREN
+    (31) service_port -> COLON WORD LPAREN . NUMBER RPAREN
+    (32) service_port -> COLON WORD LPAREN . NUMBER WORD RPAREN
+
+    NL              reduce using rule 83 (sub_obj_attr -> COLON WORD LPAREN .)
+    WORD            shift and go to state 154
+    REFERENCEOBJECT shift and go to state 156
+    ANY             shift and go to state 164
+    NUMBER          shift and go to state 159
+    RPAREN          shift and go to state 163
+    POLICIES_COLLECTIONS shift and go to state 162
+    SERVICES        shift and go to state 160
+    SRC             shift and go to state 153
+    DST             shift and go to state 157
+    NETACCESS       shift and go to state 161
+    NETOBJ          shift and go to state 155
+    SOFAWARE_GW_TYPES shift and go to state 158
+
+
+state 113
+
+    (51) attr_line -> COLON GX_VERSION LPAREN . WORD RPAREN
+    (52) attr_line -> COLON GX_VERSION LPAREN . NUMBER RPAREN
+    (53) attr_line -> COLON GX_VERSION LPAREN . NUMBER WORD RPAREN
+
+    WORD            shift and go to state 165
+    NUMBER          shift and go to state 166
+
+
+state 114
+
+    (92) sub_obj_attr -> COLON VERSIONS LPAREN .
+    (50) attr_line -> COLON VERSIONS LPAREN . RPAREN
+
+    NL              reduce using rule 92 (sub_obj_attr -> COLON VERSIONS LPAREN .)
+    RPAREN          shift and go to state 167
+
+
+state 115
+
+    (75) begin_rules_line -> COLON RULEBASE LPAREN . WORD
+
+    WORD            shift and go to state 168
+
+
+state 116
+
+    (76) new_rule_line -> COLON RULE LPAREN .
+
+    NL              reduce using rule 76 (new_rule_line -> COLON RULE LPAREN .)
+
+
+state 117
+
+    (72) attr_line -> COLON NETWORK_PUBLISH_MASK LPAREN . IP_ADDR RPAREN
+
+    IP_ADDR         shift and go to state 169
+
+
+state 118
+
+    (24) netmask_line -> COLON NETMASK LPAREN . IP_ADDR RPAREN
+    (67) attr_line -> COLON NETMASK LPAREN . RPAREN
+
+    IP_ADDR         shift and go to state 170
+    RPAREN          shift and go to state 171
+
+
+state 119
+
+    (43) attr_line -> COLON VALID_IPADDR LPAREN . IP_ADDR RPAREN
+
+    IP_ADDR         shift and go to state 172
+
+
+state 120
+
+    (16) usefull_line -> COLON POLICIES_COLLECTIONS LPAREN .
+
+    NL              reduce using rule 16 (usefull_line -> COLON POLICIES_COLLECTIONS LPAREN .)
+
+
+state 121
+
+    (12) usefull_line -> COLON SUPERANYOBJ LPAREN .
+
+    NL              reduce using rule 12 (usefull_line -> COLON SUPERANYOBJ LPAREN .)
+
+
+state 122
+
+    (71) attr_line -> COLON IP_ADDRESS LPAREN . IP_ADDR RPAREN
+
+    IP_ADDR         shift and go to state 173
+
+
+state 123
+
+    (78) begin_dst -> COLON DST LPAREN .
+
+    NL              reduce using rule 78 (begin_dst -> COLON DST LPAREN .)
+
+
+state 124
+
+    (25) start_range -> COLON IPADDR_FIRST LPAREN . IP_ADDR RPAREN
+
+    IP_ADDR         shift and go to state 174
+
+
+state 125
+
+    (27) interface_begin_line -> COLON INTERFACES LPAREN .
+    (70) attr_line -> COLON INTERFACES LPAREN . RPAREN
+
+    NL              reduce using rule 27 (interface_begin_line -> COLON INTERFACES LPAREN .)
+    RPAREN          shift and go to state 175
+
+
+state 126
+
+    (59) attr_line -> COLON ACTION LPAREN . RPAREN
+    (77) begin_action -> COLON ACTION LPAREN .
+
+    RPAREN          shift and go to state 176
+    NL              reduce using rule 77 (begin_action -> COLON ACTION LPAREN .)
+
+
+state 127
+
+    (44) attr_line -> COLON VERSION LPAREN . RPAREN
+    (45) attr_line -> COLON VERSION LPAREN . IP_ADDR RPAREN
+    (46) attr_line -> COLON VERSION LPAREN . NUMBER RPAREN
+    (47) attr_line -> COLON VERSION LPAREN . NUMBER WORD RPAREN
+    (48) attr_line -> COLON VERSION LPAREN . WORD RPAREN
+
+    RPAREN          shift and go to state 180
+    IP_ADDR         shift and go to state 177
+    NUMBER          shift and go to state 178
+    WORD            shift and go to state 179
+
+
+state 128
+
+    (96) sub_obj_attr -> COLON LPAREN SRC .
+
+    NL              reduce using rule 96 (sub_obj_attr -> COLON LPAREN SRC .)
+
+
+state 129
+
+    (19) obj_name_line -> COLON LPAREN WORD .
+    (37) attr_line -> COLON LPAREN WORD . RPAREN
+
+    NL              reduce using rule 19 (obj_name_line -> COLON LPAREN WORD .)
+    RPAREN          shift and go to state 181
+
+
+state 130
+
+    (33) ref_object_begin -> COLON LPAREN REFERENCEOBJECT .
+
+    NL              reduce using rule 33 (ref_object_begin -> COLON LPAREN REFERENCEOBJECT .)
+
+
+state 131
+
+    (95) sub_obj_attr -> COLON LPAREN DST .
+
+    NL              reduce using rule 95 (sub_obj_attr -> COLON LPAREN DST .)
+
+
+state 132
+
+    (94) sub_obj_attr -> COLON LPAREN IPADDR .
+
+    NL              reduce using rule 94 (sub_obj_attr -> COLON LPAREN IPADDR .)
+
+
+state 133
+
+    (20) obj_name_line -> COLON LPAREN NUMBER . WORD
+    (41) attr_line -> COLON LPAREN NUMBER . WORD RPAREN
+    (55) attr_line -> COLON LPAREN NUMBER . RPAREN
+
+    WORD            shift and go to state 182
+    RPAREN          shift and go to state 183
+
+
+state 134
+
+    (97) sub_obj_attr -> COLON LPAREN IP_ADDR .
+
+    NL              reduce using rule 97 (sub_obj_attr -> COLON LPAREN IP_ADDR .)
+
+
+state 135
+
+    (93) sub_obj_attr -> COLON LPAREN ANY .
+    (39) attr_line -> COLON LPAREN ANY . RPAREN
+
+    NL              reduce using rule 93 (sub_obj_attr -> COLON LPAREN ANY .)
+    RPAREN          shift and go to state 184
+
+
+state 136
+
+    (38) attr_line -> COLON LPAREN RPAREN .
+
+    NL              reduce using rule 38 (attr_line -> COLON LPAREN RPAREN .)
+
+
+state 137
+
+    (88) sub_obj_attr -> COLON RESOURCE LPAREN .
+    (90) sub_obj_attr -> COLON RESOURCE LPAREN . REFERENCEOBJECT
+
+    NL              reduce using rule 88 (sub_obj_attr -> COLON RESOURCE LPAREN .)
+    REFERENCEOBJECT shift and go to state 185
+
+
+state 138
+
+    (11) usefull_line -> COLON ANYOBJ LPAREN . ANY
+
+    ANY             shift and go to state 186
+
+
+state 139
+
+    (29) interface_nameif -> COLON OFFICIALNAME LPAREN . WORD RPAREN
+
+    WORD            shift and go to state 187
+
+
+state 140
+
+    (98) sub_obj_attr -> COLON PORTALS LPAREN .
+
+    NL              reduce using rule 98 (sub_obj_attr -> COLON PORTALS LPAREN .)
+
+
+state 141
+
+    (15) usefull_line -> COLON ATLAS_GENERAL_PROPERTIES LPAREN .
+
+    NL              reduce using rule 15 (usefull_line -> COLON ATLAS_GENERAL_PROPERTIES LPAREN .)
+
+
+state 142
+
+    (18) begin_net_obj -> COLON NETOBJ LPAREN .
+
+    NL              reduce using rule 18 (begin_net_obj -> COLON NETOBJ LPAREN .)
+
+
+state 143
+
+    (21) ipaddr_line -> COLON IPADDR LPAREN . IP_ADDR RPAREN
+    (66) attr_line -> COLON IPADDR LPAREN . RPAREN
+
+    IP_ADDR         shift and go to state 188
+    RPAREN          shift and go to state 189
+
+
+state 144
+
+    (86) sub_obj_attr -> COLON NETACCESS LPAREN .
+
+    NL              reduce using rule 86 (sub_obj_attr -> COLON NETACCESS LPAREN .)
+
+
+state 145
+
+    (87) sub_obj_attr -> COLON EDGES LPAREN .
+    (65) attr_line -> COLON EDGES LPAREN . RPAREN
+
+    NL              reduce using rule 87 (sub_obj_attr -> COLON EDGES LPAREN .)
+    RPAREN          shift and go to state 190
+
+
+state 146
+
+    (26) stop_range -> COLON IPADDR_LAST LPAREN . IP_ADDR RPAREN
+
+    IP_ADDR         shift and go to state 191
+
+
+state 147
+
+    (23) type_line -> COLON TYPE LPAREN . WORD RPAREN
+    (61) attr_line -> COLON TYPE LPAREN . DST RPAREN
+    (62) attr_line -> COLON TYPE LPAREN . SRC RPAREN
+    (73) attr_line -> COLON TYPE LPAREN . NUMBER WORD RPAREN
+
+    WORD            shift and go to state 195
+    DST             shift and go to state 193
+    SRC             shift and go to state 192
+    NUMBER          shift and go to state 194
+
+
+state 148
+
+    (81) exception_line -> COLON EXCEPTION LPAREN REFERENCEOBJECT .
+
+    NL              reduce using rule 81 (exception_line -> COLON EXCEPTION LPAREN REFERENCEOBJECT .)
+
+
+state 149
+
+    (91) sub_obj_attr -> COLON NUMBER LPAREN REFERENCEOBJECT .
+
+    NL              reduce using rule 91 (sub_obj_attr -> COLON NUMBER LPAREN REFERENCEOBJECT .)
+
+
+state 150
+
+    (22) bogus_ip_line -> COLON BOGUS_IP LPAREN IP_ADDR . RPAREN
+
+    RPAREN          shift and go to state 196
+
+
+state 151
+
+    (28) interface_index -> COLON IFINDEX LPAREN NUMBER . RPAREN
+
+    RPAREN          shift and go to state 197
+
+
+state 152
+
+    (40) attr_line -> COLON OVERLAP_NAT_NETMASK LPAREN IP_ADDR . RPAREN
+
+    RPAREN          shift and go to state 198
+
+
+state 153
+
+    (63) attr_line -> COLON WORD LPAREN SRC . RPAREN
+
+    RPAREN          shift and go to state 199
+
+
+state 154
+
+    (84) sub_obj_attr -> COLON WORD LPAREN WORD .
+    (35) attr_line -> COLON WORD LPAREN WORD . RPAREN
+
+    NL              reduce using rule 84 (sub_obj_attr -> COLON WORD LPAREN WORD .)
+    RPAREN          shift and go to state 200
+
+
+state 155
+
+    (69) attr_line -> COLON WORD LPAREN NETOBJ . RPAREN
+
+    RPAREN          shift and go to state 201
+
+
+state 156
+
+    (85) sub_obj_attr -> COLON WORD LPAREN REFERENCEOBJECT .
+
+    NL              reduce using rule 85 (sub_obj_attr -> COLON WORD LPAREN REFERENCEOBJECT .)
+
+
+state 157
+
+    (64) attr_line -> COLON WORD LPAREN DST . RPAREN
+
+    RPAREN          shift and go to state 202
+
+
+state 158
+
+    (17) usefull_line -> COLON WORD LPAREN SOFAWARE_GW_TYPES . RPAREN
+
+    RPAREN          shift and go to state 203
+
+
+state 159
+
+    (42) attr_line -> COLON WORD LPAREN NUMBER . WORD RPAREN
+    (31) service_port -> COLON WORD LPAREN NUMBER . RPAREN
+    (32) service_port -> COLON WORD LPAREN NUMBER . WORD RPAREN
+
+    WORD            shift and go to state 204
+    RPAREN          shift and go to state 205
+
+
+state 160
+
+    (60) attr_line -> COLON WORD LPAREN SERVICES . RPAREN
+
+    RPAREN          shift and go to state 206
+
+
+state 161
+
+    (68) attr_line -> COLON WORD LPAREN NETACCESS . RPAREN
+
+    RPAREN          shift and go to state 207
+
+
+state 162
+
+    (56) attr_line -> COLON WORD LPAREN POLICIES_COLLECTIONS . RPAREN
+
+    RPAREN          shift and go to state 208
+
+
+state 163
+
+    (54) attr_line -> COLON WORD LPAREN RPAREN .
+
+    NL              reduce using rule 54 (attr_line -> COLON WORD LPAREN RPAREN .)
+
+
+state 164
+
+    (36) attr_line -> COLON WORD LPAREN ANY . RPAREN
+
+    RPAREN          shift and go to state 209
+
+
+state 165
+
+    (51) attr_line -> COLON GX_VERSION LPAREN WORD . RPAREN
+
+    RPAREN          shift and go to state 210
+
+
+state 166
+
+    (52) attr_line -> COLON GX_VERSION LPAREN NUMBER . RPAREN
+    (53) attr_line -> COLON GX_VERSION LPAREN NUMBER . WORD RPAREN
+
+    RPAREN          shift and go to state 211
+    WORD            shift and go to state 212
+
+
+state 167
+
+    (50) attr_line -> COLON VERSIONS LPAREN RPAREN .
+
+    NL              reduce using rule 50 (attr_line -> COLON VERSIONS LPAREN RPAREN .)
+
+
+state 168
+
+    (75) begin_rules_line -> COLON RULEBASE LPAREN WORD .
+
+    NL              reduce using rule 75 (begin_rules_line -> COLON RULEBASE LPAREN WORD .)
+
+
+state 169
+
+    (72) attr_line -> COLON NETWORK_PUBLISH_MASK LPAREN IP_ADDR . RPAREN
+
+    RPAREN          shift and go to state 213
+
+
+state 170
+
+    (24) netmask_line -> COLON NETMASK LPAREN IP_ADDR . RPAREN
+
+    RPAREN          shift and go to state 214
+
+
+state 171
+
+    (67) attr_line -> COLON NETMASK LPAREN RPAREN .
+
+    NL              reduce using rule 67 (attr_line -> COLON NETMASK LPAREN RPAREN .)
+
+
+state 172
+
+    (43) attr_line -> COLON VALID_IPADDR LPAREN IP_ADDR . RPAREN
+
+    RPAREN          shift and go to state 215
+
+
+state 173
+
+    (71) attr_line -> COLON IP_ADDRESS LPAREN IP_ADDR . RPAREN
+
+    RPAREN          shift and go to state 216
+
+
+state 174
+
+    (25) start_range -> COLON IPADDR_FIRST LPAREN IP_ADDR . RPAREN
+
+    RPAREN          shift and go to state 217
+
+
+state 175
+
+    (70) attr_line -> COLON INTERFACES LPAREN RPAREN .
+
+    NL              reduce using rule 70 (attr_line -> COLON INTERFACES LPAREN RPAREN .)
+
+
+state 176
+
+    (59) attr_line -> COLON ACTION LPAREN RPAREN .
+
+    NL              reduce using rule 59 (attr_line -> COLON ACTION LPAREN RPAREN .)
+
+
+state 177
+
+    (45) attr_line -> COLON VERSION LPAREN IP_ADDR . RPAREN
+
+    RPAREN          shift and go to state 218
+
+
+state 178
+
+    (46) attr_line -> COLON VERSION LPAREN NUMBER . RPAREN
+    (47) attr_line -> COLON VERSION LPAREN NUMBER . WORD RPAREN
+
+    RPAREN          shift and go to state 219
+    WORD            shift and go to state 220
+
+
+state 179
+
+    (48) attr_line -> COLON VERSION LPAREN WORD . RPAREN
+
+    RPAREN          shift and go to state 221
+
+
+state 180
+
+    (44) attr_line -> COLON VERSION LPAREN RPAREN .
+
+    NL              reduce using rule 44 (attr_line -> COLON VERSION LPAREN RPAREN .)
+
+
+state 181
+
+    (37) attr_line -> COLON LPAREN WORD RPAREN .
+
+    NL              reduce using rule 37 (attr_line -> COLON LPAREN WORD RPAREN .)
+
+
+state 182
+
+    (20) obj_name_line -> COLON LPAREN NUMBER WORD .
+    (41) attr_line -> COLON LPAREN NUMBER WORD . RPAREN
+
+    NL              reduce using rule 20 (obj_name_line -> COLON LPAREN NUMBER WORD .)
+    RPAREN          shift and go to state 222
+
+
+state 183
+
+    (55) attr_line -> COLON LPAREN NUMBER RPAREN .
+
+    NL              reduce using rule 55 (attr_line -> COLON LPAREN NUMBER RPAREN .)
+
+
+state 184
+
+    (39) attr_line -> COLON LPAREN ANY RPAREN .
+
+    NL              reduce using rule 39 (attr_line -> COLON LPAREN ANY RPAREN .)
+
+
+state 185
+
+    (90) sub_obj_attr -> COLON RESOURCE LPAREN REFERENCEOBJECT .
+
+    NL              reduce using rule 90 (sub_obj_attr -> COLON RESOURCE LPAREN REFERENCEOBJECT .)
+
+
+state 186
+
+    (11) usefull_line -> COLON ANYOBJ LPAREN ANY .
+
+    NL              reduce using rule 11 (usefull_line -> COLON ANYOBJ LPAREN ANY .)
+
+
+state 187
+
+    (29) interface_nameif -> COLON OFFICIALNAME LPAREN WORD . RPAREN
+
+    RPAREN          shift and go to state 223
+
+
+state 188
+
+    (21) ipaddr_line -> COLON IPADDR LPAREN IP_ADDR . RPAREN
+
+    RPAREN          shift and go to state 224
+
+
+state 189
+
+    (66) attr_line -> COLON IPADDR LPAREN RPAREN .
+
+    NL              reduce using rule 66 (attr_line -> COLON IPADDR LPAREN RPAREN .)
+
+
+state 190
+
+    (65) attr_line -> COLON EDGES LPAREN RPAREN .
+
+    NL              reduce using rule 65 (attr_line -> COLON EDGES LPAREN RPAREN .)
+
+
+state 191
+
+    (26) stop_range -> COLON IPADDR_LAST LPAREN IP_ADDR . RPAREN
+
+    RPAREN          shift and go to state 225
+
+
+state 192
+
+    (62) attr_line -> COLON TYPE LPAREN SRC . RPAREN
+
+    RPAREN          shift and go to state 226
+
+
+state 193
+
+    (61) attr_line -> COLON TYPE LPAREN DST . RPAREN
+
+    RPAREN          shift and go to state 227
+
+
+state 194
+
+    (73) attr_line -> COLON TYPE LPAREN NUMBER . WORD RPAREN
+
+    WORD            shift and go to state 228
+
+
+state 195
+
+    (23) type_line -> COLON TYPE LPAREN WORD . RPAREN
+
+    RPAREN          shift and go to state 229
+
+
+state 196
+
+    (22) bogus_ip_line -> COLON BOGUS_IP LPAREN IP_ADDR RPAREN .
+
+    NL              reduce using rule 22 (bogus_ip_line -> COLON BOGUS_IP LPAREN IP_ADDR RPAREN .)
+
+
+state 197
+
+    (28) interface_index -> COLON IFINDEX LPAREN NUMBER RPAREN .
+
+    NL              reduce using rule 28 (interface_index -> COLON IFINDEX LPAREN NUMBER RPAREN .)
+
+
+state 198
+
+    (40) attr_line -> COLON OVERLAP_NAT_NETMASK LPAREN IP_ADDR RPAREN .
+
+    NL              reduce using rule 40 (attr_line -> COLON OVERLAP_NAT_NETMASK LPAREN IP_ADDR RPAREN .)
+
+
+state 199
+
+    (63) attr_line -> COLON WORD LPAREN SRC RPAREN .
+
+    NL              reduce using rule 63 (attr_line -> COLON WORD LPAREN SRC RPAREN .)
+
+
+state 200
+
+    (35) attr_line -> COLON WORD LPAREN WORD RPAREN .
+
+    NL              reduce using rule 35 (attr_line -> COLON WORD LPAREN WORD RPAREN .)
+
+
+state 201
+
+    (69) attr_line -> COLON WORD LPAREN NETOBJ RPAREN .
+
+    NL              reduce using rule 69 (attr_line -> COLON WORD LPAREN NETOBJ RPAREN .)
+
+
+state 202
+
+    (64) attr_line -> COLON WORD LPAREN DST RPAREN .
+
+    NL              reduce using rule 64 (attr_line -> COLON WORD LPAREN DST RPAREN .)
+
+
+state 203
+
+    (17) usefull_line -> COLON WORD LPAREN SOFAWARE_GW_TYPES RPAREN .
+
+    NL              reduce using rule 17 (usefull_line -> COLON WORD LPAREN SOFAWARE_GW_TYPES RPAREN .)
+
+
+state 204
+
+    (42) attr_line -> COLON WORD LPAREN NUMBER WORD . RPAREN
+    (32) service_port -> COLON WORD LPAREN NUMBER WORD . RPAREN
+
+    RPAREN          shift and go to state 230
+
+
+state 205
+
+    (31) service_port -> COLON WORD LPAREN NUMBER RPAREN .
+
+    NL              reduce using rule 31 (service_port -> COLON WORD LPAREN NUMBER RPAREN .)
+
+
+state 206
+
+    (60) attr_line -> COLON WORD LPAREN SERVICES RPAREN .
+
+    NL              reduce using rule 60 (attr_line -> COLON WORD LPAREN SERVICES RPAREN .)
+
+
+state 207
+
+    (68) attr_line -> COLON WORD LPAREN NETACCESS RPAREN .
+
+    NL              reduce using rule 68 (attr_line -> COLON WORD LPAREN NETACCESS RPAREN .)
+
+
+state 208
+
+    (56) attr_line -> COLON WORD LPAREN POLICIES_COLLECTIONS RPAREN .
+
+    NL              reduce using rule 56 (attr_line -> COLON WORD LPAREN POLICIES_COLLECTIONS RPAREN .)
+
+
+state 209
+
+    (36) attr_line -> COLON WORD LPAREN ANY RPAREN .
+
+    NL              reduce using rule 36 (attr_line -> COLON WORD LPAREN ANY RPAREN .)
+
+
+state 210
+
+    (51) attr_line -> COLON GX_VERSION LPAREN WORD RPAREN .
+
+    NL              reduce using rule 51 (attr_line -> COLON GX_VERSION LPAREN WORD RPAREN .)
+
+
+state 211
+
+    (52) attr_line -> COLON GX_VERSION LPAREN NUMBER RPAREN .
+
+    NL              reduce using rule 52 (attr_line -> COLON GX_VERSION LPAREN NUMBER RPAREN .)
+
+
+state 212
+
+    (53) attr_line -> COLON GX_VERSION LPAREN NUMBER WORD . RPAREN
+
+    RPAREN          shift and go to state 231
+
+
+state 213
+
+    (72) attr_line -> COLON NETWORK_PUBLISH_MASK LPAREN IP_ADDR RPAREN .
+
+    NL              reduce using rule 72 (attr_line -> COLON NETWORK_PUBLISH_MASK LPAREN IP_ADDR RPAREN .)
+
+
+state 214
+
+    (24) netmask_line -> COLON NETMASK LPAREN IP_ADDR RPAREN .
+
+    NL              reduce using rule 24 (netmask_line -> COLON NETMASK LPAREN IP_ADDR RPAREN .)
+
+
+state 215
+
+    (43) attr_line -> COLON VALID_IPADDR LPAREN IP_ADDR RPAREN .
+
+    NL              reduce using rule 43 (attr_line -> COLON VALID_IPADDR LPAREN IP_ADDR RPAREN .)
+
+
+state 216
+
+    (71) attr_line -> COLON IP_ADDRESS LPAREN IP_ADDR RPAREN .
+
+    NL              reduce using rule 71 (attr_line -> COLON IP_ADDRESS LPAREN IP_ADDR RPAREN .)
+
+
+state 217
+
+    (25) start_range -> COLON IPADDR_FIRST LPAREN IP_ADDR RPAREN .
+
+    NL              reduce using rule 25 (start_range -> COLON IPADDR_FIRST LPAREN IP_ADDR RPAREN .)
+
+
+state 218
+
+    (45) attr_line -> COLON VERSION LPAREN IP_ADDR RPAREN .
+
+    NL              reduce using rule 45 (attr_line -> COLON VERSION LPAREN IP_ADDR RPAREN .)
+
+
+state 219
+
+    (46) attr_line -> COLON VERSION LPAREN NUMBER RPAREN .
+
+    NL              reduce using rule 46 (attr_line -> COLON VERSION LPAREN NUMBER RPAREN .)
+
+
+state 220
+
+    (47) attr_line -> COLON VERSION LPAREN NUMBER WORD . RPAREN
+
+    RPAREN          shift and go to state 232
+
+
+state 221
+
+    (48) attr_line -> COLON VERSION LPAREN WORD RPAREN .
+
+    NL              reduce using rule 48 (attr_line -> COLON VERSION LPAREN WORD RPAREN .)
+
+
+state 222
+
+    (41) attr_line -> COLON LPAREN NUMBER WORD RPAREN .
+
+    NL              reduce using rule 41 (attr_line -> COLON LPAREN NUMBER WORD RPAREN .)
+
+
+state 223
+
+    (29) interface_nameif -> COLON OFFICIALNAME LPAREN WORD RPAREN .
+
+    NL              reduce using rule 29 (interface_nameif -> COLON OFFICIALNAME LPAREN WORD RPAREN .)
+
+
+state 224
+
+    (21) ipaddr_line -> COLON IPADDR LPAREN IP_ADDR RPAREN .
+
+    NL              reduce using rule 21 (ipaddr_line -> COLON IPADDR LPAREN IP_ADDR RPAREN .)
+
+
+state 225
+
+    (26) stop_range -> COLON IPADDR_LAST LPAREN IP_ADDR RPAREN .
+
+    NL              reduce using rule 26 (stop_range -> COLON IPADDR_LAST LPAREN IP_ADDR RPAREN .)
+
+
+state 226
+
+    (62) attr_line -> COLON TYPE LPAREN SRC RPAREN .
+
+    NL              reduce using rule 62 (attr_line -> COLON TYPE LPAREN SRC RPAREN .)
+
+
+state 227
+
+    (61) attr_line -> COLON TYPE LPAREN DST RPAREN .
+
+    NL              reduce using rule 61 (attr_line -> COLON TYPE LPAREN DST RPAREN .)
+
+
+state 228
+
+    (73) attr_line -> COLON TYPE LPAREN NUMBER WORD . RPAREN
+
+    RPAREN          shift and go to state 233
+
+
+state 229
+
+    (23) type_line -> COLON TYPE LPAREN WORD RPAREN .
+
+    NL              reduce using rule 23 (type_line -> COLON TYPE LPAREN WORD RPAREN .)
+
+
+state 230
+
+    (42) attr_line -> COLON WORD LPAREN NUMBER WORD RPAREN .
+    (32) service_port -> COLON WORD LPAREN NUMBER WORD RPAREN .
+
+  ! reduce/reduce conflict for NL resolved using rule 32 (service_port -> COLON WORD LPAREN NUMBER WORD RPAREN .)
+    NL              reduce using rule 32 (service_port -> COLON WORD LPAREN NUMBER WORD RPAREN .)
+
+  ! NL              [ reduce using rule 42 (attr_line -> COLON WORD LPAREN NUMBER WORD RPAREN .) ]
+
+
+state 231
+
+    (53) attr_line -> COLON GX_VERSION LPAREN NUMBER WORD RPAREN .
+
+    NL              reduce using rule 53 (attr_line -> COLON GX_VERSION LPAREN NUMBER WORD RPAREN .)
+
+
+state 232
+
+    (47) attr_line -> COLON VERSION LPAREN NUMBER WORD RPAREN .
+
+    NL              reduce using rule 47 (attr_line -> COLON VERSION LPAREN NUMBER WORD RPAREN .)
+
+
+state 233
+
+    (73) attr_line -> COLON TYPE LPAREN NUMBER WORD RPAREN .
+
+    NL              reduce using rule 73 (attr_line -> COLON TYPE LPAREN NUMBER WORD RPAREN .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: reduce/reduce conflict in state 230 resolved using rule (service_port -> COLON WORD LPAREN NUMBER WORD RPAREN)
+WARNING: rejected rule (attr_line -> COLON WORD LPAREN NUMBER WORD RPAREN) in state 230
+WARNING: Rule (attr_line -> COLON WORD LPAREN NUMBER WORD RPAREN) is never reduced

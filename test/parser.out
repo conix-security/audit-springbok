@@ -1,0 +1,452 @@
+Created by PLY version 3.4 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    WS
+
+Grammar
+
+Rule 0     S' -> lines
+Rule 1     lines -> line
+Rule 2     lines -> line lines
+Rule 3     line -> hyphen_line NL
+Rule 4     line -> protocol_line NL
+Rule 5     line -> ip_src_line NL
+Rule 6     line -> ip_dst_line NL
+Rule 7     line -> port_src_line NL
+Rule 8     line -> port_dst_line NL
+Rule 9     line -> NL
+Rule 10    line -> error NL
+Rule 11    hyphen_line -> DBL_HYPHEN
+Rule 12    protocol_line -> PROTOCOL COLON WORD
+Rule 13    ip_src_line -> IP_SRC COLON WORD WORD
+Rule 14    ip_src_line -> IP_SRC COLON WORD
+Rule 15    ip_dst_line -> IP_DST COLON WORD WORD
+Rule 16    ip_dst_line -> IP_DST COLON WORD
+Rule 17    port_src_line -> PORT_SRC COLON WORD
+Rule 18    port_dst_line -> PORT_DST COLON WORD
+
+Terminals, with rules where they appear
+
+COLON                : 12 13 14 15 16 17 18
+DBL_HYPHEN           : 11
+IP_DST               : 15 16
+IP_SRC               : 13 14
+NL                   : 3 4 5 6 7 8 9 10
+PORT_DST             : 18
+PORT_SRC             : 17
+PROTOCOL             : 12
+WORD                 : 12 13 13 14 15 15 16 17 18
+WS                   : 
+error                : 10
+
+Nonterminals, with rules where they appear
+
+hyphen_line          : 3
+ip_dst_line          : 6
+ip_src_line          : 5
+line                 : 1 2
+lines                : 2 0
+port_dst_line        : 8
+port_src_line        : 7
+protocol_line        : 4
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . lines
+    (1) lines -> . line
+    (2) lines -> . line lines
+    (3) line -> . hyphen_line NL
+    (4) line -> . protocol_line NL
+    (5) line -> . ip_src_line NL
+    (6) line -> . ip_dst_line NL
+    (7) line -> . port_src_line NL
+    (8) line -> . port_dst_line NL
+    (9) line -> . NL
+    (10) line -> . error NL
+    (11) hyphen_line -> . DBL_HYPHEN
+    (12) protocol_line -> . PROTOCOL COLON WORD
+    (13) ip_src_line -> . IP_SRC COLON WORD WORD
+    (14) ip_src_line -> . IP_SRC COLON WORD
+    (15) ip_dst_line -> . IP_DST COLON WORD WORD
+    (16) ip_dst_line -> . IP_DST COLON WORD
+    (17) port_src_line -> . PORT_SRC COLON WORD
+    (18) port_dst_line -> . PORT_DST COLON WORD
+
+    NL              shift and go to state 3
+    error           shift and go to state 12
+    DBL_HYPHEN      shift and go to state 5
+    PROTOCOL        shift and go to state 13
+    IP_SRC          shift and go to state 15
+    IP_DST          shift and go to state 6
+    PORT_SRC        shift and go to state 11
+    PORT_DST        shift and go to state 8
+
+    port_src_line                  shift and go to state 1
+    port_dst_line                  shift and go to state 2
+    ip_src_line                    shift and go to state 4
+    lines                          shift and go to state 7
+    hyphen_line                    shift and go to state 9
+    protocol_line                  shift and go to state 10
+    line                           shift and go to state 14
+    ip_dst_line                    shift and go to state 16
+
+state 1
+
+    (7) line -> port_src_line . NL
+
+    NL              shift and go to state 17
+
+
+state 2
+
+    (8) line -> port_dst_line . NL
+
+    NL              shift and go to state 18
+
+
+state 3
+
+    (9) line -> NL .
+
+    NL              reduce using rule 9 (line -> NL .)
+    error           reduce using rule 9 (line -> NL .)
+    DBL_HYPHEN      reduce using rule 9 (line -> NL .)
+    PROTOCOL        reduce using rule 9 (line -> NL .)
+    IP_SRC          reduce using rule 9 (line -> NL .)
+    IP_DST          reduce using rule 9 (line -> NL .)
+    PORT_SRC        reduce using rule 9 (line -> NL .)
+    PORT_DST        reduce using rule 9 (line -> NL .)
+    $end            reduce using rule 9 (line -> NL .)
+
+
+state 4
+
+    (5) line -> ip_src_line . NL
+
+    NL              shift and go to state 19
+
+
+state 5
+
+    (11) hyphen_line -> DBL_HYPHEN .
+
+    NL              reduce using rule 11 (hyphen_line -> DBL_HYPHEN .)
+
+
+state 6
+
+    (15) ip_dst_line -> IP_DST . COLON WORD WORD
+    (16) ip_dst_line -> IP_DST . COLON WORD
+
+    COLON           shift and go to state 20
+
+
+state 7
+
+    (0) S' -> lines .
+
+
+
+state 8
+
+    (18) port_dst_line -> PORT_DST . COLON WORD
+
+    COLON           shift and go to state 21
+
+
+state 9
+
+    (3) line -> hyphen_line . NL
+
+    NL              shift and go to state 22
+
+
+state 10
+
+    (4) line -> protocol_line . NL
+
+    NL              shift and go to state 23
+
+
+state 11
+
+    (17) port_src_line -> PORT_SRC . COLON WORD
+
+    COLON           shift and go to state 24
+
+
+state 12
+
+    (10) line -> error . NL
+
+    NL              shift and go to state 25
+
+
+state 13
+
+    (12) protocol_line -> PROTOCOL . COLON WORD
+
+    COLON           shift and go to state 26
+
+
+state 14
+
+    (1) lines -> line .
+    (2) lines -> line . lines
+    (1) lines -> . line
+    (2) lines -> . line lines
+    (3) line -> . hyphen_line NL
+    (4) line -> . protocol_line NL
+    (5) line -> . ip_src_line NL
+    (6) line -> . ip_dst_line NL
+    (7) line -> . port_src_line NL
+    (8) line -> . port_dst_line NL
+    (9) line -> . NL
+    (10) line -> . error NL
+    (11) hyphen_line -> . DBL_HYPHEN
+    (12) protocol_line -> . PROTOCOL COLON WORD
+    (13) ip_src_line -> . IP_SRC COLON WORD WORD
+    (14) ip_src_line -> . IP_SRC COLON WORD
+    (15) ip_dst_line -> . IP_DST COLON WORD WORD
+    (16) ip_dst_line -> . IP_DST COLON WORD
+    (17) port_src_line -> . PORT_SRC COLON WORD
+    (18) port_dst_line -> . PORT_DST COLON WORD
+
+    $end            reduce using rule 1 (lines -> line .)
+    NL              shift and go to state 3
+    error           shift and go to state 12
+    DBL_HYPHEN      shift and go to state 5
+    PROTOCOL        shift and go to state 13
+    IP_SRC          shift and go to state 15
+    IP_DST          shift and go to state 6
+    PORT_SRC        shift and go to state 11
+    PORT_DST        shift and go to state 8
+
+    port_src_line                  shift and go to state 1
+    port_dst_line                  shift and go to state 2
+    ip_src_line                    shift and go to state 4
+    lines                          shift and go to state 27
+    hyphen_line                    shift and go to state 9
+    protocol_line                  shift and go to state 10
+    line                           shift and go to state 14
+    ip_dst_line                    shift and go to state 16
+
+state 15
+
+    (13) ip_src_line -> IP_SRC . COLON WORD WORD
+    (14) ip_src_line -> IP_SRC . COLON WORD
+
+    COLON           shift and go to state 28
+
+
+state 16
+
+    (6) line -> ip_dst_line . NL
+
+    NL              shift and go to state 29
+
+
+state 17
+
+    (7) line -> port_src_line NL .
+
+    NL              reduce using rule 7 (line -> port_src_line NL .)
+    error           reduce using rule 7 (line -> port_src_line NL .)
+    DBL_HYPHEN      reduce using rule 7 (line -> port_src_line NL .)
+    PROTOCOL        reduce using rule 7 (line -> port_src_line NL .)
+    IP_SRC          reduce using rule 7 (line -> port_src_line NL .)
+    IP_DST          reduce using rule 7 (line -> port_src_line NL .)
+    PORT_SRC        reduce using rule 7 (line -> port_src_line NL .)
+    PORT_DST        reduce using rule 7 (line -> port_src_line NL .)
+    $end            reduce using rule 7 (line -> port_src_line NL .)
+
+
+state 18
+
+    (8) line -> port_dst_line NL .
+
+    NL              reduce using rule 8 (line -> port_dst_line NL .)
+    error           reduce using rule 8 (line -> port_dst_line NL .)
+    DBL_HYPHEN      reduce using rule 8 (line -> port_dst_line NL .)
+    PROTOCOL        reduce using rule 8 (line -> port_dst_line NL .)
+    IP_SRC          reduce using rule 8 (line -> port_dst_line NL .)
+    IP_DST          reduce using rule 8 (line -> port_dst_line NL .)
+    PORT_SRC        reduce using rule 8 (line -> port_dst_line NL .)
+    PORT_DST        reduce using rule 8 (line -> port_dst_line NL .)
+    $end            reduce using rule 8 (line -> port_dst_line NL .)
+
+
+state 19
+
+    (5) line -> ip_src_line NL .
+
+    NL              reduce using rule 5 (line -> ip_src_line NL .)
+    error           reduce using rule 5 (line -> ip_src_line NL .)
+    DBL_HYPHEN      reduce using rule 5 (line -> ip_src_line NL .)
+    PROTOCOL        reduce using rule 5 (line -> ip_src_line NL .)
+    IP_SRC          reduce using rule 5 (line -> ip_src_line NL .)
+    IP_DST          reduce using rule 5 (line -> ip_src_line NL .)
+    PORT_SRC        reduce using rule 5 (line -> ip_src_line NL .)
+    PORT_DST        reduce using rule 5 (line -> ip_src_line NL .)
+    $end            reduce using rule 5 (line -> ip_src_line NL .)
+
+
+state 20
+
+    (15) ip_dst_line -> IP_DST COLON . WORD WORD
+    (16) ip_dst_line -> IP_DST COLON . WORD
+
+    WORD            shift and go to state 30
+
+
+state 21
+
+    (18) port_dst_line -> PORT_DST COLON . WORD
+
+    WORD            shift and go to state 31
+
+
+state 22
+
+    (3) line -> hyphen_line NL .
+
+    NL              reduce using rule 3 (line -> hyphen_line NL .)
+    error           reduce using rule 3 (line -> hyphen_line NL .)
+    DBL_HYPHEN      reduce using rule 3 (line -> hyphen_line NL .)
+    PROTOCOL        reduce using rule 3 (line -> hyphen_line NL .)
+    IP_SRC          reduce using rule 3 (line -> hyphen_line NL .)
+    IP_DST          reduce using rule 3 (line -> hyphen_line NL .)
+    PORT_SRC        reduce using rule 3 (line -> hyphen_line NL .)
+    PORT_DST        reduce using rule 3 (line -> hyphen_line NL .)
+    $end            reduce using rule 3 (line -> hyphen_line NL .)
+
+
+state 23
+
+    (4) line -> protocol_line NL .
+
+    NL              reduce using rule 4 (line -> protocol_line NL .)
+    error           reduce using rule 4 (line -> protocol_line NL .)
+    DBL_HYPHEN      reduce using rule 4 (line -> protocol_line NL .)
+    PROTOCOL        reduce using rule 4 (line -> protocol_line NL .)
+    IP_SRC          reduce using rule 4 (line -> protocol_line NL .)
+    IP_DST          reduce using rule 4 (line -> protocol_line NL .)
+    PORT_SRC        reduce using rule 4 (line -> protocol_line NL .)
+    PORT_DST        reduce using rule 4 (line -> protocol_line NL .)
+    $end            reduce using rule 4 (line -> protocol_line NL .)
+
+
+state 24
+
+    (17) port_src_line -> PORT_SRC COLON . WORD
+
+    WORD            shift and go to state 32
+
+
+state 25
+
+    (10) line -> error NL .
+
+    NL              reduce using rule 10 (line -> error NL .)
+    error           reduce using rule 10 (line -> error NL .)
+    DBL_HYPHEN      reduce using rule 10 (line -> error NL .)
+    PROTOCOL        reduce using rule 10 (line -> error NL .)
+    IP_SRC          reduce using rule 10 (line -> error NL .)
+    IP_DST          reduce using rule 10 (line -> error NL .)
+    PORT_SRC        reduce using rule 10 (line -> error NL .)
+    PORT_DST        reduce using rule 10 (line -> error NL .)
+    $end            reduce using rule 10 (line -> error NL .)
+
+
+state 26
+
+    (12) protocol_line -> PROTOCOL COLON . WORD
+
+    WORD            shift and go to state 33
+
+
+state 27
+
+    (2) lines -> line lines .
+
+    $end            reduce using rule 2 (lines -> line lines .)
+
+
+state 28
+
+    (13) ip_src_line -> IP_SRC COLON . WORD WORD
+    (14) ip_src_line -> IP_SRC COLON . WORD
+
+    WORD            shift and go to state 34
+
+
+state 29
+
+    (6) line -> ip_dst_line NL .
+
+    NL              reduce using rule 6 (line -> ip_dst_line NL .)
+    error           reduce using rule 6 (line -> ip_dst_line NL .)
+    DBL_HYPHEN      reduce using rule 6 (line -> ip_dst_line NL .)
+    PROTOCOL        reduce using rule 6 (line -> ip_dst_line NL .)
+    IP_SRC          reduce using rule 6 (line -> ip_dst_line NL .)
+    IP_DST          reduce using rule 6 (line -> ip_dst_line NL .)
+    PORT_SRC        reduce using rule 6 (line -> ip_dst_line NL .)
+    PORT_DST        reduce using rule 6 (line -> ip_dst_line NL .)
+    $end            reduce using rule 6 (line -> ip_dst_line NL .)
+
+
+state 30
+
+    (15) ip_dst_line -> IP_DST COLON WORD . WORD
+    (16) ip_dst_line -> IP_DST COLON WORD .
+
+    WORD            shift and go to state 35
+    NL              reduce using rule 16 (ip_dst_line -> IP_DST COLON WORD .)
+
+
+state 31
+
+    (18) port_dst_line -> PORT_DST COLON WORD .
+
+    NL              reduce using rule 18 (port_dst_line -> PORT_DST COLON WORD .)
+
+
+state 32
+
+    (17) port_src_line -> PORT_SRC COLON WORD .
+
+    NL              reduce using rule 17 (port_src_line -> PORT_SRC COLON WORD .)
+
+
+state 33
+
+    (12) protocol_line -> PROTOCOL COLON WORD .
+
+    NL              reduce using rule 12 (protocol_line -> PROTOCOL COLON WORD .)
+
+
+state 34
+
+    (13) ip_src_line -> IP_SRC COLON WORD . WORD
+    (14) ip_src_line -> IP_SRC COLON WORD .
+
+    WORD            shift and go to state 36
+    NL              reduce using rule 14 (ip_src_line -> IP_SRC COLON WORD .)
+
+
+state 35
+
+    (15) ip_dst_line -> IP_DST COLON WORD WORD .
+
+    NL              reduce using rule 15 (ip_dst_line -> IP_DST COLON WORD WORD .)
+
+
+state 36
+
+    (13) ip_src_line -> IP_SRC COLON WORD WORD .
+
+    NL              reduce using rule 13 (ip_src_line -> IP_SRC COLON WORD WORD .)
+

@@ -11,6 +11,9 @@ but they must implement some function :
 - show():
 """
 
+######## Modification of the class by Maurice TCHAMGOUE N. on 29-05-2015
+###          * Adding the grammar to parse Routes
+
 from Parser.ply import yacc
 from Parser.JuniperNetscreen.JuniperNetscreenLex import tokens
 from Parser.JuniperNetscreen.JuniperNetscreenLex import lexer
@@ -28,6 +31,10 @@ import socket
 import re
 import JuniperNetscreenPort
 import ntpath
+from SpringBase.Route import Route
+from socket import inet_ntoa
+from struct import pack
+
 
 
 # Use for construct dictionary of object and object group
@@ -46,6 +53,9 @@ p_info = {
     'index_rule': -1,
     'default_permit_all': False,
     'raise_on_error': False,
+    'route_list': [],
+    'current_route' : Route(None, None,None, None,None, 1),
+    'index_route': 0,
 }
 
 
@@ -65,9 +75,14 @@ def init(name, raise_on_error=False):
     p_info['index_rule'] = -1
     p_info['default_permit_all'] = False
     p_info['raise_on_error'] = raise_on_error
+    p_info['route_list']= []
+    p_info['current_route'] = Route(None, None,None, None,None, 1)
+    p_info['index_route'] = 0
 
 
 def update():
+    p_info['current_route'] = Route(None, None,None, None,None, 1)
+    p_info['index_route'] = len(p_info['route_list'])
     pass
 
 
@@ -208,6 +223,10 @@ precedence = (
     ('left', 'NUMBER'),
 )
 
+def calcDottedMask(mask):
+    bits = 0xffffffff ^ (1 << 32 - mask) - 1
+    return inet_ntoa(pack('>I', bits))
+
 
 def p_lines(p):
     '''lines : line
@@ -228,6 +247,7 @@ def p_line(p):
             | service_line NL
             | group_line NL
             | interface_line NL
+            | route_line NL
             | EXIT NL
             | NL'''
     p[0] = p[1]
@@ -735,6 +755,30 @@ def p_policy_context_line_5(p):
 
 def p_policy_context_line_6(p):
     '''policy_context_line : SET items'''
+
+
+
+### Route Parsing
+
+def p_route_line(p) :
+    '''route_line : SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR
+                  | SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR PREFERENCE NUMBER'''
+
+    iface = p_info['firewall'].get_interface_by_nameif(str(p[7]))
+    if not isinstance(iface, Interface) :
+        for i in p_info['firewall'].interfaces :
+            iface = i.get_subif_by_nameif(str(p[7]))
+            if isinstance(iface, Interface) : break
+
+    print iface.name
+    route = Route(p_info['index_route'], iface, Ip(p[3]), Ip(str(calcDottedMask(int(p[5])))), Ip(p[9]))
+    print 'ok'
+    p_info['route_list'].append(route)
+    p_info['index_route'] += 1
+    print route.to_string()
+    print ('okk')
+    print 'pb instanticiation de la route'
+
 
 
 def p_error(p):

@@ -91,4 +91,4 @@ class Interface:
         split = re.split('[a-zA-Z]+', self.nameif)
         if len(split) >= 2:
             res = self.nameif[0] + split[1]
-        return res
+        return self.nameif

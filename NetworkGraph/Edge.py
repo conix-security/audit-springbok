@@ -4,6 +4,12 @@
 import matplotlib.pyplot as plt
 import math
 import NetworkGraph
+from SpringBase.Interface import Interface
+from SpringBase.Route_info import Route_info
+
+######## Modification of the class by Maurice TCHAMGOUE N. on the 08-07-2015
+###          * Adding some informations to link gateways with the correponding firewall
+###          * Adding a menu to show routes on the topology
 
 
 class Edge:
@@ -30,6 +36,7 @@ class Edge:
     def __init__(self, object, firewall):
         self.object = object
         self.firewall = firewall
+        self.data = firewall
         self.x = []
         self.y = []
         self.line = None
@@ -136,6 +143,20 @@ class Edge:
         self.path.set_alpha(0.5)
         self.path.set_linewidth(self.line_width * 1.7)
 
+    def mark_path2(self):
+        """Add a colored line over the existing line. Used for query path"""
+        self.has_path = True
+
+        if self.path is not None:
+            return
+
+        self.path, = plt.gca().plot(self.x, self.y)
+        self.path.set_zorder(2)
+        self.path.set_label(self.object.to_string())
+        self.path.set_color('cyan')
+        self.path.set_alpha(0.5)
+        self.path.set_linewidth(self.line_width * 1.7)
+
     def clear_path(self):
         """Remove the colored line. Used for query path"""
         self.has_path = False
@@ -168,8 +189,10 @@ class Edge:
         if self.text is None:
             text_posx = (self.x[0] + self.x[1]) / 2
             text_posy = (self.y[0] + self.y[1]) / 2
-
-            self.text = plt.gca().text(text_posx, text_posy, self.object.short_name())
+            if isinstance(self.object, Interface):
+                self.text = plt.gca().text(text_posx, text_posy, self.object.short_name())
+            elif isinstance(self.object, Route_info):
+                self.text = plt.gca().text(text_posx, text_posy, self.object.iface.nameif)### remember to manage this
             self.text.set_fontsize(self.fontsize)
             self.text.set_ha('center')
             self.text.set_va('center')

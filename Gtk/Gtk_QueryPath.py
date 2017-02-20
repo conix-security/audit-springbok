@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pygtk
+from reportlab.graphics.widgetbase import Face
 
 pygtk.require("2.0")
 import gtk
@@ -14,6 +15,8 @@ from NetworkGraph import NetworkGraph
 from SpringBase import *
 from ROBDD.synthesis import synthesize
 from ROBDD.operators import Bdd
+#from SpringBase.Firewall import Firewall
+import time
 
 
 class Gtk_QueryPath:
@@ -123,7 +126,7 @@ class Gtk_QueryPath:
         res = []
 
         try:
-            res = run_query(test_rule)
+            res, routedPaths = run_query(test_rule)
             if not res:
                 raise
         except:
@@ -134,6 +137,7 @@ class Gtk_QueryPath:
 
         # clear old path
         Gtk_Main.Gtk_Main().lateral_pane.path.clear()
+        Gtk_Main.Gtk_Main().lateral_pane.path_route.clear()
         for edge in g.graph.edges(data=True):
             edge[2]['object'].clear_path()
 
@@ -146,6 +150,16 @@ class Gtk_QueryPath:
                 g.graph[path[i]][path[i + 1]]['object'].mark_path()
                 i += 1
             Gtk_Main.Gtk_Main().lateral_pane.path.add_row(path_to_string(path_data[0], '\n'))
+
+        # add routed path result
+        for path_data in routedPaths:
+            path = path_data[0]
+            i = 0
+            while i < len(path) - 1:
+                # mark path
+                g.graph[path[i]][path[i + 1]]['object'].mark_path()
+                i += 1
+            Gtk_Main.Gtk_Main().lateral_pane.path_route.add_row(path_to_string(path_data[0], '\n'))
 
         Gtk_Main.Gtk_Main().lateral_pane.path_data = res
         Gtk_Main.Gtk_Main().lateral_pane.focus_path()
@@ -223,15 +237,50 @@ def run_query(rule, ip_source=None, ip_dest=None):
 
     g = NetworkGraph.NetworkGraph()
 
+
+
     # get all simple path
+    start = time.time()
+    simple_path = g.get_all_simple_path(ip_source, ip_dest)
+    end = time.time()
+    print 'temps mis = ', str(end - start)
+    print 'simple len', len(simple_path)
+
+
+    for node in g.graph.nodes(data=True):
+        if node[1]['object'].marker_type == 'from':
+            ip_source = node[0]
+        if node[1]['object'].marker_type == 'to':
+            ip_dest = node[0]
+
+    '''
     simple_path = []
     [simple_path.append(i) for i in g.get_all_simple_path(ip_source, ip_dest)]
     # delete double
     simple_path.sort()
     simple_path = list(simple_path for simple_path, _ in itertools.groupby(simple_path))
+    '''
+
+
+    ress = []
     count = 0
     length = sum(1 for _ in simple_path)
-
+    for i in range(len(simple_path)):
+        pass#print simple_path[i]
+    for path in simple_path:
+        i = 0
+        trouve = False
+        while i < len(path):
+            if i < len(path) - 1:
+                # if path[i] and path[i + 1] are ip, find the corresponding firewall to add in the path, so we can
+                # mark the path passing through the firewall
+                if not isinstance(path[i], Firewall.Firewall) and not isinstance(path[i + 1], Firewall.Firewall):
+                    # get the firewall
+                    trouve = True
+            i += 1
+        if trouve == False:
+            ress.append(path)
+    simple_path = list(ress)
     # parse all path
     for path in simple_path:
         count += 1
@@ -260,9 +309,14 @@ def run_query(rule, ip_source=None, ip_dest=None):
             i += 1
 
         if i == len(path) - 1:
+            #res += [(list(path), rule_list[0])]
+            #res += [(list(path), [l for l in rule_list])]
+
             for l in rule_list:
                 # add the path list for each list in rule_list
                 res += [(list(path), l)]
+
+
 
     # format result #
     for path_data in res:
@@ -275,13 +329,86 @@ def run_query(rule, ip_source=None, ip_dest=None):
                 # mark the path passing through the firewall
                 if not isinstance(path[i], Firewall.Firewall) and not isinstance(path[i + 1], Firewall.Firewall):
                     # get the firewall
-                    fw = [fw for fw in g.firewalls for acl in g.get_acl_list(firewall=fw) if acl == path_data[1][acl_index][0]][0]
+                    fw = [fw for fw in g.firewalls for acl in g.get_acl_list(firewall=fw)
+                          if acl == path_data[1][acl_index][0]][0]
                     path.insert(i + 1, fw)
                     acl_index -= 1
             i += 1
             acl_index += 1
+    routed_paths = get_routed_paths(list(res), ip_dest)
+    #print res[0][0]
 
-    return res
+    ## delete double from res
+
+    #remove_double(res)
+    #remove_bad_path(res)
+    #print 'res', res
+
+    # delete bad results : path containing the same firewall twice or more
+
+    return (res, routed_paths)
+
+def get_routed_paths(res, ip_dest):
+    finalRes = list(res)
+    for path in [p[0] for p in res]:
+        good_path = True
+        for elt in path:
+            if isinstance(elt, Firewall.Firewall):
+                route_list = list(elt.route_list)
+                route = listContains(route_list, ip_dest)
+                if route:
+                    if route.iface.network.to_string() not in [iface.network.to_string() for iface in elt.interfaces]:
+                        good_path = False
+                else:
+                    good_path = False
+        if good_path == False:
+            for a in res:
+                if a[0] == path:
+                    finalRes.remove(a)
+    print 'final', len(finalRes), finalRes
+    return list(finalRes)
+
+
+
+def listContains(route_list, ip_dest):
+    for route in route_list:
+        if ip_dest.ip & route.net_ip_dst.ip & route.net_ip_dst.mask ==\
+            ip_dest.ip & route.net_ip_dst.mask & ip_dest.mask:
+            return route
+        return None
+
+def remove_double(res):
+    trouve = False
+    for elt in res:
+        path = elt[0]
+        if occ_list(path, [a[0] for a in res]) > 1:
+            res.remove(elt)
+            trouve = True
+    if trouve == True:
+        remove_double(res)
+    else:
+        #print 'ares', len(res), res
+        return res
+
+
+def remove_bad_path(res):
+    trouve = False
+    trouve2 = False
+    for elt in res:
+        path = elt[0]
+        trouve = False
+        for i in path:
+            if occ(i, path) > 1:
+                trouve = True
+                trouve2 = True
+        if trouve == True:
+            if elt in res:
+                res.remove(elt)
+            #print 'after', len(res)
+    if trouve2 == True:
+        remove_bad_path(res)
+    else:
+        return res
 
 
 def get_subset_rule(test_rule, rules):
@@ -297,3 +424,35 @@ def get_subset_rule(test_rule, rules):
 def is_subset(rule, test_rule):
     """return True if rule is a subset of test_rule, false otherwise (use ROBDD)"""
     return len(synthesize(test_rule.toBDD(), Bdd.IMPL, rule.toBDD()).items) <= 2
+
+
+def occ_list(a, p):
+    cptr = 0
+    for i in range(len(p)):
+        if cmp_list(a, p[i]):
+            cptr += 1
+    return cptr
+
+def occ(a, p):
+    cptr = 0
+    for i in range(len(p)):
+        if a == p[i]:
+            cptr += 1
+    return cptr
+
+def is_good(p):
+    for elt in p:
+        p_test = list(p)
+        p_test = list(p_test.remove(elt))
+        if occ(elt, p_test) > 1:
+            return 0
+
+def cmp_list(a, b):
+    if len(a) != len(b):
+        return False
+    else:
+        for i, j in zip(a, b):
+            if i.to_string() != j.to_string():
+                return False
+    return True
+

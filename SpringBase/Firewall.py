@@ -1,11 +1,16 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import Gtk.Gtk_Main
+#import Gtk.Gtk_Main ## remember to uncomment it before use springbok!
 from Protocol import Protocol
 from Ip import Ip
 from Port import Port
+import Gtk.Gtk_Main
 
+
+######## Modification of the class by Maurice TCHAMGOUE N. on 22-06-2015
+###          * Adding the attribute route_list : this attribute is intend
+###            to contains all routes parsed for this firewall
 
 class Firewall:
     """Firewall class.
@@ -32,6 +37,9 @@ class Firewall:
         self.unused_objects = set()
         self.unbounded_rules = set()
         self.dictionnary = {}
+        self.route_list = []
+        self.nat_rule_list = []
+        self.ipsec_maps = {}
 
     def get_interface_by_name(self, name):
         """Find an interface by name
@@ -236,5 +244,8 @@ class Firewall:
             for rule in acl.rules:
                 res += rule.to_string()
                 res += "\n"
-
+        res += 'Static Routes :\n'
+        for route in self.route_list:
+            res += route.to_string()
+            res += '\n'
         return res

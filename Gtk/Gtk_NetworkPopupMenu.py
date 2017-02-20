@@ -24,6 +24,13 @@ from AnomalyDetection.InternalDetection import InternalDetection
 from NetworkGraph import NetworkGraph
 
 
+######## Modification of the class by Maurice TCHAMGOUE N. on 30-06-2015
+###          * Adding the method on_remove_all_menu : this method is called
+###            when the user make a right click on 'remove all'. It will clear
+###            the topology by removing all firewalls
+
+
+
 class Gtk_NewtworkPopupMenu:
     """Gtk_NetworkPopupMenu class.
     Popup menu when right click on the gtk canvas.
@@ -102,6 +109,18 @@ class Gtk_NewtworkPopupMenu:
             self.remove_menu = gtk.MenuItem("Remove")
             self.menu.append(self.remove_menu)
             self.remove_menu.connect("activate", self.on_remove_menu)
+
+        # Show Nat rules #
+        if isinstance(self.node.object, Firewall.Firewall):
+            self.show_nat_rule = gtk.MenuItem("Show nat rules")
+            self.menu.append(self.show_nat_rule)
+            self.show_nat_rule.connect("activate", self.on_show_nat_rule)
+
+        # Show IPSec Tunnels #
+        if isinstance(self.node.object, Firewall.Firewall):
+            self.show_ipsec_tunnels = gtk.MenuItem("Show IPSec tunnels")
+            self.menu.append(self.show_ipsec_tunnels)
+            self.show_ipsec_tunnels.connect("activate", self.on_show_ipsec_tunnels)
 
         # Itinerary #
         if isinstance(self.node.object, Ip.Ip):
@@ -192,6 +211,7 @@ class Gtk_NewtworkPopupMenu:
                 v['object'].clear_marker()
 
             Gtk_Main.Gtk_Main().lateral_pane.path.clear()
+            Gtk_Main.Gtk_Main().lateral_pane.path_route.clear()
 
         def on_background_image(widget):
             dialog = gtk.FileChooserDialog("Import firewall configuration",
@@ -211,6 +231,25 @@ class Gtk_NewtworkPopupMenu:
             dialog.destroy()
             return True
 
+        def on_remove_all_menu(widget):
+            """Remove a firewall. Close all pages, clear paths and details, remove firewall and redraw the graph"""
+            for row in Gtk_Main.Gtk_Main().lateral_pane.firewalls.model:
+                if 1 == 1:
+                    Gtk_Main.Gtk_Main().lateral_pane.firewalls.model.remove(row.iter)
+                    #break
+            for node in NetworkGraph.NetworkGraph().graph.nodes(data=True):
+                self.node = node[1]['object']
+                if isinstance(self.node.object, Firewall.Firewall):
+                    self.on_remove_menu(node)
+                    self.node = None
+            #g.remove_nodes_from(nodes)
+            Gtk_Main.Gtk_Main().lateral_pane.details.clear()
+            Gtk_Main.Gtk_Main().lateral_pane.path.clear()
+            Gtk_Main.Gtk_Main().notebook.close_all_closable()
+
+            Gtk_Main.Gtk_Main().draw()
+
+
         map(self.menu.remove, self.menu.get_children())
 
         # Clear #
@@ -222,6 +261,11 @@ class Gtk_NewtworkPopupMenu:
         self.background = gtk.MenuItem("Background image")
         self.menu.append(self.background)
         self.background.connect("activate", on_background_image)
+
+        # Remove all firewalls
+        self.remove_all = gtk.MenuItem('Remove all')
+        self.menu.append(self.remove_all)
+        self.remove_all.connect("activate", on_remove_all_menu)
 
         self.menu.popup(None, None, None, event.button, event.time)
         self.menu.show_all()
@@ -498,6 +542,7 @@ class Gtk_NewtworkPopupMenu:
         NetworkGraph.NetworkGraph().remove_firewall(self.node)
         Gtk_Main.Gtk_Main().draw()
 
+
     def on_itinerary(self, item, itinerary):
         """Add a marker on the node and if both marker are present, show query path menu
 
@@ -535,3 +580,10 @@ class Gtk_NewtworkPopupMenu:
     def on_acl(self, item, acl):
         """Show acl list"""
         Gtk_Main.Gtk_Main().notebook.add_interface_tab(acl)
+
+    def on_show_nat_rule(self, widget):
+        Gtk_Main.Gtk_Main().notebook.add_nat_rule_tab(self.node.object, self.node.object.nat_rule_list)
+
+    def on_show_ipsec_tunnels(self, widget):
+        Gtk_Main.Gtk_Main().notebook.add_ipsec_tunnels(self.node.object, self.node.object.ipsec_maps)
+        print ('maps ipsec')

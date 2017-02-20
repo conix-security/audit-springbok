@@ -4,6 +4,10 @@
 import re
 from Parser.ply import lex
 
+
+######## Modification of the class by Maurice TCHAMGOUE N. on 29-05-2015
+###          * Adding the grammar to parse Routes
+
 reserved = {
     r'any|\"any\"$': 'ANY',
     r'set$': 'SET',
@@ -63,6 +67,9 @@ reserved = {
     r'application': 'APPLICATION',
     r'attack': 'ATTACK',
     r'av$': 'AV',
+    r'route$':'ROUTE',
+    r'gateway$': 'GATEWAY',
+    r'preference$': 'PREFERENCE',
 }
 
 tokens = [

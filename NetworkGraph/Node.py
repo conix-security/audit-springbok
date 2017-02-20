@@ -6,8 +6,13 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 from matplotlib.cbook import get_sample_data
 import SpringBase.Firewall as Firewall
 import SpringBase.Ip as Ip
+from SpringBase.Route_info import Route_info
 import os
 import NetworkGraph
+
+
+######## Modification of the class by Maurice TCHAMGOUE N. on 08-07-2015
+###          * Adding some informations to show routes on the topology
 
 class Node:
     """Node class.
@@ -43,11 +48,16 @@ class Node:
             self.img_path = fn
             self.color = 'red'
             self.zoom = 0.2
-        else:
+        elif isinstance(object, Ip.Ip):
             fn = os.path.join(os.path.dirname(__file__), '../ressources/network.png')
             self.color = 'blue'
             self.img_path = fn
             self.zoom = 0.4
+        else:
+            fn = os.path.join(os.path.dirname(__file__), '../ressources/gateway.png')
+            self.color = 'blue'
+            self.img_path = fn
+            self.zoom = 0.2
         self.plot = None
         self.annotation_box = None
         self.text = None
@@ -127,6 +137,8 @@ class Node:
                 if self.text is not None:
                     if isinstance(self.object, Firewall.Firewall):
                         self.text.set_visible(NetworkGraph.NetworkGraph().show_fw)
+                    elif isinstance(self.object, Route_info):
+                        self.text.set_visible(False)
                     else:
                         self.text.set_visible(NetworkGraph.NetworkGraph().show_network)
 
@@ -284,9 +296,14 @@ class Node:
                 self.text = plt.gca().text(self.x, self.y, text)
                 self.text.set_fontsize(self.fontsize)
                 self.text.set_visible(NetworkGraph.NetworkGraph().show_network)
+            if isinstance(self.object, Route_info):
+                self.text = plt.gca().text(self.x, self.y, '')
+                self.text.set_color('#000000')
+                self.text.set_fontsize(self.fontsize * 1.25)
+                self.text.set_visible(False)
             self.text.set_ha('center')
             self.text.set_va('center')
-            self.text.set_weight('bold')
+            #self.text.set_weight('bold')
             self.text.set_zorder(4)
         self.text.set_position((self.x, self.y))
 

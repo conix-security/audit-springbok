@@ -121,6 +121,8 @@ def update():
     pass
 
 
+
+
 def finish():
     p_info['firewall'].dictionnary = dict(object_dict)
     # perform unused object and unbounded rules
@@ -141,9 +143,37 @@ def get_firewall():
                 if fw_vdom.vdom == vdom_name:
                     fw_vdom.fw.interfaces.append(itf)
                     break
-
+    end_zones()
+    print 'acls---------------------------b'
+    out = open('/home/maurice/Bureau/outrules.txt', 'w')
+    for fw_vdom in p_info['firewall_list']:
+        for acl in fw_vdom.fw.acl:
+            for rule in acl.rules:
+                print rule.new_to_string(fw_vdom)
+                out.write(rule.new_to_string(fw_vdom))
+                #print 'ip_source---->', rule.ip_source_name
+                #print 'ip_dest---->', rule.ip_dest_name
+                #print rule.protocol_name
+                #print rule.port_dest_name
+                #print rule.port_source_name
+    print 'acls---------------------------e'
+    out.close()
     return [fw_vdom.fw for fw_vdom in p_info['firewall_list']]
 
+def end_zones():
+    print '--------------Zone list-------------------'
+    print p_info['zone_list']
+    f = open('/home/maurice/zones2', 'w')
+    for k, v in p_info['zone_list'].iteritems():
+        print 'zone name : ', k
+        f.write(k + '\n')
+        for fw_vdom in p_info['firewall_list']:
+            for if_name in v:
+                if fw_vdom.fw.get_interface_by_nameif(if_name):
+                    if fw_vdom.fw.get_interface_by_nameif(if_name).network:
+                        f.write(fw_vdom.fw.get_interface_by_nameif(if_name).network.to_string() + '\n')
+        f.write('--\n')
+    f.close()
 
 def show():
     print "--------- Object ---------"
@@ -192,10 +222,10 @@ def resolve(name, src_dest=None):
             if k1 == 'address':
                 if src_dest == 'src':
                     p_info['current_rule'].ip_source.append(v1)
-                    p_info['current_rule'].ip_source_name.append(name)
+                    p_info['current_rule'].ip_source_name[0].append(name)
                 else:
                     p_info['current_rule'].ip_dest.append(v1)
-                    p_info['current_rule'].ip_dest_name.append(name)
+                    p_info['current_rule'].ip_dest_name[0].append(name)
             elif k1 == 'protocol':
                 p_info['current_rule'].protocol.append(v1)
                 p_info['current_rule'].protocol_name.append(name)
@@ -715,26 +745,33 @@ def p_src_addr_words(p):
     if get_state() == 'policy':
         resolve(remove_quote(p[1]), 'src')
 
+zone_name = ''
 
 ### interface line
 def p_policy_set_line_7(p):
     '''policy_set_line : SET SRC_INTF itf_words'''
+    global zone_name
     if get_state() == 'policy':
         p_info['srcintf'] = p[3]
+        p_info['current_rule'].ip_source_name[1].append(zone_name)
         if p_info['dstintf']:
             add_rule(p_info['current_rule'])
 
 
 def p_policy_set_line_8(p):
     '''policy_set_line : SET DST_INTF itf_words'''
+    global zone_name
     if get_state() == 'policy':
         p_info['dstintf'] = p[3]
+        p_info['current_rule'].ip_dest_name[1].append(zone_name)
         if p_info['srcintf']:
             add_rule(p_info['current_rule'])
 
 
 def p_itf_words_1(p):
     '''itf_words : WORD'''
+    global zone_name
+    zone_name = remove_quote(p[1])
     test = remove_quote(p[1])
     if re.search('any', test, re.I):
         p[0] = [itf[0].nameif for itf in p_info['interface_list']]
@@ -746,7 +783,9 @@ def p_itf_words_1(p):
 
 def p_itf_words_2(p):
     '''itf_words : WORD itf_words'''
+    global zone_name
     test = remove_quote(p[1])
+    zone_name = remove_quote(p[1])
     if re.search('any', test, re.I):
         p[0] = [itf[0].nameif for itf in p_info['interface_list']] + p[2]
     elif test in p_info['zone_list']:

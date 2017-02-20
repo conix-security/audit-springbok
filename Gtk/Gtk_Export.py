@@ -21,6 +21,14 @@ class Gtk_Export:
     callback : object. The cllaback function to export object
     ref : object. The object to export
     """
+    '''
+        MODIFICATIONS!!!!
+            This class has been modified by Maurice TCHAMGOUE NDONGO on the 22-05-2015
+            to add the callback save_matrix_flow_table. It will be used to export the
+            matrix flow table into a text file
+    '''
+
+
     def __init__(self, filename, callback, ref):
         self.filename = filename
         self.callback = callback
@@ -121,3 +129,6 @@ def export_query_path(fd, ref):
                 fd.write('---- %s\n' % r[1].to_string(' '))
             fd.write('\n')
         fd.write(128 * '-' + '\n')
+
+def save_matrix_flow_table(fd, ref):
+    pass

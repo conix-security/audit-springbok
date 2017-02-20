@@ -23,11 +23,19 @@ from SpringBase.Operator import Operator
 from SpringBase.Firewall import Firewall
 from SpringBase.ACL import ACL
 from SpringBase.Action import Action
+from SpringBase.Route import Route
 import NetworkGraph
 from ROBDD.synthesis import compare
 from ROBDD.operators import Bdd
 import re
 import ntpath
+from socket import inet_ntoa
+from struct import pack
+
+
+
+######## Modification of the class by Maurice TCHAMGOUE N. on 22-06-2015
+###          * Adding the grammar to parse Routes
 
 
 class ParseHook:
@@ -65,6 +73,10 @@ p_info = {
     'current_rule': Rule(None, None, [], [], [], [], [], Action(False)),
     'current_table': None,
     'raise_on_error': False,
+    'route_list': [],
+    'current_route' : Route(None, None,None, None,None, 1),
+    'index_route': 0,
+
 }
 
 
@@ -96,12 +108,17 @@ def init(name, raise_on_error=False):
     p_info['current_table'] = None
     # raise on error option
     p_info['raise_on_error'] = raise_on_error
+    #parsing routes
+    p_info['route_list']= []
+    p_info['current_route'] = Route(None, None,None, None,None, 1)
+    p_info['index_route'] = 0
 
 
 def update():
     p_info['current_rule'] = Rule(p_info['rule_id'], None, [], [], [], [], [], Action(False))
     p_info['rule_bind'][p_info['rule_id']] = [None, None]
-
+    p_info['current_route'] = Route(None, None,None, None,None, 1)
+    p_info['index_route'] = len(p_info['route_list'])
 
 def finish():
     # apply default policy
@@ -135,6 +152,7 @@ def finish():
 
     # detach not default ACL
     p_info['firewall'].acl = [a for a in p_info['firewall'].acl if a.name in ('INPUT', 'FORWARD', 'OUTPUT')]
+    p_info['firewall'].route_list = list(p_info['route_list'])
 
 
 def get_firewall():
@@ -264,6 +282,12 @@ def to_ip_list(string):
 
     return ip_list
 
+def fromDotted2Dec(ipaddr):
+    return sum([bin(int(x)).count('1') for x in ipaddr.split('.')])
+
+def fromDec2Dotted(mask):
+    bits = 0xffffffff ^ (1 << 32 - mask) - 1
+    return inet_ntoa(pack('>I', bits))
 
 ################ Parser ###############
 
@@ -281,6 +305,7 @@ def p_line(p):
             | chain_line NL
             | command_line NL
             | WORD items NL
+            | route_line NL
             | NL'''
     p[0] = p[1]
 
@@ -750,6 +775,56 @@ def p_target5(p):
     '''target : WORD'''
     if p_info['current_table'] == 'filter':
         p[0] = Action(find_chain_by_name(p[1]))
+
+########## Parsing Routes ###########
+
+def p_default_route_line(p):
+    '''route_line : DEFAULT VIA IP_ADDR DEV WORD'''
+    print [p[i] for i in range(len(p))]
+    iface = p_info['firewall'].get_interface_by_name(str(p[5]))
+    if not isinstance(iface, Interface) :
+        for i in p_info['firewall'].interfaces :
+            iface = i.get_subif_by_name(str(p[5]))
+            if isinstance(iface, Interface) :
+                break
+    route = Route(p_info['index_route'], iface, Ip('0.0.0.0'), Ip('0.0.0.0'), Ip(p[3]))
+    print route.to_string()
+    p_info['route_list'].append(route)
+    p_info['index_route'] += 1
+
+
+
+def p_route_line2(p):
+    '''route_line : IP_ADDR SLASH NUMBER VIA IP_ADDR DEV WORD'''
+    print [p[i] for i in range(len(p))]
+    iface = p_info['firewall'].get_interface_by_name(str(p[5]))
+    if not isinstance(iface, Interface) :
+        for i in p_info['firewall'].interfaces :
+            iface = i.get_subif_by_name(str(p[5]))
+            if isinstance(iface, Interface) :
+                break
+    route = Route(p_info['index_route'], iface, Ip(p[1]), Ip(fromDec2Dotted(int(p[3]))), Ip(p[5]))
+    print route.to_string()
+    p_info['route_list'].append(route)
+    p_info['index_route'] += 1
+
+def p_route_line3(p):
+    '''route_line : IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR
+                  | IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR WORD NUMBER'''
+    print [p[i] for i in range(len(p))]
+    iface = p_info['firewall'].get_interface_by_name(str(p[5]))
+    if not isinstance(iface, Interface) :
+        for i in p_info['firewall'].interfaces :
+            iface = i.get_subif_by_name(str(p[5]))
+            if isinstance(iface, Interface) :
+                break
+    route = Route(p_info['index_route'], iface, Ip(p[1]), Ip(fromDec2Dotted(int(p[3]))), Ip(p[11]))
+    print route.to_string()
+    p_info['route_list'].append(route)
+    p_info['index_route'] += 1
+
+
+
 
 
 def p_error(p):

@@ -47,6 +47,11 @@ reserved = {
     r'reject$|drop$': 'DROP',
     r'queue$': 'QUEUE',
     r'return$': 'RETURN',
+    r'via$': 'VIA',
+    r'default$': 'DEFAULT',
+    r'dev$': 'DEV',
+    r'src$': 'SRC',
+
 }
 
 tokens = [

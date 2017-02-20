@@ -1,0 +1,3954 @@
+Created by PLY version 3.4 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    WS
+
+Grammar
+
+Rule 0     S' -> lines
+Rule 1     lines -> line
+Rule 2     lines -> line lines
+Rule 3     line -> interface_line NL
+Rule 4     line -> interface_address NL
+Rule 5     line -> variable_line NL
+Rule 6     line -> iptables_line NL
+Rule 7     line -> table_line NL
+Rule 8     line -> chain_line NL
+Rule 9     line -> command_line NL
+Rule 10    line -> WORD items NL
+Rule 11    line -> route_line NL
+Rule 12    line -> NL
+Rule 13    line -> error NL
+Rule 14    empty -> <empty>
+Rule 15    items -> item items
+Rule 16    items -> item
+Rule 17    item -> WORD
+Rule 18    item -> NUMBER
+Rule 19    item -> COLON
+Rule 20    interface_line -> WORD LINK items
+Rule 21    interface_address -> INET ADDR COLON IP_ADDR opt_bcast MASK COLON IP_ADDR
+Rule 22    opt_bcast -> BCAST COLON IP_ADDR
+Rule 23    opt_bcast -> empty
+Rule 24    variable_line -> WORD EQ item
+Rule 25    variable_line -> WORD EQ error
+Rule 26    iptables_line -> IPTABLES opt_table commands
+Rule 27    opt_table -> TABLE FILTER
+Rule 28    opt_table -> empty
+Rule 29    opt_table -> TABLE NAT
+Rule 30    opt_table -> TABLE MANGLE
+Rule 31    opt_table -> TABLE RAW
+Rule 32    opt_table -> TABLE SECURITY
+Rule 33    table_line -> STAR FILTER
+Rule 34    table_line -> STAR NAT
+Rule 35    table_line -> STAR MANGLE
+Rule 36    table_line -> STAR RAW
+Rule 37    table_line -> STAR SECURITY
+Rule 38    chain_line -> COLON chain ACCEPT SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+Rule 39    chain_line -> COLON chain DROP SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+Rule 40    chain_line -> COLON chain WORD SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+Rule 41    command_line -> commands
+Rule 42    commands -> append_cmd
+Rule 43    commands -> check_cmd
+Rule 44    commands -> delete_cmd
+Rule 45    commands -> insert_cmd
+Rule 46    commands -> replace_cmd
+Rule 47    commands -> list_cmd
+Rule 48    commands -> list_rules_cmd
+Rule 49    commands -> flush_cmd
+Rule 50    commands -> zero_cmd
+Rule 51    commands -> new_chain_cmd
+Rule 52    commands -> delete_chain_cmd
+Rule 53    commands -> policy_cmd
+Rule 54    commands -> rename_chain_cmd
+Rule 55    append_cmd -> APPEND chain rule_spec
+Rule 56    check_cmd -> CHECK chain rule_spec
+Rule 57    delete_cmd -> DELETE chain rule_spec
+Rule 58    delete_cmd -> DELETE chain NUMBER
+Rule 59    insert_cmd -> INSERT chain NUMBER rule_spec
+Rule 60    insert_cmd -> INSERT chain rule_spec
+Rule 61    replace_cmd -> REPLACE chain NUMBER rule_spec
+Rule 62    list_cmd -> LIST chain
+Rule 63    list_cmd -> LIST
+Rule 64    list_rules_cmd -> LIST_RULES chain
+Rule 65    list_rules_cmd -> LIST_RULES
+Rule 66    flush_cmd -> FLUSH chain
+Rule 67    flush_cmd -> FLUSH
+Rule 68    zero_cmd -> ZERO chain NUMBER
+Rule 69    zero_cmd -> ZERO chain
+Rule 70    zero_cmd -> ZERO
+Rule 71    new_chain_cmd -> NEW_CHAIN chain
+Rule 72    delete_chain_cmd -> DELETE_CHAIN chain
+Rule 73    delete_chain_cmd -> DELETE_CHAIN
+Rule 74    policy_cmd -> POLICY chain target
+Rule 75    rename_chain_cmd -> RENAME_CHAIN chain chain
+Rule 76    chain -> WORD
+Rule 77    rule_spec -> opt_matches
+Rule 78    opt_matches -> opt_match opt_matches
+Rule 79    opt_matches -> opt_match
+Rule 80    unsupported_option -> WORD unsupported_arguments
+Rule 81    unsupported_option -> WORD
+Rule 82    unsupported_arguments -> unsupported_arg unsupported_arguments
+Rule 83    unsupported_arguments -> unsupported_arg
+Rule 84    unsupported_arg -> WORD
+Rule 85    unsupported_arg -> NUMBER
+Rule 86    unsupported_arg -> COLON
+Rule 87    opt_match -> IPV4
+Rule 88    opt_match -> IPV6
+Rule 89    opt_match -> protocol
+Rule 90    opt_match -> ip_source
+Rule 91    opt_match -> ip_destination
+Rule 92    opt_match -> port_source
+Rule 93    opt_match -> port_destination
+Rule 94    opt_match -> MATCH items
+Rule 95    opt_match -> jump_target
+Rule 96    opt_match -> goto_chain
+Rule 97    opt_match -> in_interface
+Rule 98    opt_match -> out_interface
+Rule 99    opt_match -> state_option
+Rule 100   opt_match -> error
+Rule 101   protocol -> PROTOCOL item
+Rule 102   protocol -> BANG PROTOCOL item
+Rule 103   ip_source -> IP_SOURCE ip_addr_list
+Rule 104   ip_source -> BANG IP_SOURCE ip_addr_list
+Rule 105   ip_destination -> IP_DESTINATION ip_addr_list
+Rule 106   ip_destination -> BANG IP_DESTINATION ip_addr_list
+Rule 107   ip_addr_list -> ip_addr COMMA ip_addr_list
+Rule 108   ip_addr_list -> ip_addr
+Rule 109   ip_addr -> IP_ADDR
+Rule 110   ip_addr -> IP_ADDR SLASH NUMBER
+Rule 111   ip_addr -> IP_ADDR SLASH IP_ADDR
+Rule 112   port_source -> PORT_SOURCE port_list
+Rule 113   port_source -> BANG PORT_SOURCE port_list
+Rule 114   port_destination -> PORT_DESTINATION port_list
+Rule 115   port_destination -> BANG PORT_DESTINATION port_list
+Rule 116   port_list -> item COLON item
+Rule 117   port_list -> item COMMA port_list
+Rule 118   port_list -> item
+Rule 119   jump_target -> JUMP target
+Rule 120   goto_chain -> GOTO chain
+Rule 121   in_interface -> IN_INTERFACE WORD
+Rule 122   out_interface -> OUT_INTERFACE WORD
+Rule 123   state_option -> STATE state_arg
+Rule 124   state_arg -> WORD
+Rule 125   state_arg -> WORD COMMA state_arg
+Rule 126   target -> ACCEPT
+Rule 127   target -> DROP
+Rule 128   target -> QUEUE
+Rule 129   target -> RETURN
+Rule 130   target -> WORD
+Rule 131   route_line -> DEFAULT VIA IP_ADDR DEV WORD
+Rule 132   route_line -> IP_ADDR SLASH NUMBER VIA IP_ADDR DEV WORD
+Rule 133   route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR
+Rule 134   route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR WORD NUMBER
+
+Terminals, with rules where they appear
+
+ACCEPT               : 38 126
+ADDR                 : 21
+APPEND               : 55
+BANG                 : 102 104 106 113 115
+BCAST                : 22
+CHECK                : 56
+COLON                : 19 21 21 22 38 38 39 39 40 40 86 116
+COMMA                : 107 117 125
+DEFAULT              : 131
+DELETE               : 57 58
+DELETE_CHAIN         : 72 73
+DEV                  : 131 132 133 134
+DROP                 : 39 127
+EQ                   : 24 25
+FILTER               : 27 33
+FLUSH                : 66 67
+GOTO                 : 120
+INET                 : 21
+INSERT               : 59 60
+IN_INTERFACE         : 121
+IPTABLES             : 26
+IPV4                 : 87
+IPV6                 : 88
+IP_ADDR              : 21 21 22 109 110 111 111 131 132 132 133 133 134 134
+IP_DESTINATION       : 105 106
+IP_SOURCE            : 103 104
+JUMP                 : 119
+LINK                 : 20 133 134
+LIST                 : 62 63
+LIST_RULES           : 64 65
+MANGLE               : 30 35
+MASK                 : 21
+MATCH                : 94
+NAT                  : 29 34
+NEW_CHAIN            : 71
+NL                   : 3 4 5 6 7 8 9 10 11 12 13
+NUMBER               : 18 38 38 39 39 40 40 58 59 61 68 85 110 132 133 134 134
+OUT_INTERFACE        : 122
+POLICY               : 74
+PORT_DESTINATION     : 114 115
+PORT_SOURCE          : 112 113
+PROTOCOL             : 101 102
+QUEUE                : 128
+RAW                  : 31 36
+RENAME_CHAIN         : 75
+REPLACE              : 61
+RETURN               : 129
+SECURITY             : 32 37
+SLASH                : 110 111 132 133 134
+SQUARE_BRACKET       : 38 38 39 39 40 40
+SRC                  : 133 134
+STAR                 : 33 34 35 36 37
+STATE                : 123
+TABLE                : 27 29 30 31 32
+VIA                  : 131 132
+WORD                 : 10 17 20 24 25 40 76 80 81 84 121 122 124 125 130 131 132 133 133 133 133 134 134 134 134 134
+WS                   : 
+ZERO                 : 68 69 70
+error                : 13 25 100
+
+Nonterminals, with rules where they appear
+
+append_cmd           : 42
+chain                : 38 39 40 55 56 57 58 59 60 61 62 64 66 68 69 71 72 74 75 75 120
+chain_line           : 8
+check_cmd            : 43
+command_line         : 9
+commands             : 26 41
+delete_chain_cmd     : 52
+delete_cmd           : 44
+empty                : 23 28
+flush_cmd            : 49
+goto_chain           : 96
+in_interface         : 97
+insert_cmd           : 45
+interface_address    : 4
+interface_line       : 3
+ip_addr              : 107 108
+ip_addr_list         : 103 104 105 106 107
+ip_destination       : 91
+ip_source            : 90
+iptables_line        : 6
+item                 : 15 16 24 101 102 116 116 117 118
+items                : 10 15 20 94
+jump_target          : 95
+line                 : 1 2
+lines                : 2 0
+list_cmd             : 47
+list_rules_cmd       : 48
+new_chain_cmd        : 51
+opt_bcast            : 21
+opt_match            : 78 79
+opt_matches          : 77 78
+opt_table            : 26
+out_interface        : 98
+policy_cmd           : 53
+port_destination     : 93
+port_list            : 112 113 114 115 117
+port_source          : 92
+protocol             : 89
+rename_chain_cmd     : 54
+replace_cmd          : 46
+route_line           : 11
+rule_spec            : 55 56 57 59 60 61
+state_arg            : 123 125
+state_option         : 99
+table_line           : 7
+target               : 74 119
+unsupported_arg      : 82 83
+unsupported_arguments : 80 82
+unsupported_option   : 
+variable_line        : 5
+zero_cmd             : 50
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . lines
+    (1) lines -> . line
+    (2) lines -> . line lines
+    (3) line -> . interface_line NL
+    (4) line -> . interface_address NL
+    (5) line -> . variable_line NL
+    (6) line -> . iptables_line NL
+    (7) line -> . table_line NL
+    (8) line -> . chain_line NL
+    (9) line -> . command_line NL
+    (10) line -> . WORD items NL
+    (11) line -> . route_line NL
+    (12) line -> . NL
+    (13) line -> . error NL
+    (20) interface_line -> . WORD LINK items
+    (21) interface_address -> . INET ADDR COLON IP_ADDR opt_bcast MASK COLON IP_ADDR
+    (24) variable_line -> . WORD EQ item
+    (25) variable_line -> . WORD EQ error
+    (26) iptables_line -> . IPTABLES opt_table commands
+    (33) table_line -> . STAR FILTER
+    (34) table_line -> . STAR NAT
+    (35) table_line -> . STAR MANGLE
+    (36) table_line -> . STAR RAW
+    (37) table_line -> . STAR SECURITY
+    (38) chain_line -> . COLON chain ACCEPT SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+    (39) chain_line -> . COLON chain DROP SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+    (40) chain_line -> . COLON chain WORD SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+    (41) command_line -> . commands
+    (131) route_line -> . DEFAULT VIA IP_ADDR DEV WORD
+    (132) route_line -> . IP_ADDR SLASH NUMBER VIA IP_ADDR DEV WORD
+    (133) route_line -> . IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR
+    (134) route_line -> . IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR WORD NUMBER
+    (42) commands -> . append_cmd
+    (43) commands -> . check_cmd
+    (44) commands -> . delete_cmd
+    (45) commands -> . insert_cmd
+    (46) commands -> . replace_cmd
+    (47) commands -> . list_cmd
+    (48) commands -> . list_rules_cmd
+    (49) commands -> . flush_cmd
+    (50) commands -> . zero_cmd
+    (51) commands -> . new_chain_cmd
+    (52) commands -> . delete_chain_cmd
+    (53) commands -> . policy_cmd
+    (54) commands -> . rename_chain_cmd
+    (55) append_cmd -> . APPEND chain rule_spec
+    (56) check_cmd -> . CHECK chain rule_spec
+    (57) delete_cmd -> . DELETE chain rule_spec
+    (58) delete_cmd -> . DELETE chain NUMBER
+    (59) insert_cmd -> . INSERT chain NUMBER rule_spec
+    (60) insert_cmd -> . INSERT chain rule_spec
+    (61) replace_cmd -> . REPLACE chain NUMBER rule_spec
+    (62) list_cmd -> . LIST chain
+    (63) list_cmd -> . LIST
+    (64) list_rules_cmd -> . LIST_RULES chain
+    (65) list_rules_cmd -> . LIST_RULES
+    (66) flush_cmd -> . FLUSH chain
+    (67) flush_cmd -> . FLUSH
+    (68) zero_cmd -> . ZERO chain NUMBER
+    (69) zero_cmd -> . ZERO chain
+    (70) zero_cmd -> . ZERO
+    (71) new_chain_cmd -> . NEW_CHAIN chain
+    (72) delete_chain_cmd -> . DELETE_CHAIN chain
+    (73) delete_chain_cmd -> . DELETE_CHAIN
+    (74) policy_cmd -> . POLICY chain target
+    (75) rename_chain_cmd -> . RENAME_CHAIN chain chain
+
+    WORD            shift and go to state 34
+    NL              shift and go to state 14
+    error           shift and go to state 41
+    INET            shift and go to state 26
+    IPTABLES        shift and go to state 1
+    STAR            shift and go to state 4
+    COLON           shift and go to state 22
+    DEFAULT         shift and go to state 5
+    IP_ADDR         shift and go to state 29
+    APPEND          shift and go to state 10
+    CHECK           shift and go to state 25
+    DELETE          shift and go to state 44
+    INSERT          shift and go to state 30
+    REPLACE         shift and go to state 9
+    LIST            shift and go to state 11
+    LIST_RULES      shift and go to state 8
+    FLUSH           shift and go to state 31
+    ZERO            shift and go to state 33
+    NEW_CHAIN       shift and go to state 15
+    DELETE_CHAIN    shift and go to state 16
+    POLICY          shift and go to state 23
+    RENAME_CHAIN    shift and go to state 7
+
+    insert_cmd                     shift and go to state 2
+    replace_cmd                    shift and go to state 3
+    new_chain_cmd                  shift and go to state 43
+    list_cmd                       shift and go to state 12
+    table_line                     shift and go to state 13
+    delete_chain_cmd               shift and go to state 17
+    command_line                   shift and go to state 6
+    interface_address              shift and go to state 18
+    check_cmd                      shift and go to state 20
+    append_cmd                     shift and go to state 21
+    chain_line                     shift and go to state 24
+    route_line                     shift and go to state 39
+    zero_cmd                       shift and go to state 27
+    flush_cmd                      shift and go to state 28
+    iptables_line                  shift and go to state 32
+    line                           shift and go to state 35
+    rename_chain_cmd               shift and go to state 19
+    delete_cmd                     shift and go to state 36
+    commands                       shift and go to state 37
+    lines                          shift and go to state 38
+    policy_cmd                     shift and go to state 40
+    variable_line                  shift and go to state 42
+    interface_line                 shift and go to state 45
+    list_rules_cmd                 shift and go to state 46
+
+state 1
+
+    (26) iptables_line -> IPTABLES . opt_table commands
+    (27) opt_table -> . TABLE FILTER
+    (28) opt_table -> . empty
+    (29) opt_table -> . TABLE NAT
+    (30) opt_table -> . TABLE MANGLE
+    (31) opt_table -> . TABLE RAW
+    (32) opt_table -> . TABLE SECURITY
+    (14) empty -> .
+
+    TABLE           shift and go to state 48
+    APPEND          reduce using rule 14 (empty -> .)
+    CHECK           reduce using rule 14 (empty -> .)
+    DELETE          reduce using rule 14 (empty -> .)
+    INSERT          reduce using rule 14 (empty -> .)
+    REPLACE         reduce using rule 14 (empty -> .)
+    LIST            reduce using rule 14 (empty -> .)
+    LIST_RULES      reduce using rule 14 (empty -> .)
+    FLUSH           reduce using rule 14 (empty -> .)
+    ZERO            reduce using rule 14 (empty -> .)
+    NEW_CHAIN       reduce using rule 14 (empty -> .)
+    DELETE_CHAIN    reduce using rule 14 (empty -> .)
+    POLICY          reduce using rule 14 (empty -> .)
+    RENAME_CHAIN    reduce using rule 14 (empty -> .)
+
+    opt_table                      shift and go to state 47
+    empty                          shift and go to state 49
+
+state 2
+
+    (45) commands -> insert_cmd .
+
+    NL              reduce using rule 45 (commands -> insert_cmd .)
+
+
+state 3
+
+    (46) commands -> replace_cmd .
+
+    NL              reduce using rule 46 (commands -> replace_cmd .)
+
+
+state 4
+
+    (33) table_line -> STAR . FILTER
+    (34) table_line -> STAR . NAT
+    (35) table_line -> STAR . MANGLE
+    (36) table_line -> STAR . RAW
+    (37) table_line -> STAR . SECURITY
+
+    FILTER          shift and go to state 50
+    NAT             shift and go to state 52
+    MANGLE          shift and go to state 54
+    RAW             shift and go to state 51
+    SECURITY        shift and go to state 53
+
+
+state 5
+
+    (131) route_line -> DEFAULT . VIA IP_ADDR DEV WORD
+
+    VIA             shift and go to state 55
+
+
+state 6
+
+    (9) line -> command_line . NL
+
+    NL              shift and go to state 56
+
+
+state 7
+
+    (75) rename_chain_cmd -> RENAME_CHAIN . chain chain
+    (76) chain -> . WORD
+
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 58
+
+state 8
+
+    (64) list_rules_cmd -> LIST_RULES . chain
+    (65) list_rules_cmd -> LIST_RULES .
+    (76) chain -> . WORD
+
+    NL              reduce using rule 65 (list_rules_cmd -> LIST_RULES .)
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 59
+
+state 9
+
+    (61) replace_cmd -> REPLACE . chain NUMBER rule_spec
+    (76) chain -> . WORD
+
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 60
+
+state 10
+
+    (55) append_cmd -> APPEND . chain rule_spec
+    (76) chain -> . WORD
+
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 61
+
+state 11
+
+    (62) list_cmd -> LIST . chain
+    (63) list_cmd -> LIST .
+    (76) chain -> . WORD
+
+    NL              reduce using rule 63 (list_cmd -> LIST .)
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 62
+
+state 12
+
+    (47) commands -> list_cmd .
+
+    NL              reduce using rule 47 (commands -> list_cmd .)
+
+
+state 13
+
+    (7) line -> table_line . NL
+
+    NL              shift and go to state 63
+
+
+state 14
+
+    (12) line -> NL .
+
+    WORD            reduce using rule 12 (line -> NL .)
+    NL              reduce using rule 12 (line -> NL .)
+    error           reduce using rule 12 (line -> NL .)
+    INET            reduce using rule 12 (line -> NL .)
+    IPTABLES        reduce using rule 12 (line -> NL .)
+    STAR            reduce using rule 12 (line -> NL .)
+    COLON           reduce using rule 12 (line -> NL .)
+    DEFAULT         reduce using rule 12 (line -> NL .)
+    IP_ADDR         reduce using rule 12 (line -> NL .)
+    APPEND          reduce using rule 12 (line -> NL .)
+    CHECK           reduce using rule 12 (line -> NL .)
+    DELETE          reduce using rule 12 (line -> NL .)
+    INSERT          reduce using rule 12 (line -> NL .)
+    REPLACE         reduce using rule 12 (line -> NL .)
+    LIST            reduce using rule 12 (line -> NL .)
+    LIST_RULES      reduce using rule 12 (line -> NL .)
+    FLUSH           reduce using rule 12 (line -> NL .)
+    ZERO            reduce using rule 12 (line -> NL .)
+    NEW_CHAIN       reduce using rule 12 (line -> NL .)
+    DELETE_CHAIN    reduce using rule 12 (line -> NL .)
+    POLICY          reduce using rule 12 (line -> NL .)
+    RENAME_CHAIN    reduce using rule 12 (line -> NL .)
+    $end            reduce using rule 12 (line -> NL .)
+
+
+state 15
+
+    (71) new_chain_cmd -> NEW_CHAIN . chain
+    (76) chain -> . WORD
+
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 64
+
+state 16
+
+    (72) delete_chain_cmd -> DELETE_CHAIN . chain
+    (73) delete_chain_cmd -> DELETE_CHAIN .
+    (76) chain -> . WORD
+
+    NL              reduce using rule 73 (delete_chain_cmd -> DELETE_CHAIN .)
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 65
+
+state 17
+
+    (52) commands -> delete_chain_cmd .
+
+    NL              reduce using rule 52 (commands -> delete_chain_cmd .)
+
+
+state 18
+
+    (4) line -> interface_address . NL
+
+    NL              shift and go to state 66
+
+
+state 19
+
+    (54) commands -> rename_chain_cmd .
+
+    NL              reduce using rule 54 (commands -> rename_chain_cmd .)
+
+
+state 20
+
+    (43) commands -> check_cmd .
+
+    NL              reduce using rule 43 (commands -> check_cmd .)
+
+
+state 21
+
+    (42) commands -> append_cmd .
+
+    NL              reduce using rule 42 (commands -> append_cmd .)
+
+
+state 22
+
+    (38) chain_line -> COLON . chain ACCEPT SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+    (39) chain_line -> COLON . chain DROP SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+    (40) chain_line -> COLON . chain WORD SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+    (76) chain -> . WORD
+
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 67
+
+state 23
+
+    (74) policy_cmd -> POLICY . chain target
+    (76) chain -> . WORD
+
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 68
+
+state 24
+
+    (8) line -> chain_line . NL
+
+    NL              shift and go to state 69
+
+
+state 25
+
+    (56) check_cmd -> CHECK . chain rule_spec
+    (76) chain -> . WORD
+
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 70
+
+state 26
+
+    (21) interface_address -> INET . ADDR COLON IP_ADDR opt_bcast MASK COLON IP_ADDR
+
+    ADDR            shift and go to state 71
+
+
+state 27
+
+    (50) commands -> zero_cmd .
+
+    NL              reduce using rule 50 (commands -> zero_cmd .)
+
+
+state 28
+
+    (49) commands -> flush_cmd .
+
+    NL              reduce using rule 49 (commands -> flush_cmd .)
+
+
+state 29
+
+    (132) route_line -> IP_ADDR . SLASH NUMBER VIA IP_ADDR DEV WORD
+    (133) route_line -> IP_ADDR . SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR
+    (134) route_line -> IP_ADDR . SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR WORD NUMBER
+
+    SLASH           shift and go to state 72
+
+
+state 30
+
+    (59) insert_cmd -> INSERT . chain NUMBER rule_spec
+    (60) insert_cmd -> INSERT . chain rule_spec
+    (76) chain -> . WORD
+
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 73
+
+state 31
+
+    (66) flush_cmd -> FLUSH . chain
+    (67) flush_cmd -> FLUSH .
+    (76) chain -> . WORD
+
+    NL              reduce using rule 67 (flush_cmd -> FLUSH .)
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 74
+
+state 32
+
+    (6) line -> iptables_line . NL
+
+    NL              shift and go to state 75
+
+
+state 33
+
+    (68) zero_cmd -> ZERO . chain NUMBER
+    (69) zero_cmd -> ZERO . chain
+    (70) zero_cmd -> ZERO .
+    (76) chain -> . WORD
+
+    NL              reduce using rule 70 (zero_cmd -> ZERO .)
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 76
+
+state 34
+
+    (10) line -> WORD . items NL
+    (20) interface_line -> WORD . LINK items
+    (24) variable_line -> WORD . EQ item
+    (25) variable_line -> WORD . EQ error
+    (15) items -> . item items
+    (16) items -> . item
+    (17) item -> . WORD
+    (18) item -> . NUMBER
+    (19) item -> . COLON
+
+    LINK            shift and go to state 82
+    EQ              shift and go to state 83
+    WORD            shift and go to state 77
+    NUMBER          shift and go to state 79
+    COLON           shift and go to state 81
+
+    items                          shift and go to state 78
+    item                           shift and go to state 80
+
+state 35
+
+    (1) lines -> line .
+    (2) lines -> line . lines
+    (1) lines -> . line
+    (2) lines -> . line lines
+    (3) line -> . interface_line NL
+    (4) line -> . interface_address NL
+    (5) line -> . variable_line NL
+    (6) line -> . iptables_line NL
+    (7) line -> . table_line NL
+    (8) line -> . chain_line NL
+    (9) line -> . command_line NL
+    (10) line -> . WORD items NL
+    (11) line -> . route_line NL
+    (12) line -> . NL
+    (13) line -> . error NL
+    (20) interface_line -> . WORD LINK items
+    (21) interface_address -> . INET ADDR COLON IP_ADDR opt_bcast MASK COLON IP_ADDR
+    (24) variable_line -> . WORD EQ item
+    (25) variable_line -> . WORD EQ error
+    (26) iptables_line -> . IPTABLES opt_table commands
+    (33) table_line -> . STAR FILTER
+    (34) table_line -> . STAR NAT
+    (35) table_line -> . STAR MANGLE
+    (36) table_line -> . STAR RAW
+    (37) table_line -> . STAR SECURITY
+    (38) chain_line -> . COLON chain ACCEPT SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+    (39) chain_line -> . COLON chain DROP SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+    (40) chain_line -> . COLON chain WORD SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+    (41) command_line -> . commands
+    (131) route_line -> . DEFAULT VIA IP_ADDR DEV WORD
+    (132) route_line -> . IP_ADDR SLASH NUMBER VIA IP_ADDR DEV WORD
+    (133) route_line -> . IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR
+    (134) route_line -> . IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR WORD NUMBER
+    (42) commands -> . append_cmd
+    (43) commands -> . check_cmd
+    (44) commands -> . delete_cmd
+    (45) commands -> . insert_cmd
+    (46) commands -> . replace_cmd
+    (47) commands -> . list_cmd
+    (48) commands -> . list_rules_cmd
+    (49) commands -> . flush_cmd
+    (50) commands -> . zero_cmd
+    (51) commands -> . new_chain_cmd
+    (52) commands -> . delete_chain_cmd
+    (53) commands -> . policy_cmd
+    (54) commands -> . rename_chain_cmd
+    (55) append_cmd -> . APPEND chain rule_spec
+    (56) check_cmd -> . CHECK chain rule_spec
+    (57) delete_cmd -> . DELETE chain rule_spec
+    (58) delete_cmd -> . DELETE chain NUMBER
+    (59) insert_cmd -> . INSERT chain NUMBER rule_spec
+    (60) insert_cmd -> . INSERT chain rule_spec
+    (61) replace_cmd -> . REPLACE chain NUMBER rule_spec
+    (62) list_cmd -> . LIST chain
+    (63) list_cmd -> . LIST
+    (64) list_rules_cmd -> . LIST_RULES chain
+    (65) list_rules_cmd -> . LIST_RULES
+    (66) flush_cmd -> . FLUSH chain
+    (67) flush_cmd -> . FLUSH
+    (68) zero_cmd -> . ZERO chain NUMBER
+    (69) zero_cmd -> . ZERO chain
+    (70) zero_cmd -> . ZERO
+    (71) new_chain_cmd -> . NEW_CHAIN chain
+    (72) delete_chain_cmd -> . DELETE_CHAIN chain
+    (73) delete_chain_cmd -> . DELETE_CHAIN
+    (74) policy_cmd -> . POLICY chain target
+    (75) rename_chain_cmd -> . RENAME_CHAIN chain chain
+
+    $end            reduce using rule 1 (lines -> line .)
+    WORD            shift and go to state 34
+    NL              shift and go to state 14
+    error           shift and go to state 41
+    INET            shift and go to state 26
+    IPTABLES        shift and go to state 1
+    STAR            shift and go to state 4
+    COLON           shift and go to state 22
+    DEFAULT         shift and go to state 5
+    IP_ADDR         shift and go to state 29
+    APPEND          shift and go to state 10
+    CHECK           shift and go to state 25
+    DELETE          shift and go to state 44
+    INSERT          shift and go to state 30
+    REPLACE         shift and go to state 9
+    LIST            shift and go to state 11
+    LIST_RULES      shift and go to state 8
+    FLUSH           shift and go to state 31
+    ZERO            shift and go to state 33
+    NEW_CHAIN       shift and go to state 15
+    DELETE_CHAIN    shift and go to state 16
+    POLICY          shift and go to state 23
+    RENAME_CHAIN    shift and go to state 7
+
+    insert_cmd                     shift and go to state 2
+    replace_cmd                    shift and go to state 3
+    new_chain_cmd                  shift and go to state 43
+    list_cmd                       shift and go to state 12
+    table_line                     shift and go to state 13
+    delete_chain_cmd               shift and go to state 17
+    command_line                   shift and go to state 6
+    interface_address              shift and go to state 18
+    check_cmd                      shift and go to state 20
+    append_cmd                     shift and go to state 21
+    chain_line                     shift and go to state 24
+    route_line                     shift and go to state 39
+    zero_cmd                       shift and go to state 27
+    flush_cmd                      shift and go to state 28
+    iptables_line                  shift and go to state 32
+    line                           shift and go to state 35
+    rename_chain_cmd               shift and go to state 19
+    delete_cmd                     shift and go to state 36
+    commands                       shift and go to state 37
+    lines                          shift and go to state 84
+    policy_cmd                     shift and go to state 40
+    variable_line                  shift and go to state 42
+    interface_line                 shift and go to state 45
+    list_rules_cmd                 shift and go to state 46
+
+state 36
+
+    (44) commands -> delete_cmd .
+
+    NL              reduce using rule 44 (commands -> delete_cmd .)
+
+
+state 37
+
+    (41) command_line -> commands .
+
+    NL              reduce using rule 41 (command_line -> commands .)
+
+
+state 38
+
+    (0) S' -> lines .
+
+
+
+state 39
+
+    (11) line -> route_line . NL
+
+    NL              shift and go to state 85
+
+
+state 40
+
+    (53) commands -> policy_cmd .
+
+    NL              reduce using rule 53 (commands -> policy_cmd .)
+
+
+state 41
+
+    (13) line -> error . NL
+
+    NL              shift and go to state 86
+
+
+state 42
+
+    (5) line -> variable_line . NL
+
+    NL              shift and go to state 87
+
+
+state 43
+
+    (51) commands -> new_chain_cmd .
+
+    NL              reduce using rule 51 (commands -> new_chain_cmd .)
+
+
+state 44
+
+    (57) delete_cmd -> DELETE . chain rule_spec
+    (58) delete_cmd -> DELETE . chain NUMBER
+    (76) chain -> . WORD
+
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 88
+
+state 45
+
+    (3) line -> interface_line . NL
+
+    NL              shift and go to state 89
+
+
+state 46
+
+    (48) commands -> list_rules_cmd .
+
+    NL              reduce using rule 48 (commands -> list_rules_cmd .)
+
+
+state 47
+
+    (26) iptables_line -> IPTABLES opt_table . commands
+    (42) commands -> . append_cmd
+    (43) commands -> . check_cmd
+    (44) commands -> . delete_cmd
+    (45) commands -> . insert_cmd
+    (46) commands -> . replace_cmd
+    (47) commands -> . list_cmd
+    (48) commands -> . list_rules_cmd
+    (49) commands -> . flush_cmd
+    (50) commands -> . zero_cmd
+    (51) commands -> . new_chain_cmd
+    (52) commands -> . delete_chain_cmd
+    (53) commands -> . policy_cmd
+    (54) commands -> . rename_chain_cmd
+    (55) append_cmd -> . APPEND chain rule_spec
+    (56) check_cmd -> . CHECK chain rule_spec
+    (57) delete_cmd -> . DELETE chain rule_spec
+    (58) delete_cmd -> . DELETE chain NUMBER
+    (59) insert_cmd -> . INSERT chain NUMBER rule_spec
+    (60) insert_cmd -> . INSERT chain rule_spec
+    (61) replace_cmd -> . REPLACE chain NUMBER rule_spec
+    (62) list_cmd -> . LIST chain
+    (63) list_cmd -> . LIST
+    (64) list_rules_cmd -> . LIST_RULES chain
+    (65) list_rules_cmd -> . LIST_RULES
+    (66) flush_cmd -> . FLUSH chain
+    (67) flush_cmd -> . FLUSH
+    (68) zero_cmd -> . ZERO chain NUMBER
+    (69) zero_cmd -> . ZERO chain
+    (70) zero_cmd -> . ZERO
+    (71) new_chain_cmd -> . NEW_CHAIN chain
+    (72) delete_chain_cmd -> . DELETE_CHAIN chain
+    (73) delete_chain_cmd -> . DELETE_CHAIN
+    (74) policy_cmd -> . POLICY chain target
+    (75) rename_chain_cmd -> . RENAME_CHAIN chain chain
+
+    APPEND          shift and go to state 10
+    CHECK           shift and go to state 25
+    DELETE          shift and go to state 44
+    INSERT          shift and go to state 30
+    REPLACE         shift and go to state 9
+    LIST            shift and go to state 11
+    LIST_RULES      shift and go to state 8
+    FLUSH           shift and go to state 31
+    ZERO            shift and go to state 33
+    NEW_CHAIN       shift and go to state 15
+    DELETE_CHAIN    shift and go to state 16
+    POLICY          shift and go to state 23
+    RENAME_CHAIN    shift and go to state 7
+
+    insert_cmd                     shift and go to state 2
+    list_cmd                       shift and go to state 12
+    commands                       shift and go to state 90
+    delete_chain_cmd               shift and go to state 17
+    replace_cmd                    shift and go to state 3
+    check_cmd                      shift and go to state 20
+    append_cmd                     shift and go to state 21
+    new_chain_cmd                  shift and go to state 43
+    policy_cmd                     shift and go to state 40
+    flush_cmd                      shift and go to state 28
+    zero_cmd                       shift and go to state 27
+    rename_chain_cmd               shift and go to state 19
+    delete_cmd                     shift and go to state 36
+    list_rules_cmd                 shift and go to state 46
+
+state 48
+
+    (27) opt_table -> TABLE . FILTER
+    (29) opt_table -> TABLE . NAT
+    (30) opt_table -> TABLE . MANGLE
+    (31) opt_table -> TABLE . RAW
+    (32) opt_table -> TABLE . SECURITY
+
+    FILTER          shift and go to state 91
+    NAT             shift and go to state 93
+    MANGLE          shift and go to state 95
+    RAW             shift and go to state 92
+    SECURITY        shift and go to state 94
+
+
+state 49
+
+    (28) opt_table -> empty .
+
+    APPEND          reduce using rule 28 (opt_table -> empty .)
+    CHECK           reduce using rule 28 (opt_table -> empty .)
+    DELETE          reduce using rule 28 (opt_table -> empty .)
+    INSERT          reduce using rule 28 (opt_table -> empty .)
+    REPLACE         reduce using rule 28 (opt_table -> empty .)
+    LIST            reduce using rule 28 (opt_table -> empty .)
+    LIST_RULES      reduce using rule 28 (opt_table -> empty .)
+    FLUSH           reduce using rule 28 (opt_table -> empty .)
+    ZERO            reduce using rule 28 (opt_table -> empty .)
+    NEW_CHAIN       reduce using rule 28 (opt_table -> empty .)
+    DELETE_CHAIN    reduce using rule 28 (opt_table -> empty .)
+    POLICY          reduce using rule 28 (opt_table -> empty .)
+    RENAME_CHAIN    reduce using rule 28 (opt_table -> empty .)
+
+
+state 50
+
+    (33) table_line -> STAR FILTER .
+
+    NL              reduce using rule 33 (table_line -> STAR FILTER .)
+
+
+state 51
+
+    (36) table_line -> STAR RAW .
+
+    NL              reduce using rule 36 (table_line -> STAR RAW .)
+
+
+state 52
+
+    (34) table_line -> STAR NAT .
+
+    NL              reduce using rule 34 (table_line -> STAR NAT .)
+
+
+state 53
+
+    (37) table_line -> STAR SECURITY .
+
+    NL              reduce using rule 37 (table_line -> STAR SECURITY .)
+
+
+state 54
+
+    (35) table_line -> STAR MANGLE .
+
+    NL              reduce using rule 35 (table_line -> STAR MANGLE .)
+
+
+state 55
+
+    (131) route_line -> DEFAULT VIA . IP_ADDR DEV WORD
+
+    IP_ADDR         shift and go to state 96
+
+
+state 56
+
+    (9) line -> command_line NL .
+
+    WORD            reduce using rule 9 (line -> command_line NL .)
+    NL              reduce using rule 9 (line -> command_line NL .)
+    error           reduce using rule 9 (line -> command_line NL .)
+    INET            reduce using rule 9 (line -> command_line NL .)
+    IPTABLES        reduce using rule 9 (line -> command_line NL .)
+    STAR            reduce using rule 9 (line -> command_line NL .)
+    COLON           reduce using rule 9 (line -> command_line NL .)
+    DEFAULT         reduce using rule 9 (line -> command_line NL .)
+    IP_ADDR         reduce using rule 9 (line -> command_line NL .)
+    APPEND          reduce using rule 9 (line -> command_line NL .)
+    CHECK           reduce using rule 9 (line -> command_line NL .)
+    DELETE          reduce using rule 9 (line -> command_line NL .)
+    INSERT          reduce using rule 9 (line -> command_line NL .)
+    REPLACE         reduce using rule 9 (line -> command_line NL .)
+    LIST            reduce using rule 9 (line -> command_line NL .)
+    LIST_RULES      reduce using rule 9 (line -> command_line NL .)
+    FLUSH           reduce using rule 9 (line -> command_line NL .)
+    ZERO            reduce using rule 9 (line -> command_line NL .)
+    NEW_CHAIN       reduce using rule 9 (line -> command_line NL .)
+    DELETE_CHAIN    reduce using rule 9 (line -> command_line NL .)
+    POLICY          reduce using rule 9 (line -> command_line NL .)
+    RENAME_CHAIN    reduce using rule 9 (line -> command_line NL .)
+    $end            reduce using rule 9 (line -> command_line NL .)
+
+
+state 57
+
+    (76) chain -> WORD .
+
+    NL              reduce using rule 76 (chain -> WORD .)
+    ACCEPT          reduce using rule 76 (chain -> WORD .)
+    DROP            reduce using rule 76 (chain -> WORD .)
+    WORD            reduce using rule 76 (chain -> WORD .)
+    QUEUE           reduce using rule 76 (chain -> WORD .)
+    RETURN          reduce using rule 76 (chain -> WORD .)
+    IPV4            reduce using rule 76 (chain -> WORD .)
+    IPV6            reduce using rule 76 (chain -> WORD .)
+    MATCH           reduce using rule 76 (chain -> WORD .)
+    error           reduce using rule 76 (chain -> WORD .)
+    PROTOCOL        reduce using rule 76 (chain -> WORD .)
+    BANG            reduce using rule 76 (chain -> WORD .)
+    IP_SOURCE       reduce using rule 76 (chain -> WORD .)
+    IP_DESTINATION  reduce using rule 76 (chain -> WORD .)
+    PORT_SOURCE     reduce using rule 76 (chain -> WORD .)
+    PORT_DESTINATION reduce using rule 76 (chain -> WORD .)
+    JUMP            reduce using rule 76 (chain -> WORD .)
+    GOTO            reduce using rule 76 (chain -> WORD .)
+    IN_INTERFACE    reduce using rule 76 (chain -> WORD .)
+    OUT_INTERFACE   reduce using rule 76 (chain -> WORD .)
+    STATE           reduce using rule 76 (chain -> WORD .)
+    NUMBER          reduce using rule 76 (chain -> WORD .)
+
+
+state 58
+
+    (75) rename_chain_cmd -> RENAME_CHAIN chain . chain
+    (76) chain -> . WORD
+
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 97
+
+state 59
+
+    (64) list_rules_cmd -> LIST_RULES chain .
+
+    NL              reduce using rule 64 (list_rules_cmd -> LIST_RULES chain .)
+
+
+state 60
+
+    (61) replace_cmd -> REPLACE chain . NUMBER rule_spec
+
+    NUMBER          shift and go to state 98
+
+
+state 61
+
+    (55) append_cmd -> APPEND chain . rule_spec
+    (77) rule_spec -> . opt_matches
+    (78) opt_matches -> . opt_match opt_matches
+    (79) opt_matches -> . opt_match
+    (87) opt_match -> . IPV4
+    (88) opt_match -> . IPV6
+    (89) opt_match -> . protocol
+    (90) opt_match -> . ip_source
+    (91) opt_match -> . ip_destination
+    (92) opt_match -> . port_source
+    (93) opt_match -> . port_destination
+    (94) opt_match -> . MATCH items
+    (95) opt_match -> . jump_target
+    (96) opt_match -> . goto_chain
+    (97) opt_match -> . in_interface
+    (98) opt_match -> . out_interface
+    (99) opt_match -> . state_option
+    (100) opt_match -> . error
+    (101) protocol -> . PROTOCOL item
+    (102) protocol -> . BANG PROTOCOL item
+    (103) ip_source -> . IP_SOURCE ip_addr_list
+    (104) ip_source -> . BANG IP_SOURCE ip_addr_list
+    (105) ip_destination -> . IP_DESTINATION ip_addr_list
+    (106) ip_destination -> . BANG IP_DESTINATION ip_addr_list
+    (112) port_source -> . PORT_SOURCE port_list
+    (113) port_source -> . BANG PORT_SOURCE port_list
+    (114) port_destination -> . PORT_DESTINATION port_list
+    (115) port_destination -> . BANG PORT_DESTINATION port_list
+    (119) jump_target -> . JUMP target
+    (120) goto_chain -> . GOTO chain
+    (121) in_interface -> . IN_INTERFACE WORD
+    (122) out_interface -> . OUT_INTERFACE WORD
+    (123) state_option -> . STATE state_arg
+
+    IPV4            shift and go to state 126
+    IPV6            shift and go to state 105
+    MATCH           shift and go to state 119
+    error           shift and go to state 123
+    PROTOCOL        shift and go to state 112
+    BANG            shift and go to state 118
+    IP_SOURCE       shift and go to state 121
+    IP_DESTINATION  shift and go to state 110
+    PORT_SOURCE     shift and go to state 100
+    PORT_DESTINATION shift and go to state 103
+    JUMP            shift and go to state 117
+    GOTO            shift and go to state 102
+    IN_INTERFACE    shift and go to state 108
+    OUT_INTERFACE   shift and go to state 115
+    STATE           shift and go to state 122
+
+    ip_source                      shift and go to state 106
+    rule_spec                      shift and go to state 113
+    port_source                    shift and go to state 114
+    state_option                   shift and go to state 116
+    in_interface                   shift and go to state 125
+    port_destination               shift and go to state 111
+    goto_chain                     shift and go to state 104
+    out_interface                  shift and go to state 101
+    opt_match                      shift and go to state 124
+    protocol                       shift and go to state 99
+    opt_matches                    shift and go to state 107
+    ip_destination                 shift and go to state 120
+    jump_target                    shift and go to state 109
+
+state 62
+
+    (62) list_cmd -> LIST chain .
+
+    NL              reduce using rule 62 (list_cmd -> LIST chain .)
+
+
+state 63
+
+    (7) line -> table_line NL .
+
+    WORD            reduce using rule 7 (line -> table_line NL .)
+    NL              reduce using rule 7 (line -> table_line NL .)
+    error           reduce using rule 7 (line -> table_line NL .)
+    INET            reduce using rule 7 (line -> table_line NL .)
+    IPTABLES        reduce using rule 7 (line -> table_line NL .)
+    STAR            reduce using rule 7 (line -> table_line NL .)
+    COLON           reduce using rule 7 (line -> table_line NL .)
+    DEFAULT         reduce using rule 7 (line -> table_line NL .)
+    IP_ADDR         reduce using rule 7 (line -> table_line NL .)
+    APPEND          reduce using rule 7 (line -> table_line NL .)
+    CHECK           reduce using rule 7 (line -> table_line NL .)
+    DELETE          reduce using rule 7 (line -> table_line NL .)
+    INSERT          reduce using rule 7 (line -> table_line NL .)
+    REPLACE         reduce using rule 7 (line -> table_line NL .)
+    LIST            reduce using rule 7 (line -> table_line NL .)
+    LIST_RULES      reduce using rule 7 (line -> table_line NL .)
+    FLUSH           reduce using rule 7 (line -> table_line NL .)
+    ZERO            reduce using rule 7 (line -> table_line NL .)
+    NEW_CHAIN       reduce using rule 7 (line -> table_line NL .)
+    DELETE_CHAIN    reduce using rule 7 (line -> table_line NL .)
+    POLICY          reduce using rule 7 (line -> table_line NL .)
+    RENAME_CHAIN    reduce using rule 7 (line -> table_line NL .)
+    $end            reduce using rule 7 (line -> table_line NL .)
+
+
+state 64
+
+    (71) new_chain_cmd -> NEW_CHAIN chain .
+
+    NL              reduce using rule 71 (new_chain_cmd -> NEW_CHAIN chain .)
+
+
+state 65
+
+    (72) delete_chain_cmd -> DELETE_CHAIN chain .
+
+    NL              reduce using rule 72 (delete_chain_cmd -> DELETE_CHAIN chain .)
+
+
+state 66
+
+    (4) line -> interface_address NL .
+
+    WORD            reduce using rule 4 (line -> interface_address NL .)
+    NL              reduce using rule 4 (line -> interface_address NL .)
+    error           reduce using rule 4 (line -> interface_address NL .)
+    INET            reduce using rule 4 (line -> interface_address NL .)
+    IPTABLES        reduce using rule 4 (line -> interface_address NL .)
+    STAR            reduce using rule 4 (line -> interface_address NL .)
+    COLON           reduce using rule 4 (line -> interface_address NL .)
+    DEFAULT         reduce using rule 4 (line -> interface_address NL .)
+    IP_ADDR         reduce using rule 4 (line -> interface_address NL .)
+    APPEND          reduce using rule 4 (line -> interface_address NL .)
+    CHECK           reduce using rule 4 (line -> interface_address NL .)
+    DELETE          reduce using rule 4 (line -> interface_address NL .)
+    INSERT          reduce using rule 4 (line -> interface_address NL .)
+    REPLACE         reduce using rule 4 (line -> interface_address NL .)
+    LIST            reduce using rule 4 (line -> interface_address NL .)
+    LIST_RULES      reduce using rule 4 (line -> interface_address NL .)
+    FLUSH           reduce using rule 4 (line -> interface_address NL .)
+    ZERO            reduce using rule 4 (line -> interface_address NL .)
+    NEW_CHAIN       reduce using rule 4 (line -> interface_address NL .)
+    DELETE_CHAIN    reduce using rule 4 (line -> interface_address NL .)
+    POLICY          reduce using rule 4 (line -> interface_address NL .)
+    RENAME_CHAIN    reduce using rule 4 (line -> interface_address NL .)
+    $end            reduce using rule 4 (line -> interface_address NL .)
+
+
+state 67
+
+    (38) chain_line -> COLON chain . ACCEPT SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+    (39) chain_line -> COLON chain . DROP SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+    (40) chain_line -> COLON chain . WORD SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+
+    ACCEPT          shift and go to state 129
+    DROP            shift and go to state 128
+    WORD            shift and go to state 127
+
+
+state 68
+
+    (74) policy_cmd -> POLICY chain . target
+    (126) target -> . ACCEPT
+    (127) target -> . DROP
+    (128) target -> . QUEUE
+    (129) target -> . RETURN
+    (130) target -> . WORD
+
+    ACCEPT          shift and go to state 133
+    DROP            shift and go to state 132
+    QUEUE           shift and go to state 134
+    RETURN          shift and go to state 130
+    WORD            shift and go to state 135
+
+    target                         shift and go to state 131
+
+state 69
+
+    (8) line -> chain_line NL .
+
+    WORD            reduce using rule 8 (line -> chain_line NL .)
+    NL              reduce using rule 8 (line -> chain_line NL .)
+    error           reduce using rule 8 (line -> chain_line NL .)
+    INET            reduce using rule 8 (line -> chain_line NL .)
+    IPTABLES        reduce using rule 8 (line -> chain_line NL .)
+    STAR            reduce using rule 8 (line -> chain_line NL .)
+    COLON           reduce using rule 8 (line -> chain_line NL .)
+    DEFAULT         reduce using rule 8 (line -> chain_line NL .)
+    IP_ADDR         reduce using rule 8 (line -> chain_line NL .)
+    APPEND          reduce using rule 8 (line -> chain_line NL .)
+    CHECK           reduce using rule 8 (line -> chain_line NL .)
+    DELETE          reduce using rule 8 (line -> chain_line NL .)
+    INSERT          reduce using rule 8 (line -> chain_line NL .)
+    REPLACE         reduce using rule 8 (line -> chain_line NL .)
+    LIST            reduce using rule 8 (line -> chain_line NL .)
+    LIST_RULES      reduce using rule 8 (line -> chain_line NL .)
+    FLUSH           reduce using rule 8 (line -> chain_line NL .)
+    ZERO            reduce using rule 8 (line -> chain_line NL .)
+    NEW_CHAIN       reduce using rule 8 (line -> chain_line NL .)
+    DELETE_CHAIN    reduce using rule 8 (line -> chain_line NL .)
+    POLICY          reduce using rule 8 (line -> chain_line NL .)
+    RENAME_CHAIN    reduce using rule 8 (line -> chain_line NL .)
+    $end            reduce using rule 8 (line -> chain_line NL .)
+
+
+state 70
+
+    (56) check_cmd -> CHECK chain . rule_spec
+    (77) rule_spec -> . opt_matches
+    (78) opt_matches -> . opt_match opt_matches
+    (79) opt_matches -> . opt_match
+    (87) opt_match -> . IPV4
+    (88) opt_match -> . IPV6
+    (89) opt_match -> . protocol
+    (90) opt_match -> . ip_source
+    (91) opt_match -> . ip_destination
+    (92) opt_match -> . port_source
+    (93) opt_match -> . port_destination
+    (94) opt_match -> . MATCH items
+    (95) opt_match -> . jump_target
+    (96) opt_match -> . goto_chain
+    (97) opt_match -> . in_interface
+    (98) opt_match -> . out_interface
+    (99) opt_match -> . state_option
+    (100) opt_match -> . error
+    (101) protocol -> . PROTOCOL item
+    (102) protocol -> . BANG PROTOCOL item
+    (103) ip_source -> . IP_SOURCE ip_addr_list
+    (104) ip_source -> . BANG IP_SOURCE ip_addr_list
+    (105) ip_destination -> . IP_DESTINATION ip_addr_list
+    (106) ip_destination -> . BANG IP_DESTINATION ip_addr_list
+    (112) port_source -> . PORT_SOURCE port_list
+    (113) port_source -> . BANG PORT_SOURCE port_list
+    (114) port_destination -> . PORT_DESTINATION port_list
+    (115) port_destination -> . BANG PORT_DESTINATION port_list
+    (119) jump_target -> . JUMP target
+    (120) goto_chain -> . GOTO chain
+    (121) in_interface -> . IN_INTERFACE WORD
+    (122) out_interface -> . OUT_INTERFACE WORD
+    (123) state_option -> . STATE state_arg
+
+    IPV4            shift and go to state 126
+    IPV6            shift and go to state 105
+    MATCH           shift and go to state 119
+    error           shift and go to state 123
+    PROTOCOL        shift and go to state 112
+    BANG            shift and go to state 118
+    IP_SOURCE       shift and go to state 121
+    IP_DESTINATION  shift and go to state 110
+    PORT_SOURCE     shift and go to state 100
+    PORT_DESTINATION shift and go to state 103
+    JUMP            shift and go to state 117
+    GOTO            shift and go to state 102
+    IN_INTERFACE    shift and go to state 108
+    OUT_INTERFACE   shift and go to state 115
+    STATE           shift and go to state 122
+
+    ip_source                      shift and go to state 106
+    rule_spec                      shift and go to state 136
+    port_source                    shift and go to state 114
+    state_option                   shift and go to state 116
+    in_interface                   shift and go to state 125
+    port_destination               shift and go to state 111
+    goto_chain                     shift and go to state 104
+    out_interface                  shift and go to state 101
+    opt_match                      shift and go to state 124
+    protocol                       shift and go to state 99
+    opt_matches                    shift and go to state 107
+    ip_destination                 shift and go to state 120
+    jump_target                    shift and go to state 109
+
+state 71
+
+    (21) interface_address -> INET ADDR . COLON IP_ADDR opt_bcast MASK COLON IP_ADDR
+
+    COLON           shift and go to state 137
+
+
+state 72
+
+    (132) route_line -> IP_ADDR SLASH . NUMBER VIA IP_ADDR DEV WORD
+    (133) route_line -> IP_ADDR SLASH . NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR
+    (134) route_line -> IP_ADDR SLASH . NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR WORD NUMBER
+
+    NUMBER          shift and go to state 138
+
+
+state 73
+
+    (59) insert_cmd -> INSERT chain . NUMBER rule_spec
+    (60) insert_cmd -> INSERT chain . rule_spec
+    (77) rule_spec -> . opt_matches
+    (78) opt_matches -> . opt_match opt_matches
+    (79) opt_matches -> . opt_match
+    (87) opt_match -> . IPV4
+    (88) opt_match -> . IPV6
+    (89) opt_match -> . protocol
+    (90) opt_match -> . ip_source
+    (91) opt_match -> . ip_destination
+    (92) opt_match -> . port_source
+    (93) opt_match -> . port_destination
+    (94) opt_match -> . MATCH items
+    (95) opt_match -> . jump_target
+    (96) opt_match -> . goto_chain
+    (97) opt_match -> . in_interface
+    (98) opt_match -> . out_interface
+    (99) opt_match -> . state_option
+    (100) opt_match -> . error
+    (101) protocol -> . PROTOCOL item
+    (102) protocol -> . BANG PROTOCOL item
+    (103) ip_source -> . IP_SOURCE ip_addr_list
+    (104) ip_source -> . BANG IP_SOURCE ip_addr_list
+    (105) ip_destination -> . IP_DESTINATION ip_addr_list
+    (106) ip_destination -> . BANG IP_DESTINATION ip_addr_list
+    (112) port_source -> . PORT_SOURCE port_list
+    (113) port_source -> . BANG PORT_SOURCE port_list
+    (114) port_destination -> . PORT_DESTINATION port_list
+    (115) port_destination -> . BANG PORT_DESTINATION port_list
+    (119) jump_target -> . JUMP target
+    (120) goto_chain -> . GOTO chain
+    (121) in_interface -> . IN_INTERFACE WORD
+    (122) out_interface -> . OUT_INTERFACE WORD
+    (123) state_option -> . STATE state_arg
+
+    NUMBER          shift and go to state 139
+    IPV4            shift and go to state 126
+    IPV6            shift and go to state 105
+    MATCH           shift and go to state 119
+    error           shift and go to state 123
+    PROTOCOL        shift and go to state 112
+    BANG            shift and go to state 118
+    IP_SOURCE       shift and go to state 121
+    IP_DESTINATION  shift and go to state 110
+    PORT_SOURCE     shift and go to state 100
+    PORT_DESTINATION shift and go to state 103
+    JUMP            shift and go to state 117
+    GOTO            shift and go to state 102
+    IN_INTERFACE    shift and go to state 108
+    OUT_INTERFACE   shift and go to state 115
+    STATE           shift and go to state 122
+
+    ip_source                      shift and go to state 106
+    rule_spec                      shift and go to state 140
+    port_source                    shift and go to state 114
+    state_option                   shift and go to state 116
+    in_interface                   shift and go to state 125
+    port_destination               shift and go to state 111
+    goto_chain                     shift and go to state 104
+    out_interface                  shift and go to state 101
+    opt_match                      shift and go to state 124
+    protocol                       shift and go to state 99
+    opt_matches                    shift and go to state 107
+    ip_destination                 shift and go to state 120
+    jump_target                    shift and go to state 109
+
+state 74
+
+    (66) flush_cmd -> FLUSH chain .
+
+    NL              reduce using rule 66 (flush_cmd -> FLUSH chain .)
+
+
+state 75
+
+    (6) line -> iptables_line NL .
+
+    WORD            reduce using rule 6 (line -> iptables_line NL .)
+    NL              reduce using rule 6 (line -> iptables_line NL .)
+    error           reduce using rule 6 (line -> iptables_line NL .)
+    INET            reduce using rule 6 (line -> iptables_line NL .)
+    IPTABLES        reduce using rule 6 (line -> iptables_line NL .)
+    STAR            reduce using rule 6 (line -> iptables_line NL .)
+    COLON           reduce using rule 6 (line -> iptables_line NL .)
+    DEFAULT         reduce using rule 6 (line -> iptables_line NL .)
+    IP_ADDR         reduce using rule 6 (line -> iptables_line NL .)
+    APPEND          reduce using rule 6 (line -> iptables_line NL .)
+    CHECK           reduce using rule 6 (line -> iptables_line NL .)
+    DELETE          reduce using rule 6 (line -> iptables_line NL .)
+    INSERT          reduce using rule 6 (line -> iptables_line NL .)
+    REPLACE         reduce using rule 6 (line -> iptables_line NL .)
+    LIST            reduce using rule 6 (line -> iptables_line NL .)
+    LIST_RULES      reduce using rule 6 (line -> iptables_line NL .)
+    FLUSH           reduce using rule 6 (line -> iptables_line NL .)
+    ZERO            reduce using rule 6 (line -> iptables_line NL .)
+    NEW_CHAIN       reduce using rule 6 (line -> iptables_line NL .)
+    DELETE_CHAIN    reduce using rule 6 (line -> iptables_line NL .)
+    POLICY          reduce using rule 6 (line -> iptables_line NL .)
+    RENAME_CHAIN    reduce using rule 6 (line -> iptables_line NL .)
+    $end            reduce using rule 6 (line -> iptables_line NL .)
+
+
+state 76
+
+    (68) zero_cmd -> ZERO chain . NUMBER
+    (69) zero_cmd -> ZERO chain .
+
+    NUMBER          shift and go to state 141
+    NL              reduce using rule 69 (zero_cmd -> ZERO chain .)
+
+
+state 77
+
+    (17) item -> WORD .
+
+    IPV4            reduce using rule 17 (item -> WORD .)
+    IPV6            reduce using rule 17 (item -> WORD .)
+    MATCH           reduce using rule 17 (item -> WORD .)
+    error           reduce using rule 17 (item -> WORD .)
+    PROTOCOL        reduce using rule 17 (item -> WORD .)
+    BANG            reduce using rule 17 (item -> WORD .)
+    IP_SOURCE       reduce using rule 17 (item -> WORD .)
+    IP_DESTINATION  reduce using rule 17 (item -> WORD .)
+    PORT_SOURCE     reduce using rule 17 (item -> WORD .)
+    PORT_DESTINATION reduce using rule 17 (item -> WORD .)
+    JUMP            reduce using rule 17 (item -> WORD .)
+    GOTO            reduce using rule 17 (item -> WORD .)
+    IN_INTERFACE    reduce using rule 17 (item -> WORD .)
+    OUT_INTERFACE   reduce using rule 17 (item -> WORD .)
+    STATE           reduce using rule 17 (item -> WORD .)
+    NL              reduce using rule 17 (item -> WORD .)
+    WORD            reduce using rule 17 (item -> WORD .)
+    NUMBER          reduce using rule 17 (item -> WORD .)
+    COLON           reduce using rule 17 (item -> WORD .)
+    COMMA           reduce using rule 17 (item -> WORD .)
+
+
+state 78
+
+    (10) line -> WORD items . NL
+
+    NL              shift and go to state 142
+
+
+state 79
+
+    (18) item -> NUMBER .
+
+    IPV4            reduce using rule 18 (item -> NUMBER .)
+    IPV6            reduce using rule 18 (item -> NUMBER .)
+    MATCH           reduce using rule 18 (item -> NUMBER .)
+    error           reduce using rule 18 (item -> NUMBER .)
+    PROTOCOL        reduce using rule 18 (item -> NUMBER .)
+    BANG            reduce using rule 18 (item -> NUMBER .)
+    IP_SOURCE       reduce using rule 18 (item -> NUMBER .)
+    IP_DESTINATION  reduce using rule 18 (item -> NUMBER .)
+    PORT_SOURCE     reduce using rule 18 (item -> NUMBER .)
+    PORT_DESTINATION reduce using rule 18 (item -> NUMBER .)
+    JUMP            reduce using rule 18 (item -> NUMBER .)
+    GOTO            reduce using rule 18 (item -> NUMBER .)
+    IN_INTERFACE    reduce using rule 18 (item -> NUMBER .)
+    OUT_INTERFACE   reduce using rule 18 (item -> NUMBER .)
+    STATE           reduce using rule 18 (item -> NUMBER .)
+    NL              reduce using rule 18 (item -> NUMBER .)
+    WORD            reduce using rule 18 (item -> NUMBER .)
+    NUMBER          reduce using rule 18 (item -> NUMBER .)
+    COLON           reduce using rule 18 (item -> NUMBER .)
+    COMMA           reduce using rule 18 (item -> NUMBER .)
+
+
+state 80
+
+    (15) items -> item . items
+    (16) items -> item .
+    (15) items -> . item items
+    (16) items -> . item
+    (17) item -> . WORD
+    (18) item -> . NUMBER
+    (19) item -> . COLON
+
+    IPV4            reduce using rule 16 (items -> item .)
+    IPV6            reduce using rule 16 (items -> item .)
+    MATCH           reduce using rule 16 (items -> item .)
+    error           reduce using rule 16 (items -> item .)
+    PROTOCOL        reduce using rule 16 (items -> item .)
+    BANG            reduce using rule 16 (items -> item .)
+    IP_SOURCE       reduce using rule 16 (items -> item .)
+    IP_DESTINATION  reduce using rule 16 (items -> item .)
+    PORT_SOURCE     reduce using rule 16 (items -> item .)
+    PORT_DESTINATION reduce using rule 16 (items -> item .)
+    JUMP            reduce using rule 16 (items -> item .)
+    GOTO            reduce using rule 16 (items -> item .)
+    IN_INTERFACE    reduce using rule 16 (items -> item .)
+    OUT_INTERFACE   reduce using rule 16 (items -> item .)
+    STATE           reduce using rule 16 (items -> item .)
+    NL              reduce using rule 16 (items -> item .)
+    WORD            shift and go to state 77
+    NUMBER          shift and go to state 79
+    COLON           shift and go to state 81
+
+    item                           shift and go to state 80
+    items                          shift and go to state 143
+
+state 81
+
+    (19) item -> COLON .
+
+    IPV4            reduce using rule 19 (item -> COLON .)
+    IPV6            reduce using rule 19 (item -> COLON .)
+    MATCH           reduce using rule 19 (item -> COLON .)
+    error           reduce using rule 19 (item -> COLON .)
+    PROTOCOL        reduce using rule 19 (item -> COLON .)
+    BANG            reduce using rule 19 (item -> COLON .)
+    IP_SOURCE       reduce using rule 19 (item -> COLON .)
+    IP_DESTINATION  reduce using rule 19 (item -> COLON .)
+    PORT_SOURCE     reduce using rule 19 (item -> COLON .)
+    PORT_DESTINATION reduce using rule 19 (item -> COLON .)
+    JUMP            reduce using rule 19 (item -> COLON .)
+    GOTO            reduce using rule 19 (item -> COLON .)
+    IN_INTERFACE    reduce using rule 19 (item -> COLON .)
+    OUT_INTERFACE   reduce using rule 19 (item -> COLON .)
+    STATE           reduce using rule 19 (item -> COLON .)
+    NL              reduce using rule 19 (item -> COLON .)
+    WORD            reduce using rule 19 (item -> COLON .)
+    NUMBER          reduce using rule 19 (item -> COLON .)
+    COLON           reduce using rule 19 (item -> COLON .)
+    COMMA           reduce using rule 19 (item -> COLON .)
+
+
+state 82
+
+    (20) interface_line -> WORD LINK . items
+    (15) items -> . item items
+    (16) items -> . item
+    (17) item -> . WORD
+    (18) item -> . NUMBER
+    (19) item -> . COLON
+
+    WORD            shift and go to state 77
+    NUMBER          shift and go to state 79
+    COLON           shift and go to state 81
+
+    items                          shift and go to state 144
+    item                           shift and go to state 80
+
+state 83
+
+    (24) variable_line -> WORD EQ . item
+    (25) variable_line -> WORD EQ . error
+    (17) item -> . WORD
+    (18) item -> . NUMBER
+    (19) item -> . COLON
+
+    error           shift and go to state 146
+    WORD            shift and go to state 77
+    NUMBER          shift and go to state 79
+    COLON           shift and go to state 81
+
+    item                           shift and go to state 145
+
+state 84
+
+    (2) lines -> line lines .
+
+    $end            reduce using rule 2 (lines -> line lines .)
+
+
+state 85
+
+    (11) line -> route_line NL .
+
+    WORD            reduce using rule 11 (line -> route_line NL .)
+    NL              reduce using rule 11 (line -> route_line NL .)
+    error           reduce using rule 11 (line -> route_line NL .)
+    INET            reduce using rule 11 (line -> route_line NL .)
+    IPTABLES        reduce using rule 11 (line -> route_line NL .)
+    STAR            reduce using rule 11 (line -> route_line NL .)
+    COLON           reduce using rule 11 (line -> route_line NL .)
+    DEFAULT         reduce using rule 11 (line -> route_line NL .)
+    IP_ADDR         reduce using rule 11 (line -> route_line NL .)
+    APPEND          reduce using rule 11 (line -> route_line NL .)
+    CHECK           reduce using rule 11 (line -> route_line NL .)
+    DELETE          reduce using rule 11 (line -> route_line NL .)
+    INSERT          reduce using rule 11 (line -> route_line NL .)
+    REPLACE         reduce using rule 11 (line -> route_line NL .)
+    LIST            reduce using rule 11 (line -> route_line NL .)
+    LIST_RULES      reduce using rule 11 (line -> route_line NL .)
+    FLUSH           reduce using rule 11 (line -> route_line NL .)
+    ZERO            reduce using rule 11 (line -> route_line NL .)
+    NEW_CHAIN       reduce using rule 11 (line -> route_line NL .)
+    DELETE_CHAIN    reduce using rule 11 (line -> route_line NL .)
+    POLICY          reduce using rule 11 (line -> route_line NL .)
+    RENAME_CHAIN    reduce using rule 11 (line -> route_line NL .)
+    $end            reduce using rule 11 (line -> route_line NL .)
+
+
+state 86
+
+    (13) line -> error NL .
+
+    WORD            reduce using rule 13 (line -> error NL .)
+    NL              reduce using rule 13 (line -> error NL .)
+    error           reduce using rule 13 (line -> error NL .)
+    INET            reduce using rule 13 (line -> error NL .)
+    IPTABLES        reduce using rule 13 (line -> error NL .)
+    STAR            reduce using rule 13 (line -> error NL .)
+    COLON           reduce using rule 13 (line -> error NL .)
+    DEFAULT         reduce using rule 13 (line -> error NL .)
+    IP_ADDR         reduce using rule 13 (line -> error NL .)
+    APPEND          reduce using rule 13 (line -> error NL .)
+    CHECK           reduce using rule 13 (line -> error NL .)
+    DELETE          reduce using rule 13 (line -> error NL .)
+    INSERT          reduce using rule 13 (line -> error NL .)
+    REPLACE         reduce using rule 13 (line -> error NL .)
+    LIST            reduce using rule 13 (line -> error NL .)
+    LIST_RULES      reduce using rule 13 (line -> error NL .)
+    FLUSH           reduce using rule 13 (line -> error NL .)
+    ZERO            reduce using rule 13 (line -> error NL .)
+    NEW_CHAIN       reduce using rule 13 (line -> error NL .)
+    DELETE_CHAIN    reduce using rule 13 (line -> error NL .)
+    POLICY          reduce using rule 13 (line -> error NL .)
+    RENAME_CHAIN    reduce using rule 13 (line -> error NL .)
+    $end            reduce using rule 13 (line -> error NL .)
+
+
+state 87
+
+    (5) line -> variable_line NL .
+
+    WORD            reduce using rule 5 (line -> variable_line NL .)
+    NL              reduce using rule 5 (line -> variable_line NL .)
+    error           reduce using rule 5 (line -> variable_line NL .)
+    INET            reduce using rule 5 (line -> variable_line NL .)
+    IPTABLES        reduce using rule 5 (line -> variable_line NL .)
+    STAR            reduce using rule 5 (line -> variable_line NL .)
+    COLON           reduce using rule 5 (line -> variable_line NL .)
+    DEFAULT         reduce using rule 5 (line -> variable_line NL .)
+    IP_ADDR         reduce using rule 5 (line -> variable_line NL .)
+    APPEND          reduce using rule 5 (line -> variable_line NL .)
+    CHECK           reduce using rule 5 (line -> variable_line NL .)
+    DELETE          reduce using rule 5 (line -> variable_line NL .)
+    INSERT          reduce using rule 5 (line -> variable_line NL .)
+    REPLACE         reduce using rule 5 (line -> variable_line NL .)
+    LIST            reduce using rule 5 (line -> variable_line NL .)
+    LIST_RULES      reduce using rule 5 (line -> variable_line NL .)
+    FLUSH           reduce using rule 5 (line -> variable_line NL .)
+    ZERO            reduce using rule 5 (line -> variable_line NL .)
+    NEW_CHAIN       reduce using rule 5 (line -> variable_line NL .)
+    DELETE_CHAIN    reduce using rule 5 (line -> variable_line NL .)
+    POLICY          reduce using rule 5 (line -> variable_line NL .)
+    RENAME_CHAIN    reduce using rule 5 (line -> variable_line NL .)
+    $end            reduce using rule 5 (line -> variable_line NL .)
+
+
+state 88
+
+    (57) delete_cmd -> DELETE chain . rule_spec
+    (58) delete_cmd -> DELETE chain . NUMBER
+    (77) rule_spec -> . opt_matches
+    (78) opt_matches -> . opt_match opt_matches
+    (79) opt_matches -> . opt_match
+    (87) opt_match -> . IPV4
+    (88) opt_match -> . IPV6
+    (89) opt_match -> . protocol
+    (90) opt_match -> . ip_source
+    (91) opt_match -> . ip_destination
+    (92) opt_match -> . port_source
+    (93) opt_match -> . port_destination
+    (94) opt_match -> . MATCH items
+    (95) opt_match -> . jump_target
+    (96) opt_match -> . goto_chain
+    (97) opt_match -> . in_interface
+    (98) opt_match -> . out_interface
+    (99) opt_match -> . state_option
+    (100) opt_match -> . error
+    (101) protocol -> . PROTOCOL item
+    (102) protocol -> . BANG PROTOCOL item
+    (103) ip_source -> . IP_SOURCE ip_addr_list
+    (104) ip_source -> . BANG IP_SOURCE ip_addr_list
+    (105) ip_destination -> . IP_DESTINATION ip_addr_list
+    (106) ip_destination -> . BANG IP_DESTINATION ip_addr_list
+    (112) port_source -> . PORT_SOURCE port_list
+    (113) port_source -> . BANG PORT_SOURCE port_list
+    (114) port_destination -> . PORT_DESTINATION port_list
+    (115) port_destination -> . BANG PORT_DESTINATION port_list
+    (119) jump_target -> . JUMP target
+    (120) goto_chain -> . GOTO chain
+    (121) in_interface -> . IN_INTERFACE WORD
+    (122) out_interface -> . OUT_INTERFACE WORD
+    (123) state_option -> . STATE state_arg
+
+    NUMBER          shift and go to state 147
+    IPV4            shift and go to state 126
+    IPV6            shift and go to state 105
+    MATCH           shift and go to state 119
+    error           shift and go to state 123
+    PROTOCOL        shift and go to state 112
+    BANG            shift and go to state 118
+    IP_SOURCE       shift and go to state 121
+    IP_DESTINATION  shift and go to state 110
+    PORT_SOURCE     shift and go to state 100
+    PORT_DESTINATION shift and go to state 103
+    JUMP            shift and go to state 117
+    GOTO            shift and go to state 102
+    IN_INTERFACE    shift and go to state 108
+    OUT_INTERFACE   shift and go to state 115
+    STATE           shift and go to state 122
+
+    ip_source                      shift and go to state 106
+    rule_spec                      shift and go to state 148
+    port_source                    shift and go to state 114
+    state_option                   shift and go to state 116
+    in_interface                   shift and go to state 125
+    port_destination               shift and go to state 111
+    goto_chain                     shift and go to state 104
+    out_interface                  shift and go to state 101
+    opt_match                      shift and go to state 124
+    protocol                       shift and go to state 99
+    opt_matches                    shift and go to state 107
+    ip_destination                 shift and go to state 120
+    jump_target                    shift and go to state 109
+
+state 89
+
+    (3) line -> interface_line NL .
+
+    WORD            reduce using rule 3 (line -> interface_line NL .)
+    NL              reduce using rule 3 (line -> interface_line NL .)
+    error           reduce using rule 3 (line -> interface_line NL .)
+    INET            reduce using rule 3 (line -> interface_line NL .)
+    IPTABLES        reduce using rule 3 (line -> interface_line NL .)
+    STAR            reduce using rule 3 (line -> interface_line NL .)
+    COLON           reduce using rule 3 (line -> interface_line NL .)
+    DEFAULT         reduce using rule 3 (line -> interface_line NL .)
+    IP_ADDR         reduce using rule 3 (line -> interface_line NL .)
+    APPEND          reduce using rule 3 (line -> interface_line NL .)
+    CHECK           reduce using rule 3 (line -> interface_line NL .)
+    DELETE          reduce using rule 3 (line -> interface_line NL .)
+    INSERT          reduce using rule 3 (line -> interface_line NL .)
+    REPLACE         reduce using rule 3 (line -> interface_line NL .)
+    LIST            reduce using rule 3 (line -> interface_line NL .)
+    LIST_RULES      reduce using rule 3 (line -> interface_line NL .)
+    FLUSH           reduce using rule 3 (line -> interface_line NL .)
+    ZERO            reduce using rule 3 (line -> interface_line NL .)
+    NEW_CHAIN       reduce using rule 3 (line -> interface_line NL .)
+    DELETE_CHAIN    reduce using rule 3 (line -> interface_line NL .)
+    POLICY          reduce using rule 3 (line -> interface_line NL .)
+    RENAME_CHAIN    reduce using rule 3 (line -> interface_line NL .)
+    $end            reduce using rule 3 (line -> interface_line NL .)
+
+
+state 90
+
+    (26) iptables_line -> IPTABLES opt_table commands .
+
+    NL              reduce using rule 26 (iptables_line -> IPTABLES opt_table commands .)
+
+
+state 91
+
+    (27) opt_table -> TABLE FILTER .
+
+    APPEND          reduce using rule 27 (opt_table -> TABLE FILTER .)
+    CHECK           reduce using rule 27 (opt_table -> TABLE FILTER .)
+    DELETE          reduce using rule 27 (opt_table -> TABLE FILTER .)
+    INSERT          reduce using rule 27 (opt_table -> TABLE FILTER .)
+    REPLACE         reduce using rule 27 (opt_table -> TABLE FILTER .)
+    LIST            reduce using rule 27 (opt_table -> TABLE FILTER .)
+    LIST_RULES      reduce using rule 27 (opt_table -> TABLE FILTER .)
+    FLUSH           reduce using rule 27 (opt_table -> TABLE FILTER .)
+    ZERO            reduce using rule 27 (opt_table -> TABLE FILTER .)
+    NEW_CHAIN       reduce using rule 27 (opt_table -> TABLE FILTER .)
+    DELETE_CHAIN    reduce using rule 27 (opt_table -> TABLE FILTER .)
+    POLICY          reduce using rule 27 (opt_table -> TABLE FILTER .)
+    RENAME_CHAIN    reduce using rule 27 (opt_table -> TABLE FILTER .)
+
+
+state 92
+
+    (31) opt_table -> TABLE RAW .
+
+    APPEND          reduce using rule 31 (opt_table -> TABLE RAW .)
+    CHECK           reduce using rule 31 (opt_table -> TABLE RAW .)
+    DELETE          reduce using rule 31 (opt_table -> TABLE RAW .)
+    INSERT          reduce using rule 31 (opt_table -> TABLE RAW .)
+    REPLACE         reduce using rule 31 (opt_table -> TABLE RAW .)
+    LIST            reduce using rule 31 (opt_table -> TABLE RAW .)
+    LIST_RULES      reduce using rule 31 (opt_table -> TABLE RAW .)
+    FLUSH           reduce using rule 31 (opt_table -> TABLE RAW .)
+    ZERO            reduce using rule 31 (opt_table -> TABLE RAW .)
+    NEW_CHAIN       reduce using rule 31 (opt_table -> TABLE RAW .)
+    DELETE_CHAIN    reduce using rule 31 (opt_table -> TABLE RAW .)
+    POLICY          reduce using rule 31 (opt_table -> TABLE RAW .)
+    RENAME_CHAIN    reduce using rule 31 (opt_table -> TABLE RAW .)
+
+
+state 93
+
+    (29) opt_table -> TABLE NAT .
+
+    APPEND          reduce using rule 29 (opt_table -> TABLE NAT .)
+    CHECK           reduce using rule 29 (opt_table -> TABLE NAT .)
+    DELETE          reduce using rule 29 (opt_table -> TABLE NAT .)
+    INSERT          reduce using rule 29 (opt_table -> TABLE NAT .)
+    REPLACE         reduce using rule 29 (opt_table -> TABLE NAT .)
+    LIST            reduce using rule 29 (opt_table -> TABLE NAT .)
+    LIST_RULES      reduce using rule 29 (opt_table -> TABLE NAT .)
+    FLUSH           reduce using rule 29 (opt_table -> TABLE NAT .)
+    ZERO            reduce using rule 29 (opt_table -> TABLE NAT .)
+    NEW_CHAIN       reduce using rule 29 (opt_table -> TABLE NAT .)
+    DELETE_CHAIN    reduce using rule 29 (opt_table -> TABLE NAT .)
+    POLICY          reduce using rule 29 (opt_table -> TABLE NAT .)
+    RENAME_CHAIN    reduce using rule 29 (opt_table -> TABLE NAT .)
+
+
+state 94
+
+    (32) opt_table -> TABLE SECURITY .
+
+    APPEND          reduce using rule 32 (opt_table -> TABLE SECURITY .)
+    CHECK           reduce using rule 32 (opt_table -> TABLE SECURITY .)
+    DELETE          reduce using rule 32 (opt_table -> TABLE SECURITY .)
+    INSERT          reduce using rule 32 (opt_table -> TABLE SECURITY .)
+    REPLACE         reduce using rule 32 (opt_table -> TABLE SECURITY .)
+    LIST            reduce using rule 32 (opt_table -> TABLE SECURITY .)
+    LIST_RULES      reduce using rule 32 (opt_table -> TABLE SECURITY .)
+    FLUSH           reduce using rule 32 (opt_table -> TABLE SECURITY .)
+    ZERO            reduce using rule 32 (opt_table -> TABLE SECURITY .)
+    NEW_CHAIN       reduce using rule 32 (opt_table -> TABLE SECURITY .)
+    DELETE_CHAIN    reduce using rule 32 (opt_table -> TABLE SECURITY .)
+    POLICY          reduce using rule 32 (opt_table -> TABLE SECURITY .)
+    RENAME_CHAIN    reduce using rule 32 (opt_table -> TABLE SECURITY .)
+
+
+state 95
+
+    (30) opt_table -> TABLE MANGLE .
+
+    APPEND          reduce using rule 30 (opt_table -> TABLE MANGLE .)
+    CHECK           reduce using rule 30 (opt_table -> TABLE MANGLE .)
+    DELETE          reduce using rule 30 (opt_table -> TABLE MANGLE .)
+    INSERT          reduce using rule 30 (opt_table -> TABLE MANGLE .)
+    REPLACE         reduce using rule 30 (opt_table -> TABLE MANGLE .)
+    LIST            reduce using rule 30 (opt_table -> TABLE MANGLE .)
+    LIST_RULES      reduce using rule 30 (opt_table -> TABLE MANGLE .)
+    FLUSH           reduce using rule 30 (opt_table -> TABLE MANGLE .)
+    ZERO            reduce using rule 30 (opt_table -> TABLE MANGLE .)
+    NEW_CHAIN       reduce using rule 30 (opt_table -> TABLE MANGLE .)
+    DELETE_CHAIN    reduce using rule 30 (opt_table -> TABLE MANGLE .)
+    POLICY          reduce using rule 30 (opt_table -> TABLE MANGLE .)
+    RENAME_CHAIN    reduce using rule 30 (opt_table -> TABLE MANGLE .)
+
+
+state 96
+
+    (131) route_line -> DEFAULT VIA IP_ADDR . DEV WORD
+
+    DEV             shift and go to state 149
+
+
+state 97
+
+    (75) rename_chain_cmd -> RENAME_CHAIN chain chain .
+
+    NL              reduce using rule 75 (rename_chain_cmd -> RENAME_CHAIN chain chain .)
+
+
+state 98
+
+    (61) replace_cmd -> REPLACE chain NUMBER . rule_spec
+    (77) rule_spec -> . opt_matches
+    (78) opt_matches -> . opt_match opt_matches
+    (79) opt_matches -> . opt_match
+    (87) opt_match -> . IPV4
+    (88) opt_match -> . IPV6
+    (89) opt_match -> . protocol
+    (90) opt_match -> . ip_source
+    (91) opt_match -> . ip_destination
+    (92) opt_match -> . port_source
+    (93) opt_match -> . port_destination
+    (94) opt_match -> . MATCH items
+    (95) opt_match -> . jump_target
+    (96) opt_match -> . goto_chain
+    (97) opt_match -> . in_interface
+    (98) opt_match -> . out_interface
+    (99) opt_match -> . state_option
+    (100) opt_match -> . error
+    (101) protocol -> . PROTOCOL item
+    (102) protocol -> . BANG PROTOCOL item
+    (103) ip_source -> . IP_SOURCE ip_addr_list
+    (104) ip_source -> . BANG IP_SOURCE ip_addr_list
+    (105) ip_destination -> . IP_DESTINATION ip_addr_list
+    (106) ip_destination -> . BANG IP_DESTINATION ip_addr_list
+    (112) port_source -> . PORT_SOURCE port_list
+    (113) port_source -> . BANG PORT_SOURCE port_list
+    (114) port_destination -> . PORT_DESTINATION port_list
+    (115) port_destination -> . BANG PORT_DESTINATION port_list
+    (119) jump_target -> . JUMP target
+    (120) goto_chain -> . GOTO chain
+    (121) in_interface -> . IN_INTERFACE WORD
+    (122) out_interface -> . OUT_INTERFACE WORD
+    (123) state_option -> . STATE state_arg
+
+    IPV4            shift and go to state 126
+    IPV6            shift and go to state 105
+    MATCH           shift and go to state 119
+    error           shift and go to state 123
+    PROTOCOL        shift and go to state 112
+    BANG            shift and go to state 118
+    IP_SOURCE       shift and go to state 121
+    IP_DESTINATION  shift and go to state 110
+    PORT_SOURCE     shift and go to state 100
+    PORT_DESTINATION shift and go to state 103
+    JUMP            shift and go to state 117
+    GOTO            shift and go to state 102
+    IN_INTERFACE    shift and go to state 108
+    OUT_INTERFACE   shift and go to state 115
+    STATE           shift and go to state 122
+
+    ip_source                      shift and go to state 106
+    rule_spec                      shift and go to state 150
+    port_source                    shift and go to state 114
+    state_option                   shift and go to state 116
+    in_interface                   shift and go to state 125
+    port_destination               shift and go to state 111
+    goto_chain                     shift and go to state 104
+    out_interface                  shift and go to state 101
+    opt_match                      shift and go to state 124
+    protocol                       shift and go to state 99
+    opt_matches                    shift and go to state 107
+    ip_destination                 shift and go to state 120
+    jump_target                    shift and go to state 109
+
+state 99
+
+    (89) opt_match -> protocol .
+
+    IPV4            reduce using rule 89 (opt_match -> protocol .)
+    IPV6            reduce using rule 89 (opt_match -> protocol .)
+    MATCH           reduce using rule 89 (opt_match -> protocol .)
+    error           reduce using rule 89 (opt_match -> protocol .)
+    PROTOCOL        reduce using rule 89 (opt_match -> protocol .)
+    BANG            reduce using rule 89 (opt_match -> protocol .)
+    IP_SOURCE       reduce using rule 89 (opt_match -> protocol .)
+    IP_DESTINATION  reduce using rule 89 (opt_match -> protocol .)
+    PORT_SOURCE     reduce using rule 89 (opt_match -> protocol .)
+    PORT_DESTINATION reduce using rule 89 (opt_match -> protocol .)
+    JUMP            reduce using rule 89 (opt_match -> protocol .)
+    GOTO            reduce using rule 89 (opt_match -> protocol .)
+    IN_INTERFACE    reduce using rule 89 (opt_match -> protocol .)
+    OUT_INTERFACE   reduce using rule 89 (opt_match -> protocol .)
+    STATE           reduce using rule 89 (opt_match -> protocol .)
+    NL              reduce using rule 89 (opt_match -> protocol .)
+
+
+state 100
+
+    (112) port_source -> PORT_SOURCE . port_list
+    (116) port_list -> . item COLON item
+    (117) port_list -> . item COMMA port_list
+    (118) port_list -> . item
+    (17) item -> . WORD
+    (18) item -> . NUMBER
+    (19) item -> . COLON
+
+    WORD            shift and go to state 77
+    NUMBER          shift and go to state 79
+    COLON           shift and go to state 81
+
+    item                           shift and go to state 151
+    port_list                      shift and go to state 152
+
+state 101
+
+    (98) opt_match -> out_interface .
+
+    IPV4            reduce using rule 98 (opt_match -> out_interface .)
+    IPV6            reduce using rule 98 (opt_match -> out_interface .)
+    MATCH           reduce using rule 98 (opt_match -> out_interface .)
+    error           reduce using rule 98 (opt_match -> out_interface .)
+    PROTOCOL        reduce using rule 98 (opt_match -> out_interface .)
+    BANG            reduce using rule 98 (opt_match -> out_interface .)
+    IP_SOURCE       reduce using rule 98 (opt_match -> out_interface .)
+    IP_DESTINATION  reduce using rule 98 (opt_match -> out_interface .)
+    PORT_SOURCE     reduce using rule 98 (opt_match -> out_interface .)
+    PORT_DESTINATION reduce using rule 98 (opt_match -> out_interface .)
+    JUMP            reduce using rule 98 (opt_match -> out_interface .)
+    GOTO            reduce using rule 98 (opt_match -> out_interface .)
+    IN_INTERFACE    reduce using rule 98 (opt_match -> out_interface .)
+    OUT_INTERFACE   reduce using rule 98 (opt_match -> out_interface .)
+    STATE           reduce using rule 98 (opt_match -> out_interface .)
+    NL              reduce using rule 98 (opt_match -> out_interface .)
+
+
+state 102
+
+    (120) goto_chain -> GOTO . chain
+    (76) chain -> . WORD
+
+    WORD            shift and go to state 57
+
+    chain                          shift and go to state 153
+
+state 103
+
+    (114) port_destination -> PORT_DESTINATION . port_list
+    (116) port_list -> . item COLON item
+    (117) port_list -> . item COMMA port_list
+    (118) port_list -> . item
+    (17) item -> . WORD
+    (18) item -> . NUMBER
+    (19) item -> . COLON
+
+    WORD            shift and go to state 77
+    NUMBER          shift and go to state 79
+    COLON           shift and go to state 81
+
+    item                           shift and go to state 151
+    port_list                      shift and go to state 154
+
+state 104
+
+    (96) opt_match -> goto_chain .
+
+    IPV4            reduce using rule 96 (opt_match -> goto_chain .)
+    IPV6            reduce using rule 96 (opt_match -> goto_chain .)
+    MATCH           reduce using rule 96 (opt_match -> goto_chain .)
+    error           reduce using rule 96 (opt_match -> goto_chain .)
+    PROTOCOL        reduce using rule 96 (opt_match -> goto_chain .)
+    BANG            reduce using rule 96 (opt_match -> goto_chain .)
+    IP_SOURCE       reduce using rule 96 (opt_match -> goto_chain .)
+    IP_DESTINATION  reduce using rule 96 (opt_match -> goto_chain .)
+    PORT_SOURCE     reduce using rule 96 (opt_match -> goto_chain .)
+    PORT_DESTINATION reduce using rule 96 (opt_match -> goto_chain .)
+    JUMP            reduce using rule 96 (opt_match -> goto_chain .)
+    GOTO            reduce using rule 96 (opt_match -> goto_chain .)
+    IN_INTERFACE    reduce using rule 96 (opt_match -> goto_chain .)
+    OUT_INTERFACE   reduce using rule 96 (opt_match -> goto_chain .)
+    STATE           reduce using rule 96 (opt_match -> goto_chain .)
+    NL              reduce using rule 96 (opt_match -> goto_chain .)
+
+
+state 105
+
+    (88) opt_match -> IPV6 .
+
+    IPV4            reduce using rule 88 (opt_match -> IPV6 .)
+    IPV6            reduce using rule 88 (opt_match -> IPV6 .)
+    MATCH           reduce using rule 88 (opt_match -> IPV6 .)
+    error           reduce using rule 88 (opt_match -> IPV6 .)
+    PROTOCOL        reduce using rule 88 (opt_match -> IPV6 .)
+    BANG            reduce using rule 88 (opt_match -> IPV6 .)
+    IP_SOURCE       reduce using rule 88 (opt_match -> IPV6 .)
+    IP_DESTINATION  reduce using rule 88 (opt_match -> IPV6 .)
+    PORT_SOURCE     reduce using rule 88 (opt_match -> IPV6 .)
+    PORT_DESTINATION reduce using rule 88 (opt_match -> IPV6 .)
+    JUMP            reduce using rule 88 (opt_match -> IPV6 .)
+    GOTO            reduce using rule 88 (opt_match -> IPV6 .)
+    IN_INTERFACE    reduce using rule 88 (opt_match -> IPV6 .)
+    OUT_INTERFACE   reduce using rule 88 (opt_match -> IPV6 .)
+    STATE           reduce using rule 88 (opt_match -> IPV6 .)
+    NL              reduce using rule 88 (opt_match -> IPV6 .)
+
+
+state 106
+
+    (90) opt_match -> ip_source .
+
+    IPV4            reduce using rule 90 (opt_match -> ip_source .)
+    IPV6            reduce using rule 90 (opt_match -> ip_source .)
+    MATCH           reduce using rule 90 (opt_match -> ip_source .)
+    error           reduce using rule 90 (opt_match -> ip_source .)
+    PROTOCOL        reduce using rule 90 (opt_match -> ip_source .)
+    BANG            reduce using rule 90 (opt_match -> ip_source .)
+    IP_SOURCE       reduce using rule 90 (opt_match -> ip_source .)
+    IP_DESTINATION  reduce using rule 90 (opt_match -> ip_source .)
+    PORT_SOURCE     reduce using rule 90 (opt_match -> ip_source .)
+    PORT_DESTINATION reduce using rule 90 (opt_match -> ip_source .)
+    JUMP            reduce using rule 90 (opt_match -> ip_source .)
+    GOTO            reduce using rule 90 (opt_match -> ip_source .)
+    IN_INTERFACE    reduce using rule 90 (opt_match -> ip_source .)
+    OUT_INTERFACE   reduce using rule 90 (opt_match -> ip_source .)
+    STATE           reduce using rule 90 (opt_match -> ip_source .)
+    NL              reduce using rule 90 (opt_match -> ip_source .)
+
+
+state 107
+
+    (77) rule_spec -> opt_matches .
+
+    NL              reduce using rule 77 (rule_spec -> opt_matches .)
+
+
+state 108
+
+    (121) in_interface -> IN_INTERFACE . WORD
+
+    WORD            shift and go to state 155
+
+
+state 109
+
+    (95) opt_match -> jump_target .
+
+    IPV4            reduce using rule 95 (opt_match -> jump_target .)
+    IPV6            reduce using rule 95 (opt_match -> jump_target .)
+    MATCH           reduce using rule 95 (opt_match -> jump_target .)
+    error           reduce using rule 95 (opt_match -> jump_target .)
+    PROTOCOL        reduce using rule 95 (opt_match -> jump_target .)
+    BANG            reduce using rule 95 (opt_match -> jump_target .)
+    IP_SOURCE       reduce using rule 95 (opt_match -> jump_target .)
+    IP_DESTINATION  reduce using rule 95 (opt_match -> jump_target .)
+    PORT_SOURCE     reduce using rule 95 (opt_match -> jump_target .)
+    PORT_DESTINATION reduce using rule 95 (opt_match -> jump_target .)
+    JUMP            reduce using rule 95 (opt_match -> jump_target .)
+    GOTO            reduce using rule 95 (opt_match -> jump_target .)
+    IN_INTERFACE    reduce using rule 95 (opt_match -> jump_target .)
+    OUT_INTERFACE   reduce using rule 95 (opt_match -> jump_target .)
+    STATE           reduce using rule 95 (opt_match -> jump_target .)
+    NL              reduce using rule 95 (opt_match -> jump_target .)
+
+
+state 110
+
+    (105) ip_destination -> IP_DESTINATION . ip_addr_list
+    (107) ip_addr_list -> . ip_addr COMMA ip_addr_list
+    (108) ip_addr_list -> . ip_addr
+    (109) ip_addr -> . IP_ADDR
+    (110) ip_addr -> . IP_ADDR SLASH NUMBER
+    (111) ip_addr -> . IP_ADDR SLASH IP_ADDR
+
+    IP_ADDR         shift and go to state 156
+
+    ip_addr                        shift and go to state 158
+    ip_addr_list                   shift and go to state 157
+
+state 111
+
+    (93) opt_match -> port_destination .
+
+    IPV4            reduce using rule 93 (opt_match -> port_destination .)
+    IPV6            reduce using rule 93 (opt_match -> port_destination .)
+    MATCH           reduce using rule 93 (opt_match -> port_destination .)
+    error           reduce using rule 93 (opt_match -> port_destination .)
+    PROTOCOL        reduce using rule 93 (opt_match -> port_destination .)
+    BANG            reduce using rule 93 (opt_match -> port_destination .)
+    IP_SOURCE       reduce using rule 93 (opt_match -> port_destination .)
+    IP_DESTINATION  reduce using rule 93 (opt_match -> port_destination .)
+    PORT_SOURCE     reduce using rule 93 (opt_match -> port_destination .)
+    PORT_DESTINATION reduce using rule 93 (opt_match -> port_destination .)
+    JUMP            reduce using rule 93 (opt_match -> port_destination .)
+    GOTO            reduce using rule 93 (opt_match -> port_destination .)
+    IN_INTERFACE    reduce using rule 93 (opt_match -> port_destination .)
+    OUT_INTERFACE   reduce using rule 93 (opt_match -> port_destination .)
+    STATE           reduce using rule 93 (opt_match -> port_destination .)
+    NL              reduce using rule 93 (opt_match -> port_destination .)
+
+
+state 112
+
+    (101) protocol -> PROTOCOL . item
+    (17) item -> . WORD
+    (18) item -> . NUMBER
+    (19) item -> . COLON
+
+    WORD            shift and go to state 77
+    NUMBER          shift and go to state 79
+    COLON           shift and go to state 81
+
+    item                           shift and go to state 159
+
+state 113
+
+    (55) append_cmd -> APPEND chain rule_spec .
+
+    NL              reduce using rule 55 (append_cmd -> APPEND chain rule_spec .)
+
+
+state 114
+
+    (92) opt_match -> port_source .
+
+    IPV4            reduce using rule 92 (opt_match -> port_source .)
+    IPV6            reduce using rule 92 (opt_match -> port_source .)
+    MATCH           reduce using rule 92 (opt_match -> port_source .)
+    error           reduce using rule 92 (opt_match -> port_source .)
+    PROTOCOL        reduce using rule 92 (opt_match -> port_source .)
+    BANG            reduce using rule 92 (opt_match -> port_source .)
+    IP_SOURCE       reduce using rule 92 (opt_match -> port_source .)
+    IP_DESTINATION  reduce using rule 92 (opt_match -> port_source .)
+    PORT_SOURCE     reduce using rule 92 (opt_match -> port_source .)
+    PORT_DESTINATION reduce using rule 92 (opt_match -> port_source .)
+    JUMP            reduce using rule 92 (opt_match -> port_source .)
+    GOTO            reduce using rule 92 (opt_match -> port_source .)
+    IN_INTERFACE    reduce using rule 92 (opt_match -> port_source .)
+    OUT_INTERFACE   reduce using rule 92 (opt_match -> port_source .)
+    STATE           reduce using rule 92 (opt_match -> port_source .)
+    NL              reduce using rule 92 (opt_match -> port_source .)
+
+
+state 115
+
+    (122) out_interface -> OUT_INTERFACE . WORD
+
+    WORD            shift and go to state 160
+
+
+state 116
+
+    (99) opt_match -> state_option .
+
+    IPV4            reduce using rule 99 (opt_match -> state_option .)
+    IPV6            reduce using rule 99 (opt_match -> state_option .)
+    MATCH           reduce using rule 99 (opt_match -> state_option .)
+    error           reduce using rule 99 (opt_match -> state_option .)
+    PROTOCOL        reduce using rule 99 (opt_match -> state_option .)
+    BANG            reduce using rule 99 (opt_match -> state_option .)
+    IP_SOURCE       reduce using rule 99 (opt_match -> state_option .)
+    IP_DESTINATION  reduce using rule 99 (opt_match -> state_option .)
+    PORT_SOURCE     reduce using rule 99 (opt_match -> state_option .)
+    PORT_DESTINATION reduce using rule 99 (opt_match -> state_option .)
+    JUMP            reduce using rule 99 (opt_match -> state_option .)
+    GOTO            reduce using rule 99 (opt_match -> state_option .)
+    IN_INTERFACE    reduce using rule 99 (opt_match -> state_option .)
+    OUT_INTERFACE   reduce using rule 99 (opt_match -> state_option .)
+    STATE           reduce using rule 99 (opt_match -> state_option .)
+    NL              reduce using rule 99 (opt_match -> state_option .)
+
+
+state 117
+
+    (119) jump_target -> JUMP . target
+    (126) target -> . ACCEPT
+    (127) target -> . DROP
+    (128) target -> . QUEUE
+    (129) target -> . RETURN
+    (130) target -> . WORD
+
+    ACCEPT          shift and go to state 133
+    DROP            shift and go to state 132
+    QUEUE           shift and go to state 134
+    RETURN          shift and go to state 130
+    WORD            shift and go to state 135
+
+    target                         shift and go to state 161
+
+state 118
+
+    (102) protocol -> BANG . PROTOCOL item
+    (104) ip_source -> BANG . IP_SOURCE ip_addr_list
+    (106) ip_destination -> BANG . IP_DESTINATION ip_addr_list
+    (113) port_source -> BANG . PORT_SOURCE port_list
+    (115) port_destination -> BANG . PORT_DESTINATION port_list
+
+    PROTOCOL        shift and go to state 165
+    IP_SOURCE       shift and go to state 166
+    IP_DESTINATION  shift and go to state 162
+    PORT_SOURCE     shift and go to state 163
+    PORT_DESTINATION shift and go to state 164
+
+
+state 119
+
+    (94) opt_match -> MATCH . items
+    (15) items -> . item items
+    (16) items -> . item
+    (17) item -> . WORD
+    (18) item -> . NUMBER
+    (19) item -> . COLON
+
+    WORD            shift and go to state 77
+    NUMBER          shift and go to state 79
+    COLON           shift and go to state 81
+
+    items                          shift and go to state 167
+    item                           shift and go to state 80
+
+state 120
+
+    (91) opt_match -> ip_destination .
+
+    IPV4            reduce using rule 91 (opt_match -> ip_destination .)
+    IPV6            reduce using rule 91 (opt_match -> ip_destination .)
+    MATCH           reduce using rule 91 (opt_match -> ip_destination .)
+    error           reduce using rule 91 (opt_match -> ip_destination .)
+    PROTOCOL        reduce using rule 91 (opt_match -> ip_destination .)
+    BANG            reduce using rule 91 (opt_match -> ip_destination .)
+    IP_SOURCE       reduce using rule 91 (opt_match -> ip_destination .)
+    IP_DESTINATION  reduce using rule 91 (opt_match -> ip_destination .)
+    PORT_SOURCE     reduce using rule 91 (opt_match -> ip_destination .)
+    PORT_DESTINATION reduce using rule 91 (opt_match -> ip_destination .)
+    JUMP            reduce using rule 91 (opt_match -> ip_destination .)
+    GOTO            reduce using rule 91 (opt_match -> ip_destination .)
+    IN_INTERFACE    reduce using rule 91 (opt_match -> ip_destination .)
+    OUT_INTERFACE   reduce using rule 91 (opt_match -> ip_destination .)
+    STATE           reduce using rule 91 (opt_match -> ip_destination .)
+    NL              reduce using rule 91 (opt_match -> ip_destination .)
+
+
+state 121
+
+    (103) ip_source -> IP_SOURCE . ip_addr_list
+    (107) ip_addr_list -> . ip_addr COMMA ip_addr_list
+    (108) ip_addr_list -> . ip_addr
+    (109) ip_addr -> . IP_ADDR
+    (110) ip_addr -> . IP_ADDR SLASH NUMBER
+    (111) ip_addr -> . IP_ADDR SLASH IP_ADDR
+
+    IP_ADDR         shift and go to state 156
+
+    ip_addr                        shift and go to state 158
+    ip_addr_list                   shift and go to state 168
+
+state 122
+
+    (123) state_option -> STATE . state_arg
+    (124) state_arg -> . WORD
+    (125) state_arg -> . WORD COMMA state_arg
+
+    WORD            shift and go to state 170
+
+    state_arg                      shift and go to state 169
+
+state 123
+
+    (100) opt_match -> error .
+
+    IPV4            reduce using rule 100 (opt_match -> error .)
+    IPV6            reduce using rule 100 (opt_match -> error .)
+    MATCH           reduce using rule 100 (opt_match -> error .)
+    error           reduce using rule 100 (opt_match -> error .)
+    PROTOCOL        reduce using rule 100 (opt_match -> error .)
+    BANG            reduce using rule 100 (opt_match -> error .)
+    IP_SOURCE       reduce using rule 100 (opt_match -> error .)
+    IP_DESTINATION  reduce using rule 100 (opt_match -> error .)
+    PORT_SOURCE     reduce using rule 100 (opt_match -> error .)
+    PORT_DESTINATION reduce using rule 100 (opt_match -> error .)
+    JUMP            reduce using rule 100 (opt_match -> error .)
+    GOTO            reduce using rule 100 (opt_match -> error .)
+    IN_INTERFACE    reduce using rule 100 (opt_match -> error .)
+    OUT_INTERFACE   reduce using rule 100 (opt_match -> error .)
+    STATE           reduce using rule 100 (opt_match -> error .)
+    NL              reduce using rule 100 (opt_match -> error .)
+
+
+state 124
+
+    (78) opt_matches -> opt_match . opt_matches
+    (79) opt_matches -> opt_match .
+    (78) opt_matches -> . opt_match opt_matches
+    (79) opt_matches -> . opt_match
+    (87) opt_match -> . IPV4
+    (88) opt_match -> . IPV6
+    (89) opt_match -> . protocol
+    (90) opt_match -> . ip_source
+    (91) opt_match -> . ip_destination
+    (92) opt_match -> . port_source
+    (93) opt_match -> . port_destination
+    (94) opt_match -> . MATCH items
+    (95) opt_match -> . jump_target
+    (96) opt_match -> . goto_chain
+    (97) opt_match -> . in_interface
+    (98) opt_match -> . out_interface
+    (99) opt_match -> . state_option
+    (100) opt_match -> . error
+    (101) protocol -> . PROTOCOL item
+    (102) protocol -> . BANG PROTOCOL item
+    (103) ip_source -> . IP_SOURCE ip_addr_list
+    (104) ip_source -> . BANG IP_SOURCE ip_addr_list
+    (105) ip_destination -> . IP_DESTINATION ip_addr_list
+    (106) ip_destination -> . BANG IP_DESTINATION ip_addr_list
+    (112) port_source -> . PORT_SOURCE port_list
+    (113) port_source -> . BANG PORT_SOURCE port_list
+    (114) port_destination -> . PORT_DESTINATION port_list
+    (115) port_destination -> . BANG PORT_DESTINATION port_list
+    (119) jump_target -> . JUMP target
+    (120) goto_chain -> . GOTO chain
+    (121) in_interface -> . IN_INTERFACE WORD
+    (122) out_interface -> . OUT_INTERFACE WORD
+    (123) state_option -> . STATE state_arg
+
+    NL              reduce using rule 79 (opt_matches -> opt_match .)
+    IPV4            shift and go to state 126
+    IPV6            shift and go to state 105
+    MATCH           shift and go to state 119
+    error           shift and go to state 123
+    PROTOCOL        shift and go to state 112
+    BANG            shift and go to state 118
+    IP_SOURCE       shift and go to state 121
+    IP_DESTINATION  shift and go to state 110
+    PORT_SOURCE     shift and go to state 100
+    PORT_DESTINATION shift and go to state 103
+    JUMP            shift and go to state 117
+    GOTO            shift and go to state 102
+    IN_INTERFACE    shift and go to state 108
+    OUT_INTERFACE   shift and go to state 115
+    STATE           shift and go to state 122
+
+    ip_source                      shift and go to state 106
+    port_source                    shift and go to state 114
+    state_option                   shift and go to state 116
+    in_interface                   shift and go to state 125
+    port_destination               shift and go to state 111
+    goto_chain                     shift and go to state 104
+    out_interface                  shift and go to state 101
+    opt_match                      shift and go to state 124
+    protocol                       shift and go to state 99
+    opt_matches                    shift and go to state 171
+    ip_destination                 shift and go to state 120
+    jump_target                    shift and go to state 109
+
+state 125
+
+    (97) opt_match -> in_interface .
+
+    IPV4            reduce using rule 97 (opt_match -> in_interface .)
+    IPV6            reduce using rule 97 (opt_match -> in_interface .)
+    MATCH           reduce using rule 97 (opt_match -> in_interface .)
+    error           reduce using rule 97 (opt_match -> in_interface .)
+    PROTOCOL        reduce using rule 97 (opt_match -> in_interface .)
+    BANG            reduce using rule 97 (opt_match -> in_interface .)
+    IP_SOURCE       reduce using rule 97 (opt_match -> in_interface .)
+    IP_DESTINATION  reduce using rule 97 (opt_match -> in_interface .)
+    PORT_SOURCE     reduce using rule 97 (opt_match -> in_interface .)
+    PORT_DESTINATION reduce using rule 97 (opt_match -> in_interface .)
+    JUMP            reduce using rule 97 (opt_match -> in_interface .)
+    GOTO            reduce using rule 97 (opt_match -> in_interface .)
+    IN_INTERFACE    reduce using rule 97 (opt_match -> in_interface .)
+    OUT_INTERFACE   reduce using rule 97 (opt_match -> in_interface .)
+    STATE           reduce using rule 97 (opt_match -> in_interface .)
+    NL              reduce using rule 97 (opt_match -> in_interface .)
+
+
+state 126
+
+    (87) opt_match -> IPV4 .
+
+    IPV4            reduce using rule 87 (opt_match -> IPV4 .)
+    IPV6            reduce using rule 87 (opt_match -> IPV4 .)
+    MATCH           reduce using rule 87 (opt_match -> IPV4 .)
+    error           reduce using rule 87 (opt_match -> IPV4 .)
+    PROTOCOL        reduce using rule 87 (opt_match -> IPV4 .)
+    BANG            reduce using rule 87 (opt_match -> IPV4 .)
+    IP_SOURCE       reduce using rule 87 (opt_match -> IPV4 .)
+    IP_DESTINATION  reduce using rule 87 (opt_match -> IPV4 .)
+    PORT_SOURCE     reduce using rule 87 (opt_match -> IPV4 .)
+    PORT_DESTINATION reduce using rule 87 (opt_match -> IPV4 .)
+    JUMP            reduce using rule 87 (opt_match -> IPV4 .)
+    GOTO            reduce using rule 87 (opt_match -> IPV4 .)
+    IN_INTERFACE    reduce using rule 87 (opt_match -> IPV4 .)
+    OUT_INTERFACE   reduce using rule 87 (opt_match -> IPV4 .)
+    STATE           reduce using rule 87 (opt_match -> IPV4 .)
+    NL              reduce using rule 87 (opt_match -> IPV4 .)
+
+
+state 127
+
+    (40) chain_line -> COLON chain WORD . SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+
+    SQUARE_BRACKET  shift and go to state 172
+
+
+state 128
+
+    (39) chain_line -> COLON chain DROP . SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+
+    SQUARE_BRACKET  shift and go to state 173
+
+
+state 129
+
+    (38) chain_line -> COLON chain ACCEPT . SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET
+
+    SQUARE_BRACKET  shift and go to state 174
+
+
+state 130
+
+    (129) target -> RETURN .
+
+    NL              reduce using rule 129 (target -> RETURN .)
+    IPV4            reduce using rule 129 (target -> RETURN .)
+    IPV6            reduce using rule 129 (target -> RETURN .)
+    MATCH           reduce using rule 129 (target -> RETURN .)
+    error           reduce using rule 129 (target -> RETURN .)
+    PROTOCOL        reduce using rule 129 (target -> RETURN .)
+    BANG            reduce using rule 129 (target -> RETURN .)
+    IP_SOURCE       reduce using rule 129 (target -> RETURN .)
+    IP_DESTINATION  reduce using rule 129 (target -> RETURN .)
+    PORT_SOURCE     reduce using rule 129 (target -> RETURN .)
+    PORT_DESTINATION reduce using rule 129 (target -> RETURN .)
+    JUMP            reduce using rule 129 (target -> RETURN .)
+    GOTO            reduce using rule 129 (target -> RETURN .)
+    IN_INTERFACE    reduce using rule 129 (target -> RETURN .)
+    OUT_INTERFACE   reduce using rule 129 (target -> RETURN .)
+    STATE           reduce using rule 129 (target -> RETURN .)
+
+
+state 131
+
+    (74) policy_cmd -> POLICY chain target .
+
+    NL              reduce using rule 74 (policy_cmd -> POLICY chain target .)
+
+
+state 132
+
+    (127) target -> DROP .
+
+    NL              reduce using rule 127 (target -> DROP .)
+    IPV4            reduce using rule 127 (target -> DROP .)
+    IPV6            reduce using rule 127 (target -> DROP .)
+    MATCH           reduce using rule 127 (target -> DROP .)
+    error           reduce using rule 127 (target -> DROP .)
+    PROTOCOL        reduce using rule 127 (target -> DROP .)
+    BANG            reduce using rule 127 (target -> DROP .)
+    IP_SOURCE       reduce using rule 127 (target -> DROP .)
+    IP_DESTINATION  reduce using rule 127 (target -> DROP .)
+    PORT_SOURCE     reduce using rule 127 (target -> DROP .)
+    PORT_DESTINATION reduce using rule 127 (target -> DROP .)
+    JUMP            reduce using rule 127 (target -> DROP .)
+    GOTO            reduce using rule 127 (target -> DROP .)
+    IN_INTERFACE    reduce using rule 127 (target -> DROP .)
+    OUT_INTERFACE   reduce using rule 127 (target -> DROP .)
+    STATE           reduce using rule 127 (target -> DROP .)
+
+
+state 133
+
+    (126) target -> ACCEPT .
+
+    NL              reduce using rule 126 (target -> ACCEPT .)
+    IPV4            reduce using rule 126 (target -> ACCEPT .)
+    IPV6            reduce using rule 126 (target -> ACCEPT .)
+    MATCH           reduce using rule 126 (target -> ACCEPT .)
+    error           reduce using rule 126 (target -> ACCEPT .)
+    PROTOCOL        reduce using rule 126 (target -> ACCEPT .)
+    BANG            reduce using rule 126 (target -> ACCEPT .)
+    IP_SOURCE       reduce using rule 126 (target -> ACCEPT .)
+    IP_DESTINATION  reduce using rule 126 (target -> ACCEPT .)
+    PORT_SOURCE     reduce using rule 126 (target -> ACCEPT .)
+    PORT_DESTINATION reduce using rule 126 (target -> ACCEPT .)
+    JUMP            reduce using rule 126 (target -> ACCEPT .)
+    GOTO            reduce using rule 126 (target -> ACCEPT .)
+    IN_INTERFACE    reduce using rule 126 (target -> ACCEPT .)
+    OUT_INTERFACE   reduce using rule 126 (target -> ACCEPT .)
+    STATE           reduce using rule 126 (target -> ACCEPT .)
+
+
+state 134
+
+    (128) target -> QUEUE .
+
+    NL              reduce using rule 128 (target -> QUEUE .)
+    IPV4            reduce using rule 128 (target -> QUEUE .)
+    IPV6            reduce using rule 128 (target -> QUEUE .)
+    MATCH           reduce using rule 128 (target -> QUEUE .)
+    error           reduce using rule 128 (target -> QUEUE .)
+    PROTOCOL        reduce using rule 128 (target -> QUEUE .)
+    BANG            reduce using rule 128 (target -> QUEUE .)
+    IP_SOURCE       reduce using rule 128 (target -> QUEUE .)
+    IP_DESTINATION  reduce using rule 128 (target -> QUEUE .)
+    PORT_SOURCE     reduce using rule 128 (target -> QUEUE .)
+    PORT_DESTINATION reduce using rule 128 (target -> QUEUE .)
+    JUMP            reduce using rule 128 (target -> QUEUE .)
+    GOTO            reduce using rule 128 (target -> QUEUE .)
+    IN_INTERFACE    reduce using rule 128 (target -> QUEUE .)
+    OUT_INTERFACE   reduce using rule 128 (target -> QUEUE .)
+    STATE           reduce using rule 128 (target -> QUEUE .)
+
+
+state 135
+
+    (130) target -> WORD .
+
+    NL              reduce using rule 130 (target -> WORD .)
+    IPV4            reduce using rule 130 (target -> WORD .)
+    IPV6            reduce using rule 130 (target -> WORD .)
+    MATCH           reduce using rule 130 (target -> WORD .)
+    error           reduce using rule 130 (target -> WORD .)
+    PROTOCOL        reduce using rule 130 (target -> WORD .)
+    BANG            reduce using rule 130 (target -> WORD .)
+    IP_SOURCE       reduce using rule 130 (target -> WORD .)
+    IP_DESTINATION  reduce using rule 130 (target -> WORD .)
+    PORT_SOURCE     reduce using rule 130 (target -> WORD .)
+    PORT_DESTINATION reduce using rule 130 (target -> WORD .)
+    JUMP            reduce using rule 130 (target -> WORD .)
+    GOTO            reduce using rule 130 (target -> WORD .)
+    IN_INTERFACE    reduce using rule 130 (target -> WORD .)
+    OUT_INTERFACE   reduce using rule 130 (target -> WORD .)
+    STATE           reduce using rule 130 (target -> WORD .)
+
+
+state 136
+
+    (56) check_cmd -> CHECK chain rule_spec .
+
+    NL              reduce using rule 56 (check_cmd -> CHECK chain rule_spec .)
+
+
+state 137
+
+    (21) interface_address -> INET ADDR COLON . IP_ADDR opt_bcast MASK COLON IP_ADDR
+
+    IP_ADDR         shift and go to state 175
+
+
+state 138
+
+    (132) route_line -> IP_ADDR SLASH NUMBER . VIA IP_ADDR DEV WORD
+    (133) route_line -> IP_ADDR SLASH NUMBER . DEV WORD WORD WORD WORD LINK SRC IP_ADDR
+    (134) route_line -> IP_ADDR SLASH NUMBER . DEV WORD WORD WORD WORD LINK SRC IP_ADDR WORD NUMBER
+
+    VIA             shift and go to state 176
+    DEV             shift and go to state 177
+
+
+state 139
+
+    (59) insert_cmd -> INSERT chain NUMBER . rule_spec
+    (77) rule_spec -> . opt_matches
+    (78) opt_matches -> . opt_match opt_matches
+    (79) opt_matches -> . opt_match
+    (87) opt_match -> . IPV4
+    (88) opt_match -> . IPV6
+    (89) opt_match -> . protocol
+    (90) opt_match -> . ip_source
+    (91) opt_match -> . ip_destination
+    (92) opt_match -> . port_source
+    (93) opt_match -> . port_destination
+    (94) opt_match -> . MATCH items
+    (95) opt_match -> . jump_target
+    (96) opt_match -> . goto_chain
+    (97) opt_match -> . in_interface
+    (98) opt_match -> . out_interface
+    (99) opt_match -> . state_option
+    (100) opt_match -> . error
+    (101) protocol -> . PROTOCOL item
+    (102) protocol -> . BANG PROTOCOL item
+    (103) ip_source -> . IP_SOURCE ip_addr_list
+    (104) ip_source -> . BANG IP_SOURCE ip_addr_list
+    (105) ip_destination -> . IP_DESTINATION ip_addr_list
+    (106) ip_destination -> . BANG IP_DESTINATION ip_addr_list
+    (112) port_source -> . PORT_SOURCE port_list
+    (113) port_source -> . BANG PORT_SOURCE port_list
+    (114) port_destination -> . PORT_DESTINATION port_list
+    (115) port_destination -> . BANG PORT_DESTINATION port_list
+    (119) jump_target -> . JUMP target
+    (120) goto_chain -> . GOTO chain
+    (121) in_interface -> . IN_INTERFACE WORD
+    (122) out_interface -> . OUT_INTERFACE WORD
+    (123) state_option -> . STATE state_arg
+
+    IPV4            shift and go to state 126
+    IPV6            shift and go to state 105
+    MATCH           shift and go to state 119
+    error           shift and go to state 123
+    PROTOCOL        shift and go to state 112
+    BANG            shift and go to state 118
+    IP_SOURCE       shift and go to state 121
+    IP_DESTINATION  shift and go to state 110
+    PORT_SOURCE     shift and go to state 100
+    PORT_DESTINATION shift and go to state 103
+    JUMP            shift and go to state 117
+    GOTO            shift and go to state 102
+    IN_INTERFACE    shift and go to state 108
+    OUT_INTERFACE   shift and go to state 115
+    STATE           shift and go to state 122
+
+    ip_source                      shift and go to state 106
+    rule_spec                      shift and go to state 178
+    port_source                    shift and go to state 114
+    state_option                   shift and go to state 116
+    in_interface                   shift and go to state 125
+    port_destination               shift and go to state 111
+    goto_chain                     shift and go to state 104
+    out_interface                  shift and go to state 101
+    opt_match                      shift and go to state 124
+    protocol                       shift and go to state 99
+    opt_matches                    shift and go to state 107
+    ip_destination                 shift and go to state 120
+    jump_target                    shift and go to state 109
+
+state 140
+
+    (60) insert_cmd -> INSERT chain rule_spec .
+
+    NL              reduce using rule 60 (insert_cmd -> INSERT chain rule_spec .)
+
+
+state 141
+
+    (68) zero_cmd -> ZERO chain NUMBER .
+
+    NL              reduce using rule 68 (zero_cmd -> ZERO chain NUMBER .)
+
+
+state 142
+
+    (10) line -> WORD items NL .
+
+    WORD            reduce using rule 10 (line -> WORD items NL .)
+    NL              reduce using rule 10 (line -> WORD items NL .)
+    error           reduce using rule 10 (line -> WORD items NL .)
+    INET            reduce using rule 10 (line -> WORD items NL .)
+    IPTABLES        reduce using rule 10 (line -> WORD items NL .)
+    STAR            reduce using rule 10 (line -> WORD items NL .)
+    COLON           reduce using rule 10 (line -> WORD items NL .)
+    DEFAULT         reduce using rule 10 (line -> WORD items NL .)
+    IP_ADDR         reduce using rule 10 (line -> WORD items NL .)
+    APPEND          reduce using rule 10 (line -> WORD items NL .)
+    CHECK           reduce using rule 10 (line -> WORD items NL .)
+    DELETE          reduce using rule 10 (line -> WORD items NL .)
+    INSERT          reduce using rule 10 (line -> WORD items NL .)
+    REPLACE         reduce using rule 10 (line -> WORD items NL .)
+    LIST            reduce using rule 10 (line -> WORD items NL .)
+    LIST_RULES      reduce using rule 10 (line -> WORD items NL .)
+    FLUSH           reduce using rule 10 (line -> WORD items NL .)
+    ZERO            reduce using rule 10 (line -> WORD items NL .)
+    NEW_CHAIN       reduce using rule 10 (line -> WORD items NL .)
+    DELETE_CHAIN    reduce using rule 10 (line -> WORD items NL .)
+    POLICY          reduce using rule 10 (line -> WORD items NL .)
+    RENAME_CHAIN    reduce using rule 10 (line -> WORD items NL .)
+    $end            reduce using rule 10 (line -> WORD items NL .)
+
+
+state 143
+
+    (15) items -> item items .
+
+    IPV4            reduce using rule 15 (items -> item items .)
+    IPV6            reduce using rule 15 (items -> item items .)
+    MATCH           reduce using rule 15 (items -> item items .)
+    error           reduce using rule 15 (items -> item items .)
+    PROTOCOL        reduce using rule 15 (items -> item items .)
+    BANG            reduce using rule 15 (items -> item items .)
+    IP_SOURCE       reduce using rule 15 (items -> item items .)
+    IP_DESTINATION  reduce using rule 15 (items -> item items .)
+    PORT_SOURCE     reduce using rule 15 (items -> item items .)
+    PORT_DESTINATION reduce using rule 15 (items -> item items .)
+    JUMP            reduce using rule 15 (items -> item items .)
+    GOTO            reduce using rule 15 (items -> item items .)
+    IN_INTERFACE    reduce using rule 15 (items -> item items .)
+    OUT_INTERFACE   reduce using rule 15 (items -> item items .)
+    STATE           reduce using rule 15 (items -> item items .)
+    NL              reduce using rule 15 (items -> item items .)
+
+
+state 144
+
+    (20) interface_line -> WORD LINK items .
+
+    NL              reduce using rule 20 (interface_line -> WORD LINK items .)
+
+
+state 145
+
+    (24) variable_line -> WORD EQ item .
+
+    NL              reduce using rule 24 (variable_line -> WORD EQ item .)
+
+
+state 146
+
+    (25) variable_line -> WORD EQ error .
+
+    NL              reduce using rule 25 (variable_line -> WORD EQ error .)
+
+
+state 147
+
+    (58) delete_cmd -> DELETE chain NUMBER .
+
+    NL              reduce using rule 58 (delete_cmd -> DELETE chain NUMBER .)
+
+
+state 148
+
+    (57) delete_cmd -> DELETE chain rule_spec .
+
+    NL              reduce using rule 57 (delete_cmd -> DELETE chain rule_spec .)
+
+
+state 149
+
+    (131) route_line -> DEFAULT VIA IP_ADDR DEV . WORD
+
+    WORD            shift and go to state 179
+
+
+state 150
+
+    (61) replace_cmd -> REPLACE chain NUMBER rule_spec .
+
+    NL              reduce using rule 61 (replace_cmd -> REPLACE chain NUMBER rule_spec .)
+
+
+state 151
+
+    (116) port_list -> item . COLON item
+    (117) port_list -> item . COMMA port_list
+    (118) port_list -> item .
+
+    COLON           shift and go to state 181
+    COMMA           shift and go to state 180
+    IPV4            reduce using rule 118 (port_list -> item .)
+    IPV6            reduce using rule 118 (port_list -> item .)
+    MATCH           reduce using rule 118 (port_list -> item .)
+    error           reduce using rule 118 (port_list -> item .)
+    PROTOCOL        reduce using rule 118 (port_list -> item .)
+    BANG            reduce using rule 118 (port_list -> item .)
+    IP_SOURCE       reduce using rule 118 (port_list -> item .)
+    IP_DESTINATION  reduce using rule 118 (port_list -> item .)
+    PORT_SOURCE     reduce using rule 118 (port_list -> item .)
+    PORT_DESTINATION reduce using rule 118 (port_list -> item .)
+    JUMP            reduce using rule 118 (port_list -> item .)
+    GOTO            reduce using rule 118 (port_list -> item .)
+    IN_INTERFACE    reduce using rule 118 (port_list -> item .)
+    OUT_INTERFACE   reduce using rule 118 (port_list -> item .)
+    STATE           reduce using rule 118 (port_list -> item .)
+    NL              reduce using rule 118 (port_list -> item .)
+
+
+state 152
+
+    (112) port_source -> PORT_SOURCE port_list .
+
+    IPV4            reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    IPV6            reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    MATCH           reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    error           reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    PROTOCOL        reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    BANG            reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    IP_SOURCE       reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    IP_DESTINATION  reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    PORT_SOURCE     reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    PORT_DESTINATION reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    JUMP            reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    GOTO            reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    IN_INTERFACE    reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    OUT_INTERFACE   reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    STATE           reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+    NL              reduce using rule 112 (port_source -> PORT_SOURCE port_list .)
+
+
+state 153
+
+    (120) goto_chain -> GOTO chain .
+
+    IPV4            reduce using rule 120 (goto_chain -> GOTO chain .)
+    IPV6            reduce using rule 120 (goto_chain -> GOTO chain .)
+    MATCH           reduce using rule 120 (goto_chain -> GOTO chain .)
+    error           reduce using rule 120 (goto_chain -> GOTO chain .)
+    PROTOCOL        reduce using rule 120 (goto_chain -> GOTO chain .)
+    BANG            reduce using rule 120 (goto_chain -> GOTO chain .)
+    IP_SOURCE       reduce using rule 120 (goto_chain -> GOTO chain .)
+    IP_DESTINATION  reduce using rule 120 (goto_chain -> GOTO chain .)
+    PORT_SOURCE     reduce using rule 120 (goto_chain -> GOTO chain .)
+    PORT_DESTINATION reduce using rule 120 (goto_chain -> GOTO chain .)
+    JUMP            reduce using rule 120 (goto_chain -> GOTO chain .)
+    GOTO            reduce using rule 120 (goto_chain -> GOTO chain .)
+    IN_INTERFACE    reduce using rule 120 (goto_chain -> GOTO chain .)
+    OUT_INTERFACE   reduce using rule 120 (goto_chain -> GOTO chain .)
+    STATE           reduce using rule 120 (goto_chain -> GOTO chain .)
+    NL              reduce using rule 120 (goto_chain -> GOTO chain .)
+
+
+state 154
+
+    (114) port_destination -> PORT_DESTINATION port_list .
+
+    IPV4            reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    IPV6            reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    MATCH           reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    error           reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    PROTOCOL        reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    BANG            reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    IP_SOURCE       reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    IP_DESTINATION  reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    PORT_SOURCE     reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    PORT_DESTINATION reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    JUMP            reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    GOTO            reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    IN_INTERFACE    reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    OUT_INTERFACE   reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    STATE           reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+    NL              reduce using rule 114 (port_destination -> PORT_DESTINATION port_list .)
+
+
+state 155
+
+    (121) in_interface -> IN_INTERFACE WORD .
+
+    IPV4            reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    IPV6            reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    MATCH           reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    error           reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    PROTOCOL        reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    BANG            reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    IP_SOURCE       reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    IP_DESTINATION  reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    PORT_SOURCE     reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    PORT_DESTINATION reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    JUMP            reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    GOTO            reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    IN_INTERFACE    reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    OUT_INTERFACE   reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    STATE           reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+    NL              reduce using rule 121 (in_interface -> IN_INTERFACE WORD .)
+
+
+state 156
+
+    (109) ip_addr -> IP_ADDR .
+    (110) ip_addr -> IP_ADDR . SLASH NUMBER
+    (111) ip_addr -> IP_ADDR . SLASH IP_ADDR
+
+    COMMA           reduce using rule 109 (ip_addr -> IP_ADDR .)
+    IPV4            reduce using rule 109 (ip_addr -> IP_ADDR .)
+    IPV6            reduce using rule 109 (ip_addr -> IP_ADDR .)
+    MATCH           reduce using rule 109 (ip_addr -> IP_ADDR .)
+    error           reduce using rule 109 (ip_addr -> IP_ADDR .)
+    PROTOCOL        reduce using rule 109 (ip_addr -> IP_ADDR .)
+    BANG            reduce using rule 109 (ip_addr -> IP_ADDR .)
+    IP_SOURCE       reduce using rule 109 (ip_addr -> IP_ADDR .)
+    IP_DESTINATION  reduce using rule 109 (ip_addr -> IP_ADDR .)
+    PORT_SOURCE     reduce using rule 109 (ip_addr -> IP_ADDR .)
+    PORT_DESTINATION reduce using rule 109 (ip_addr -> IP_ADDR .)
+    JUMP            reduce using rule 109 (ip_addr -> IP_ADDR .)
+    GOTO            reduce using rule 109 (ip_addr -> IP_ADDR .)
+    IN_INTERFACE    reduce using rule 109 (ip_addr -> IP_ADDR .)
+    OUT_INTERFACE   reduce using rule 109 (ip_addr -> IP_ADDR .)
+    STATE           reduce using rule 109 (ip_addr -> IP_ADDR .)
+    NL              reduce using rule 109 (ip_addr -> IP_ADDR .)
+    SLASH           shift and go to state 182
+
+
+state 157
+
+    (105) ip_destination -> IP_DESTINATION ip_addr_list .
+
+    IPV4            reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    IPV6            reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    MATCH           reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    error           reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    PROTOCOL        reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    BANG            reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    IP_SOURCE       reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    IP_DESTINATION  reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    PORT_SOURCE     reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    PORT_DESTINATION reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    JUMP            reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    GOTO            reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    IN_INTERFACE    reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    OUT_INTERFACE   reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    STATE           reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+    NL              reduce using rule 105 (ip_destination -> IP_DESTINATION ip_addr_list .)
+
+
+state 158
+
+    (107) ip_addr_list -> ip_addr . COMMA ip_addr_list
+    (108) ip_addr_list -> ip_addr .
+
+    COMMA           shift and go to state 183
+    IPV4            reduce using rule 108 (ip_addr_list -> ip_addr .)
+    IPV6            reduce using rule 108 (ip_addr_list -> ip_addr .)
+    MATCH           reduce using rule 108 (ip_addr_list -> ip_addr .)
+    error           reduce using rule 108 (ip_addr_list -> ip_addr .)
+    PROTOCOL        reduce using rule 108 (ip_addr_list -> ip_addr .)
+    BANG            reduce using rule 108 (ip_addr_list -> ip_addr .)
+    IP_SOURCE       reduce using rule 108 (ip_addr_list -> ip_addr .)
+    IP_DESTINATION  reduce using rule 108 (ip_addr_list -> ip_addr .)
+    PORT_SOURCE     reduce using rule 108 (ip_addr_list -> ip_addr .)
+    PORT_DESTINATION reduce using rule 108 (ip_addr_list -> ip_addr .)
+    JUMP            reduce using rule 108 (ip_addr_list -> ip_addr .)
+    GOTO            reduce using rule 108 (ip_addr_list -> ip_addr .)
+    IN_INTERFACE    reduce using rule 108 (ip_addr_list -> ip_addr .)
+    OUT_INTERFACE   reduce using rule 108 (ip_addr_list -> ip_addr .)
+    STATE           reduce using rule 108 (ip_addr_list -> ip_addr .)
+    NL              reduce using rule 108 (ip_addr_list -> ip_addr .)
+
+
+state 159
+
+    (101) protocol -> PROTOCOL item .
+
+    IPV4            reduce using rule 101 (protocol -> PROTOCOL item .)
+    IPV6            reduce using rule 101 (protocol -> PROTOCOL item .)
+    MATCH           reduce using rule 101 (protocol -> PROTOCOL item .)
+    error           reduce using rule 101 (protocol -> PROTOCOL item .)
+    PROTOCOL        reduce using rule 101 (protocol -> PROTOCOL item .)
+    BANG            reduce using rule 101 (protocol -> PROTOCOL item .)
+    IP_SOURCE       reduce using rule 101 (protocol -> PROTOCOL item .)
+    IP_DESTINATION  reduce using rule 101 (protocol -> PROTOCOL item .)
+    PORT_SOURCE     reduce using rule 101 (protocol -> PROTOCOL item .)
+    PORT_DESTINATION reduce using rule 101 (protocol -> PROTOCOL item .)
+    JUMP            reduce using rule 101 (protocol -> PROTOCOL item .)
+    GOTO            reduce using rule 101 (protocol -> PROTOCOL item .)
+    IN_INTERFACE    reduce using rule 101 (protocol -> PROTOCOL item .)
+    OUT_INTERFACE   reduce using rule 101 (protocol -> PROTOCOL item .)
+    STATE           reduce using rule 101 (protocol -> PROTOCOL item .)
+    NL              reduce using rule 101 (protocol -> PROTOCOL item .)
+
+
+state 160
+
+    (122) out_interface -> OUT_INTERFACE WORD .
+
+    IPV4            reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    IPV6            reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    MATCH           reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    error           reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    PROTOCOL        reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    BANG            reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    IP_SOURCE       reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    IP_DESTINATION  reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    PORT_SOURCE     reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    PORT_DESTINATION reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    JUMP            reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    GOTO            reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    IN_INTERFACE    reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    OUT_INTERFACE   reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    STATE           reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+    NL              reduce using rule 122 (out_interface -> OUT_INTERFACE WORD .)
+
+
+state 161
+
+    (119) jump_target -> JUMP target .
+
+    IPV4            reduce using rule 119 (jump_target -> JUMP target .)
+    IPV6            reduce using rule 119 (jump_target -> JUMP target .)
+    MATCH           reduce using rule 119 (jump_target -> JUMP target .)
+    error           reduce using rule 119 (jump_target -> JUMP target .)
+    PROTOCOL        reduce using rule 119 (jump_target -> JUMP target .)
+    BANG            reduce using rule 119 (jump_target -> JUMP target .)
+    IP_SOURCE       reduce using rule 119 (jump_target -> JUMP target .)
+    IP_DESTINATION  reduce using rule 119 (jump_target -> JUMP target .)
+    PORT_SOURCE     reduce using rule 119 (jump_target -> JUMP target .)
+    PORT_DESTINATION reduce using rule 119 (jump_target -> JUMP target .)
+    JUMP            reduce using rule 119 (jump_target -> JUMP target .)
+    GOTO            reduce using rule 119 (jump_target -> JUMP target .)
+    IN_INTERFACE    reduce using rule 119 (jump_target -> JUMP target .)
+    OUT_INTERFACE   reduce using rule 119 (jump_target -> JUMP target .)
+    STATE           reduce using rule 119 (jump_target -> JUMP target .)
+    NL              reduce using rule 119 (jump_target -> JUMP target .)
+
+
+state 162
+
+    (106) ip_destination -> BANG IP_DESTINATION . ip_addr_list
+    (107) ip_addr_list -> . ip_addr COMMA ip_addr_list
+    (108) ip_addr_list -> . ip_addr
+    (109) ip_addr -> . IP_ADDR
+    (110) ip_addr -> . IP_ADDR SLASH NUMBER
+    (111) ip_addr -> . IP_ADDR SLASH IP_ADDR
+
+    IP_ADDR         shift and go to state 156
+
+    ip_addr                        shift and go to state 158
+    ip_addr_list                   shift and go to state 184
+
+state 163
+
+    (113) port_source -> BANG PORT_SOURCE . port_list
+    (116) port_list -> . item COLON item
+    (117) port_list -> . item COMMA port_list
+    (118) port_list -> . item
+    (17) item -> . WORD
+    (18) item -> . NUMBER
+    (19) item -> . COLON
+
+    WORD            shift and go to state 77
+    NUMBER          shift and go to state 79
+    COLON           shift and go to state 81
+
+    item                           shift and go to state 151
+    port_list                      shift and go to state 185
+
+state 164
+
+    (115) port_destination -> BANG PORT_DESTINATION . port_list
+    (116) port_list -> . item COLON item
+    (117) port_list -> . item COMMA port_list
+    (118) port_list -> . item
+    (17) item -> . WORD
+    (18) item -> . NUMBER
+    (19) item -> . COLON
+
+    WORD            shift and go to state 77
+    NUMBER          shift and go to state 79
+    COLON           shift and go to state 81
+
+    item                           shift and go to state 151
+    port_list                      shift and go to state 186
+
+state 165
+
+    (102) protocol -> BANG PROTOCOL . item
+    (17) item -> . WORD
+    (18) item -> . NUMBER
+    (19) item -> . COLON
+
+    WORD            shift and go to state 77
+    NUMBER          shift and go to state 79
+    COLON           shift and go to state 81
+
+    item                           shift and go to state 187
+
+state 166
+
+    (104) ip_source -> BANG IP_SOURCE . ip_addr_list
+    (107) ip_addr_list -> . ip_addr COMMA ip_addr_list
+    (108) ip_addr_list -> . ip_addr
+    (109) ip_addr -> . IP_ADDR
+    (110) ip_addr -> . IP_ADDR SLASH NUMBER
+    (111) ip_addr -> . IP_ADDR SLASH IP_ADDR
+
+    IP_ADDR         shift and go to state 156
+
+    ip_addr                        shift and go to state 158
+    ip_addr_list                   shift and go to state 188
+
+state 167
+
+    (94) opt_match -> MATCH items .
+
+    IPV4            reduce using rule 94 (opt_match -> MATCH items .)
+    IPV6            reduce using rule 94 (opt_match -> MATCH items .)
+    MATCH           reduce using rule 94 (opt_match -> MATCH items .)
+    error           reduce using rule 94 (opt_match -> MATCH items .)
+    PROTOCOL        reduce using rule 94 (opt_match -> MATCH items .)
+    BANG            reduce using rule 94 (opt_match -> MATCH items .)
+    IP_SOURCE       reduce using rule 94 (opt_match -> MATCH items .)
+    IP_DESTINATION  reduce using rule 94 (opt_match -> MATCH items .)
+    PORT_SOURCE     reduce using rule 94 (opt_match -> MATCH items .)
+    PORT_DESTINATION reduce using rule 94 (opt_match -> MATCH items .)
+    JUMP            reduce using rule 94 (opt_match -> MATCH items .)
+    GOTO            reduce using rule 94 (opt_match -> MATCH items .)
+    IN_INTERFACE    reduce using rule 94 (opt_match -> MATCH items .)
+    OUT_INTERFACE   reduce using rule 94 (opt_match -> MATCH items .)
+    STATE           reduce using rule 94 (opt_match -> MATCH items .)
+    NL              reduce using rule 94 (opt_match -> MATCH items .)
+
+
+state 168
+
+    (103) ip_source -> IP_SOURCE ip_addr_list .
+
+    IPV4            reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    IPV6            reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    MATCH           reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    error           reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    PROTOCOL        reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    BANG            reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    IP_SOURCE       reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    IP_DESTINATION  reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    PORT_SOURCE     reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    PORT_DESTINATION reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    JUMP            reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    GOTO            reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    IN_INTERFACE    reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    OUT_INTERFACE   reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    STATE           reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+    NL              reduce using rule 103 (ip_source -> IP_SOURCE ip_addr_list .)
+
+
+state 169
+
+    (123) state_option -> STATE state_arg .
+
+    IPV4            reduce using rule 123 (state_option -> STATE state_arg .)
+    IPV6            reduce using rule 123 (state_option -> STATE state_arg .)
+    MATCH           reduce using rule 123 (state_option -> STATE state_arg .)
+    error           reduce using rule 123 (state_option -> STATE state_arg .)
+    PROTOCOL        reduce using rule 123 (state_option -> STATE state_arg .)
+    BANG            reduce using rule 123 (state_option -> STATE state_arg .)
+    IP_SOURCE       reduce using rule 123 (state_option -> STATE state_arg .)
+    IP_DESTINATION  reduce using rule 123 (state_option -> STATE state_arg .)
+    PORT_SOURCE     reduce using rule 123 (state_option -> STATE state_arg .)
+    PORT_DESTINATION reduce using rule 123 (state_option -> STATE state_arg .)
+    JUMP            reduce using rule 123 (state_option -> STATE state_arg .)
+    GOTO            reduce using rule 123 (state_option -> STATE state_arg .)
+    IN_INTERFACE    reduce using rule 123 (state_option -> STATE state_arg .)
+    OUT_INTERFACE   reduce using rule 123 (state_option -> STATE state_arg .)
+    STATE           reduce using rule 123 (state_option -> STATE state_arg .)
+    NL              reduce using rule 123 (state_option -> STATE state_arg .)
+
+
+state 170
+
+    (124) state_arg -> WORD .
+    (125) state_arg -> WORD . COMMA state_arg
+
+    IPV4            reduce using rule 124 (state_arg -> WORD .)
+    IPV6            reduce using rule 124 (state_arg -> WORD .)
+    MATCH           reduce using rule 124 (state_arg -> WORD .)
+    error           reduce using rule 124 (state_arg -> WORD .)
+    PROTOCOL        reduce using rule 124 (state_arg -> WORD .)
+    BANG            reduce using rule 124 (state_arg -> WORD .)
+    IP_SOURCE       reduce using rule 124 (state_arg -> WORD .)
+    IP_DESTINATION  reduce using rule 124 (state_arg -> WORD .)
+    PORT_SOURCE     reduce using rule 124 (state_arg -> WORD .)
+    PORT_DESTINATION reduce using rule 124 (state_arg -> WORD .)
+    JUMP            reduce using rule 124 (state_arg -> WORD .)
+    GOTO            reduce using rule 124 (state_arg -> WORD .)
+    IN_INTERFACE    reduce using rule 124 (state_arg -> WORD .)
+    OUT_INTERFACE   reduce using rule 124 (state_arg -> WORD .)
+    STATE           reduce using rule 124 (state_arg -> WORD .)
+    NL              reduce using rule 124 (state_arg -> WORD .)
+    COMMA           shift and go to state 189
+
+
+state 171
+
+    (78) opt_matches -> opt_match opt_matches .
+
+    NL              reduce using rule 78 (opt_matches -> opt_match opt_matches .)
+
+
+state 172
+
+    (40) chain_line -> COLON chain WORD SQUARE_BRACKET . NUMBER COLON NUMBER SQUARE_BRACKET
+
+    NUMBER          shift and go to state 190
+
+
+state 173
+
+    (39) chain_line -> COLON chain DROP SQUARE_BRACKET . NUMBER COLON NUMBER SQUARE_BRACKET
+
+    NUMBER          shift and go to state 191
+
+
+state 174
+
+    (38) chain_line -> COLON chain ACCEPT SQUARE_BRACKET . NUMBER COLON NUMBER SQUARE_BRACKET
+
+    NUMBER          shift and go to state 192
+
+
+state 175
+
+    (21) interface_address -> INET ADDR COLON IP_ADDR . opt_bcast MASK COLON IP_ADDR
+    (22) opt_bcast -> . BCAST COLON IP_ADDR
+    (23) opt_bcast -> . empty
+    (14) empty -> .
+
+    BCAST           shift and go to state 194
+    MASK            reduce using rule 14 (empty -> .)
+
+    opt_bcast                      shift and go to state 195
+    empty                          shift and go to state 193
+
+state 176
+
+    (132) route_line -> IP_ADDR SLASH NUMBER VIA . IP_ADDR DEV WORD
+
+    IP_ADDR         shift and go to state 196
+
+
+state 177
+
+    (133) route_line -> IP_ADDR SLASH NUMBER DEV . WORD WORD WORD WORD LINK SRC IP_ADDR
+    (134) route_line -> IP_ADDR SLASH NUMBER DEV . WORD WORD WORD WORD LINK SRC IP_ADDR WORD NUMBER
+
+    WORD            shift and go to state 197
+
+
+state 178
+
+    (59) insert_cmd -> INSERT chain NUMBER rule_spec .
+
+    NL              reduce using rule 59 (insert_cmd -> INSERT chain NUMBER rule_spec .)
+
+
+state 179
+
+    (131) route_line -> DEFAULT VIA IP_ADDR DEV WORD .
+
+    NL              reduce using rule 131 (route_line -> DEFAULT VIA IP_ADDR DEV WORD .)
+
+
+state 180
+
+    (117) port_list -> item COMMA . port_list
+    (116) port_list -> . item COLON item
+    (117) port_list -> . item COMMA port_list
+    (118) port_list -> . item
+    (17) item -> . WORD
+    (18) item -> . NUMBER
+    (19) item -> . COLON
+
+    WORD            shift and go to state 77
+    NUMBER          shift and go to state 79
+    COLON           shift and go to state 81
+
+    item                           shift and go to state 151
+    port_list                      shift and go to state 198
+
+state 181
+
+    (116) port_list -> item COLON . item
+    (17) item -> . WORD
+    (18) item -> . NUMBER
+    (19) item -> . COLON
+
+    WORD            shift and go to state 77
+    NUMBER          shift and go to state 79
+    COLON           shift and go to state 81
+
+    item                           shift and go to state 199
+
+state 182
+
+    (110) ip_addr -> IP_ADDR SLASH . NUMBER
+    (111) ip_addr -> IP_ADDR SLASH . IP_ADDR
+
+    NUMBER          shift and go to state 201
+    IP_ADDR         shift and go to state 200
+
+
+state 183
+
+    (107) ip_addr_list -> ip_addr COMMA . ip_addr_list
+    (107) ip_addr_list -> . ip_addr COMMA ip_addr_list
+    (108) ip_addr_list -> . ip_addr
+    (109) ip_addr -> . IP_ADDR
+    (110) ip_addr -> . IP_ADDR SLASH NUMBER
+    (111) ip_addr -> . IP_ADDR SLASH IP_ADDR
+
+    IP_ADDR         shift and go to state 156
+
+    ip_addr                        shift and go to state 158
+    ip_addr_list                   shift and go to state 202
+
+state 184
+
+    (106) ip_destination -> BANG IP_DESTINATION ip_addr_list .
+
+    IPV4            reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    IPV6            reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    MATCH           reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    error           reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    PROTOCOL        reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    BANG            reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    IP_SOURCE       reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    IP_DESTINATION  reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    PORT_SOURCE     reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    PORT_DESTINATION reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    JUMP            reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    GOTO            reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    IN_INTERFACE    reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    OUT_INTERFACE   reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    STATE           reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+    NL              reduce using rule 106 (ip_destination -> BANG IP_DESTINATION ip_addr_list .)
+
+
+state 185
+
+    (113) port_source -> BANG PORT_SOURCE port_list .
+
+    IPV4            reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    IPV6            reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    MATCH           reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    error           reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    PROTOCOL        reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    BANG            reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    IP_SOURCE       reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    IP_DESTINATION  reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    PORT_SOURCE     reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    PORT_DESTINATION reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    JUMP            reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    GOTO            reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    IN_INTERFACE    reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    OUT_INTERFACE   reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    STATE           reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+    NL              reduce using rule 113 (port_source -> BANG PORT_SOURCE port_list .)
+
+
+state 186
+
+    (115) port_destination -> BANG PORT_DESTINATION port_list .
+
+    IPV4            reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    IPV6            reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    MATCH           reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    error           reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    PROTOCOL        reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    BANG            reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    IP_SOURCE       reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    IP_DESTINATION  reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    PORT_SOURCE     reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    PORT_DESTINATION reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    JUMP            reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    GOTO            reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    IN_INTERFACE    reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    OUT_INTERFACE   reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    STATE           reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+    NL              reduce using rule 115 (port_destination -> BANG PORT_DESTINATION port_list .)
+
+
+state 187
+
+    (102) protocol -> BANG PROTOCOL item .
+
+    IPV4            reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    IPV6            reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    MATCH           reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    error           reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    PROTOCOL        reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    BANG            reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    IP_SOURCE       reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    IP_DESTINATION  reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    PORT_SOURCE     reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    PORT_DESTINATION reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    JUMP            reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    GOTO            reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    IN_INTERFACE    reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    OUT_INTERFACE   reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    STATE           reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+    NL              reduce using rule 102 (protocol -> BANG PROTOCOL item .)
+
+
+state 188
+
+    (104) ip_source -> BANG IP_SOURCE ip_addr_list .
+
+    IPV4            reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    IPV6            reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    MATCH           reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    error           reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    PROTOCOL        reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    BANG            reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    IP_SOURCE       reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    IP_DESTINATION  reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    PORT_SOURCE     reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    PORT_DESTINATION reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    JUMP            reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    GOTO            reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    IN_INTERFACE    reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    OUT_INTERFACE   reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    STATE           reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+    NL              reduce using rule 104 (ip_source -> BANG IP_SOURCE ip_addr_list .)
+
+
+state 189
+
+    (125) state_arg -> WORD COMMA . state_arg
+    (124) state_arg -> . WORD
+    (125) state_arg -> . WORD COMMA state_arg
+
+    WORD            shift and go to state 170
+
+    state_arg                      shift and go to state 203
+
+state 190
+
+    (40) chain_line -> COLON chain WORD SQUARE_BRACKET NUMBER . COLON NUMBER SQUARE_BRACKET
+
+    COLON           shift and go to state 204
+
+
+state 191
+
+    (39) chain_line -> COLON chain DROP SQUARE_BRACKET NUMBER . COLON NUMBER SQUARE_BRACKET
+
+    COLON           shift and go to state 205
+
+
+state 192
+
+    (38) chain_line -> COLON chain ACCEPT SQUARE_BRACKET NUMBER . COLON NUMBER SQUARE_BRACKET
+
+    COLON           shift and go to state 206
+
+
+state 193
+
+    (23) opt_bcast -> empty .
+
+    MASK            reduce using rule 23 (opt_bcast -> empty .)
+
+
+state 194
+
+    (22) opt_bcast -> BCAST . COLON IP_ADDR
+
+    COLON           shift and go to state 207
+
+
+state 195
+
+    (21) interface_address -> INET ADDR COLON IP_ADDR opt_bcast . MASK COLON IP_ADDR
+
+    MASK            shift and go to state 208
+
+
+state 196
+
+    (132) route_line -> IP_ADDR SLASH NUMBER VIA IP_ADDR . DEV WORD
+
+    DEV             shift and go to state 209
+
+
+state 197
+
+    (133) route_line -> IP_ADDR SLASH NUMBER DEV WORD . WORD WORD WORD LINK SRC IP_ADDR
+    (134) route_line -> IP_ADDR SLASH NUMBER DEV WORD . WORD WORD WORD LINK SRC IP_ADDR WORD NUMBER
+
+    WORD            shift and go to state 210
+
+
+state 198
+
+    (117) port_list -> item COMMA port_list .
+
+    IPV4            reduce using rule 117 (port_list -> item COMMA port_list .)
+    IPV6            reduce using rule 117 (port_list -> item COMMA port_list .)
+    MATCH           reduce using rule 117 (port_list -> item COMMA port_list .)
+    error           reduce using rule 117 (port_list -> item COMMA port_list .)
+    PROTOCOL        reduce using rule 117 (port_list -> item COMMA port_list .)
+    BANG            reduce using rule 117 (port_list -> item COMMA port_list .)
+    IP_SOURCE       reduce using rule 117 (port_list -> item COMMA port_list .)
+    IP_DESTINATION  reduce using rule 117 (port_list -> item COMMA port_list .)
+    PORT_SOURCE     reduce using rule 117 (port_list -> item COMMA port_list .)
+    PORT_DESTINATION reduce using rule 117 (port_list -> item COMMA port_list .)
+    JUMP            reduce using rule 117 (port_list -> item COMMA port_list .)
+    GOTO            reduce using rule 117 (port_list -> item COMMA port_list .)
+    IN_INTERFACE    reduce using rule 117 (port_list -> item COMMA port_list .)
+    OUT_INTERFACE   reduce using rule 117 (port_list -> item COMMA port_list .)
+    STATE           reduce using rule 117 (port_list -> item COMMA port_list .)
+    NL              reduce using rule 117 (port_list -> item COMMA port_list .)
+
+
+state 199
+
+    (116) port_list -> item COLON item .
+
+    IPV4            reduce using rule 116 (port_list -> item COLON item .)
+    IPV6            reduce using rule 116 (port_list -> item COLON item .)
+    MATCH           reduce using rule 116 (port_list -> item COLON item .)
+    error           reduce using rule 116 (port_list -> item COLON item .)
+    PROTOCOL        reduce using rule 116 (port_list -> item COLON item .)
+    BANG            reduce using rule 116 (port_list -> item COLON item .)
+    IP_SOURCE       reduce using rule 116 (port_list -> item COLON item .)
+    IP_DESTINATION  reduce using rule 116 (port_list -> item COLON item .)
+    PORT_SOURCE     reduce using rule 116 (port_list -> item COLON item .)
+    PORT_DESTINATION reduce using rule 116 (port_list -> item COLON item .)
+    JUMP            reduce using rule 116 (port_list -> item COLON item .)
+    GOTO            reduce using rule 116 (port_list -> item COLON item .)
+    IN_INTERFACE    reduce using rule 116 (port_list -> item COLON item .)
+    OUT_INTERFACE   reduce using rule 116 (port_list -> item COLON item .)
+    STATE           reduce using rule 116 (port_list -> item COLON item .)
+    NL              reduce using rule 116 (port_list -> item COLON item .)
+
+
+state 200
+
+    (111) ip_addr -> IP_ADDR SLASH IP_ADDR .
+
+    COMMA           reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    IPV4            reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    IPV6            reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    MATCH           reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    error           reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    PROTOCOL        reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    BANG            reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    IP_SOURCE       reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    IP_DESTINATION  reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    PORT_SOURCE     reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    PORT_DESTINATION reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    JUMP            reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    GOTO            reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    IN_INTERFACE    reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    OUT_INTERFACE   reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    STATE           reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+    NL              reduce using rule 111 (ip_addr -> IP_ADDR SLASH IP_ADDR .)
+
+
+state 201
+
+    (110) ip_addr -> IP_ADDR SLASH NUMBER .
+
+    COMMA           reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    IPV4            reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    IPV6            reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    MATCH           reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    error           reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    PROTOCOL        reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    BANG            reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    IP_SOURCE       reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    IP_DESTINATION  reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    PORT_SOURCE     reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    PORT_DESTINATION reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    JUMP            reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    GOTO            reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    IN_INTERFACE    reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    OUT_INTERFACE   reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    STATE           reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+    NL              reduce using rule 110 (ip_addr -> IP_ADDR SLASH NUMBER .)
+
+
+state 202
+
+    (107) ip_addr_list -> ip_addr COMMA ip_addr_list .
+
+    IPV4            reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    IPV6            reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    MATCH           reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    error           reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    PROTOCOL        reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    BANG            reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    IP_SOURCE       reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    IP_DESTINATION  reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    PORT_SOURCE     reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    PORT_DESTINATION reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    JUMP            reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    GOTO            reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    IN_INTERFACE    reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    OUT_INTERFACE   reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    STATE           reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+    NL              reduce using rule 107 (ip_addr_list -> ip_addr COMMA ip_addr_list .)
+
+
+state 203
+
+    (125) state_arg -> WORD COMMA state_arg .
+
+    IPV4            reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    IPV6            reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    MATCH           reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    error           reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    PROTOCOL        reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    BANG            reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    IP_SOURCE       reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    IP_DESTINATION  reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    PORT_SOURCE     reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    PORT_DESTINATION reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    JUMP            reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    GOTO            reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    IN_INTERFACE    reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    OUT_INTERFACE   reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    STATE           reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+    NL              reduce using rule 125 (state_arg -> WORD COMMA state_arg .)
+
+
+state 204
+
+    (40) chain_line -> COLON chain WORD SQUARE_BRACKET NUMBER COLON . NUMBER SQUARE_BRACKET
+
+    NUMBER          shift and go to state 211
+
+
+state 205
+
+    (39) chain_line -> COLON chain DROP SQUARE_BRACKET NUMBER COLON . NUMBER SQUARE_BRACKET
+
+    NUMBER          shift and go to state 212
+
+
+state 206
+
+    (38) chain_line -> COLON chain ACCEPT SQUARE_BRACKET NUMBER COLON . NUMBER SQUARE_BRACKET
+
+    NUMBER          shift and go to state 213
+
+
+state 207
+
+    (22) opt_bcast -> BCAST COLON . IP_ADDR
+
+    IP_ADDR         shift and go to state 214
+
+
+state 208
+
+    (21) interface_address -> INET ADDR COLON IP_ADDR opt_bcast MASK . COLON IP_ADDR
+
+    COLON           shift and go to state 215
+
+
+state 209
+
+    (132) route_line -> IP_ADDR SLASH NUMBER VIA IP_ADDR DEV . WORD
+
+    WORD            shift and go to state 216
+
+
+state 210
+
+    (133) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD . WORD WORD LINK SRC IP_ADDR
+    (134) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD . WORD WORD LINK SRC IP_ADDR WORD NUMBER
+
+    WORD            shift and go to state 217
+
+
+state 211
+
+    (40) chain_line -> COLON chain WORD SQUARE_BRACKET NUMBER COLON NUMBER . SQUARE_BRACKET
+
+    SQUARE_BRACKET  shift and go to state 218
+
+
+state 212
+
+    (39) chain_line -> COLON chain DROP SQUARE_BRACKET NUMBER COLON NUMBER . SQUARE_BRACKET
+
+    SQUARE_BRACKET  shift and go to state 219
+
+
+state 213
+
+    (38) chain_line -> COLON chain ACCEPT SQUARE_BRACKET NUMBER COLON NUMBER . SQUARE_BRACKET
+
+    SQUARE_BRACKET  shift and go to state 220
+
+
+state 214
+
+    (22) opt_bcast -> BCAST COLON IP_ADDR .
+
+    MASK            reduce using rule 22 (opt_bcast -> BCAST COLON IP_ADDR .)
+
+
+state 215
+
+    (21) interface_address -> INET ADDR COLON IP_ADDR opt_bcast MASK COLON . IP_ADDR
+
+    IP_ADDR         shift and go to state 221
+
+
+state 216
+
+    (132) route_line -> IP_ADDR SLASH NUMBER VIA IP_ADDR DEV WORD .
+
+    NL              reduce using rule 132 (route_line -> IP_ADDR SLASH NUMBER VIA IP_ADDR DEV WORD .)
+
+
+state 217
+
+    (133) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD . WORD LINK SRC IP_ADDR
+    (134) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD . WORD LINK SRC IP_ADDR WORD NUMBER
+
+    WORD            shift and go to state 222
+
+
+state 218
+
+    (40) chain_line -> COLON chain WORD SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET .
+
+    NL              reduce using rule 40 (chain_line -> COLON chain WORD SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET .)
+
+
+state 219
+
+    (39) chain_line -> COLON chain DROP SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET .
+
+    NL              reduce using rule 39 (chain_line -> COLON chain DROP SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET .)
+
+
+state 220
+
+    (38) chain_line -> COLON chain ACCEPT SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET .
+
+    NL              reduce using rule 38 (chain_line -> COLON chain ACCEPT SQUARE_BRACKET NUMBER COLON NUMBER SQUARE_BRACKET .)
+
+
+state 221
+
+    (21) interface_address -> INET ADDR COLON IP_ADDR opt_bcast MASK COLON IP_ADDR .
+
+    NL              reduce using rule 21 (interface_address -> INET ADDR COLON IP_ADDR opt_bcast MASK COLON IP_ADDR .)
+
+
+state 222
+
+    (133) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD . LINK SRC IP_ADDR
+    (134) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD . LINK SRC IP_ADDR WORD NUMBER
+
+    LINK            shift and go to state 223
+
+
+state 223
+
+    (133) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK . SRC IP_ADDR
+    (134) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK . SRC IP_ADDR WORD NUMBER
+
+    SRC             shift and go to state 224
+
+
+state 224
+
+    (133) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC . IP_ADDR
+    (134) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC . IP_ADDR WORD NUMBER
+
+    IP_ADDR         shift and go to state 225
+
+
+state 225
+
+    (133) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR .
+    (134) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR . WORD NUMBER
+
+    NL              reduce using rule 133 (route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR .)
+    WORD            shift and go to state 226
+
+
+state 226
+
+    (134) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR WORD . NUMBER
+
+    NUMBER          shift and go to state 227
+
+
+state 227
+
+    (134) route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR WORD NUMBER .
+
+    NL              reduce using rule 134 (route_line -> IP_ADDR SLASH NUMBER DEV WORD WORD WORD WORD LINK SRC IP_ADDR WORD NUMBER .)
+

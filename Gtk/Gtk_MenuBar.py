@@ -18,7 +18,20 @@ import Gtk_QueryPath
 from AnomalyDetection.DistributedDetection import DistributedDetection
 from SpringBase.Firewall import Firewall
 from SpringBase.Ip import Ip
+from SpringBase.Route_info import Route_info
+from Parser.MatrixFlowParser.MatrixFlowParser import MatrixFlowParser
 from Parser.QueryPathParser.QueryPathParser import QueryPathParser
+import Gtk_FwSelect
+from socket import *
+from socket import inet_ntoa
+from struct import pack
+import networkx as nx
+
+######## Modification of the class by Maurice TCHAMGOUE N.
+###          * Adding of some menu to manage the matrix flow verification
+###          * Adding a menu to show routes on the topology
+
+
 
 
 class Gtk_MenuBar:
@@ -37,6 +50,10 @@ class Gtk_MenuBar:
         self.last_folder = None
         self.next_file = False
         self.tmp_fw_list = []
+        self.actives_fw = []
+
+        # use to memorize the tab name (for compliance) #
+        self.filenames = []
 
         # File #
         self.submenu_file = gtk.Menu()
@@ -44,7 +61,7 @@ class Gtk_MenuBar:
         # Import #
         self.menu_import = gtk.MenuItem("Import configuration")
         self.submenu_file.append(self.menu_import)
-        self.menu_import.connect("activate", self.menu_file_import)
+        self.menu_import.connect("activate", lambda x: self.menu_file_import())
 
         # Open project #
         self.menu_open = gtk.MenuItem("Open project")
@@ -99,14 +116,105 @@ class Gtk_MenuBar:
         self.submenu_view.append(self.menu_show_net)
         self.menu_show_net.connect("activate", self.on_show_network_name)
 
+        # Show routes
+        self.menu_show_routes = gtk.CheckMenuItem("Show routes")
+        self.submenu_view.append(self.menu_show_routes)
+        self.menu_show_routes.connect("activate", self.on_show_routes)
+
+        # Show NAT Rules
+        self.menu_show_nat_rules = gtk.CheckMenuItem("Show NAT Rules")
+        self.submenu_view.append(self.menu_show_nat_rules)
+        self.menu_show_nat_rules.connect("activate", self.on_show_nat)
+
+        # Show VPN
+        self.menu_show_vpn = gtk.CheckMenuItem("Show VPNs")
+        self.submenu_view.append(self.menu_show_vpn)
+        self.menu_show_vpn.connect("activate", self.on_show_vpn)
+
+
         self.menu_view = gtk.MenuItem("View")
         self.menu_view.set_submenu(self.submenu_view)
+
+        # Compliance #
+        self.submenu_compliance = gtk.Menu()
+
+        # Import flow matrix #
+        self.menu_import_flow_matrix = gtk.MenuItem("Import flow matrix")
+        self.submenu_compliance.append(self.menu_import_flow_matrix)
+        self.menu_import_flow_matrix.connect("activate", self.on_import_matrix_file)
+
+        self.menu_create_matrix_flow = gtk.MenuItem("Create a blank matrix flow")
+        self.submenu_compliance.append(self.menu_create_matrix_flow)
+        self.menu_create_matrix_flow.connect("activate", self.on_create_matrix_flow)
+
+
+
+        self.menu_compliance = gtk.MenuItem("Compliance")
+        self.menu_compliance.set_submenu(self.submenu_compliance)
 
         # Menu #
         self.menubar = gtk.MenuBar()
         self.menubar.append(self.menu_file)
         self.menubar.append(self.menu_audit)
         self.menubar.append(self.menu_view)
+        self.menubar.append(self.menu_compliance)
+
+    ## to create a blank matrix flow table. It will
+    #  be filled by the user
+    def on_create_matrix_flow(self, widget):
+        #Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab2([], '', None)
+        #Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab2([], self.actives_fw[0], None)# dont forget to uncomment
+        Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab2([], self.actives_fw, None)# dont forget to uncomment
+
+    def on_import_matrix_file(self, widget):
+        """Import matrix flow file and show it in a new window"""
+
+        Gtk_Main.Gtk_Main().statusbar.change_message("Importing matrix flow file ...")
+
+        filename = self.open_filechooser("Import the matrix flow file")
+        if not filename:
+            Gtk_Main.Gtk_Main().statusbar.change_message("Ready")
+            return
+        data = open(filename).read()
+
+        #matrix_flow = MatrixFlowParser(data)
+        #result = matrix_flow.parse()
+        #flowlist = list(matrix_flow.flow_list)
+        #for flow in flowlist:
+        #    pass#print flow.to_string()
+        #Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab2(flowlist, self.actives_fw[0], filename) ###  dont forget to uncomment
+        #Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab2(flowlist, '', filename)
+
+
+
+        #Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab(filename)
+        Gtk_Main.Gtk_Main().lateral_pane.help_message.change_message(Gtk_Message.ON_IMPORT_MATRIX_FLOW)
+        self.filenames.append(filename)
+
+        #a = Gtk_Main.Gtk_Main().notebook.tab_dict
+        '''
+        data = ''
+        for f in self.filenames:
+            for b in a[f]:
+                if isinstance(b, gtk.ScrolledWindow):
+                    for nb in b:
+                        for nbx in nb :
+                            if isinstance(nbx, gtk.TextView):
+                                buffer = nbx.get_buffer()
+                                start_iter = buffer.get_start_iter()
+                                end_iter = buffer.get_end_iter()
+                                data = buffer.get_text(start_iter, end_iter)
+        '''
+        #print data
+        matrix_flow = MatrixFlowParser(data)
+        result = matrix_flow.parse()
+        flowlist = list(matrix_flow.flow_list)
+        for flow in flowlist:
+            pass#print flow.to_string()
+        Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab2(flowlist, self.tmp_fw_list, filename)
+        #Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab(filename)
+
+
 
     def open_filechooser(self, name, multiple_select=False):
         """Open a file chooser for opening a file.
@@ -173,11 +281,12 @@ class Gtk_MenuBar:
 
         return filename
 
-    def menu_file_import(self, widget):
+    def menu_file_import(self):
         """Launch a Menu to browse and import files.
         Parse each file.
         Construct ROBDD
         """
+
         self.tmp_fw_list = []
 
         Gtk_Main.Gtk_Main().statusbar.change_message("Import ...")
@@ -209,6 +318,9 @@ class Gtk_MenuBar:
             Gtk_Main.Gtk_Main().change_statusbar(message)
 
         Gtk_Main.Gtk_Main().statusbar.change_message("Ready")
+
+
+
 
     def file_popup_menu(self, filename):
         """Detect firewall type and parse the conf file"""
@@ -271,6 +383,86 @@ class Gtk_MenuBar:
 
         button_start.connect("clicked", on_click)
         button_cancel.connect("clicked", lambda x: popup.destroy())
+
+
+
+
+    def file_popup_menu2(self, filename):
+        """Detect firewall type and parse the conf file"""
+        def iter_next():
+            # unblock file
+            self.next_file = True
+
+        Gtk_Main.Gtk_Main().statusbar.change_message("Import %s" % (filename))
+        progressBar = gtk.ProgressBar(adjustment=None)
+        progressBar.set_text("Parsing File")
+        progressBar.set_fraction(0)
+
+        vbox = gtk.VBox()
+        vbox.pack_start(progressBar)
+
+        button_radio = []
+        for p in Parser.parser_list:
+            tmp_radio = gtk.RadioButton(button_radio[0][0] if button_radio else None, p[1])
+            button_radio.append((tmp_radio, p[0]))
+            vbox.pack_start(tmp_radio)
+
+        button_cancel = gtk.Button("Cancel")
+        button_start = gtk.Button("Start")
+        hbox = gtk.HBox()
+        hbox.pack_start(button_cancel)
+        hbox.pack_start(button_start)
+
+        popup = gtk.Window()
+        popup.set_title(ntpath.basename(filename))
+        popup.connect("destroy", lambda x: iter_next())
+
+        popup.set_modal(True)
+        popup.set_transient_for(Gtk_Main.Gtk_Main().window)
+        popup.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_DIALOG)
+
+        vbox.pack_start(hbox)
+        popup.add(vbox)
+
+        popup.show_all()
+
+        supposed_type = Parser.suppose_type(filename)
+        for p in button_radio:
+            if p[1] == supposed_type:
+                p[0].set_active(True)
+
+        def on_click(widget):
+            parser_module = 'Parser.CiscoAsa.CiscoAsaYacc'
+            for p in button_radio:
+                if p[0].get_active():
+                    parser_module = p[1]
+
+            firewalls = Parser.parser(filename, parser_module, progressBar)
+
+            firewalls_list = []
+            for fw in firewalls:
+                firewalls_list.append(fw)
+
+            if len(firewalls_list) > 1:
+                fw_select = Gtk_FwSelect.Gtk_FwSelect()
+                fw_select.firewalls_list = firewalls_list
+                self.actives_fw = list(fw_select.firewalls_list)
+                fw_select.buildWindows()
+                popup.destroy()
+                self.tmp_fw_list += firewalls
+            else:
+                self.actives_fw = list(firewalls_list)
+                for fw in firewalls_list:
+                    NetworkGraph.NetworkGraph().network_graph(fw)
+                    Gtk_Main.Gtk_Main().lateral_pane.firewalls.add_row(fw.hostname)
+                    Gtk_Main.Gtk_Main().lateral_pane.focus_firewall()
+                Gtk_Main.Gtk_Main().draw()
+                popup.destroy()
+                self.tmp_fw_list += firewalls_list
+
+        button_start.connect("clicked", on_click)
+        button_cancel.connect("clicked", lambda x: popup.destroy())
+
 
     def on_open_project(self, widget):
         """Open project and load saved object"""
@@ -436,3 +628,94 @@ class Gtk_MenuBar:
             if isinstance(node[1]['object'].object, Ip):
                 node[1]['object'].text.set_visible(widget.get_active())
         Gtk_Main.Gtk_Main().networkcanvas.do_refresh()
+
+    def on_show_routes(self, widget):
+        """ This method will redraw the topology of the network graph
+            by adding routes
+        """
+        g = NetworkGraph.NetworkGraph().graph
+
+        for node in g.nodes():
+            #print node
+            if isinstance(node, Firewall):
+                print node.route_list
+            else:
+                pass#print node.to_string()
+
+        print 'end nodes\n'
+        #'''
+        for edge in g.edges(data=True):
+            #print edge
+            firewall , ip= (edge[0], edge[1])  if isinstance(edge[0], Firewall) and isinstance(edge[1], Ip)\
+                else (edge[1], edge[0])
+            route_list  = firewall.route_list
+            iface = self.get_iface_from_ip(firewall, ip)
+            routes = []
+            for route in route_list:
+                if route.iface == iface:
+                    routes.append(route)
+            output = {}
+            for route in routes:
+                if route.gw_ip.to_string() in [key for key in output.keys()]:
+                    output[route.gw_ip.to_string()].append(route.net_ip_dst.to_string() +
+                                                           '/' + str(fromDotted2Dec(route.net_mask.to_string())))
+                else:
+                    output[route.gw_ip.to_string()] = []
+                    output[route.gw_ip.to_string()].append(route.net_ip_dst.to_string()
+                                                           + '/' + str(fromDotted2Dec(route.net_mask.to_string())))
+            print len(output), output
+            if len(output) > 0:
+                data = Route_info(output, iface)
+                edge[2]['object'].remove()
+                NetworkGraph.NetworkGraph()._add_route_info(firewall, data, iface, edge)
+                NetworkGraph.NetworkGraph.multidigraph = nx.MultiGraph()
+                Gtk_Main.Gtk_Main().lateral_pane.focus_firewall()
+                Gtk_Main.Gtk_Main().draw()
+
+        #'''
+
+
+    def on_show_nat(self, widget):
+        print 'nat'
+
+
+        pass
+
+    def on_show_vpn(self, widget):
+        print ('vpn')
+        pass
+
+    def listContains(route_list, ip_dest):
+        for route in route_list:
+            if ip_dest.ip & route.net_ip_dst.ip & route.net_ip_dst.mask ==\
+                ip_dest.ip & route.net_ip_dst.mask & ip_dest.mask:
+                return route
+            return None
+
+    def on_format_route_output(self):
+        """
+        To print gateways and destinations network in a right way
+        """
+
+
+
+    def get_iface_from_ip(self, firewall, ip):
+        for iface in firewall.interfaces:
+            if ip != None and firewall != None:
+                if iface.network.to_string() == ip.to_string():
+                    return iface
+            else:
+                return
+        print firewall.hostname, ip.to_string()
+
+
+
+#### The following two functions are used to convert an IP address from it
+#    dotted format to the decimal one and vice-versa
+
+def fromDotted2Dec(ipaddr):
+    return sum([bin(int(x)).count('1') for x in ipaddr.split('.')])
+
+def fromDec2Dotted(mask):
+    bits = 0xffffffff ^ (1 << 32 - mask) - 1
+    return inet_ntoa(pack('>I', bits))

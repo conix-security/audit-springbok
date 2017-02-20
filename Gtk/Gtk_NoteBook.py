@@ -15,7 +15,9 @@ from Gtk_TabInterface import Gtk_TabInterface
 from Gtk_ListView import Gtk_ListView
 from Gtk_TreeView import Gtk_TreeView
 from Gtk_SearchBar import Gtk_SearchBar
-
+from Gtk.Gtk_Matrix_Table import Gtk_Matrix_Table
+from Gtk.Gtk_Nat_Rule import Gtk_Nat_Rule
+from Gtk_IPSec_Tunnels import Gtk_IPSec_Tunnels
 
 class Gtk_NoteBookSplit:
     """Gtk_NoteBookSplit class.
@@ -28,6 +30,15 @@ class Gtk_NoteBookSplit:
 
     tab_dict : dict. Dictionary of referenced tabs (used to not reopen these tabs)
     export_tab : dict. Dictionary tab who can be exported
+
+****** Modification ******
+
+        This class has been modified by Maurice TCHAMGOUE on 24-04-2015 for:
+        - adding the ability to select some firewalls among multiple ones when
+          importing a configuration file wich contains multiple firewalls
+          definition (Fortigate or CheckPoint for example)
+        - adding the add_matrix_flow_tab method in order to manage the edition
+         of the matrix flow file in a new tab
     """
     def __init__(self):
         self.notebook = Gtk_NoteBook(1)
@@ -279,6 +290,50 @@ class Gtk_NoteBookSplit:
             if v == self.notebook.notebook.get_nth_page(self.notebook.notebook.current_page()):
                 if k in self.export_tab:
                     Gtk_Export.Gtk_Export(filename, self.export_tab[k], k).save()
+
+
+    ##### !!!!! Modification !!!!! #####
+
+    def add_matrix_flow_tab(self, file_name):
+        """Add the matrix flow file in a new tab.
+
+        Parameters
+        ----------
+        file_name : string. The file name to show"""
+        with open(file_name, "r") as myfile:
+            data = myfile.read()
+
+        text_view = gtk.TextView()
+        text_view.set_editable(True)
+        text_buffer = text_view.get_buffer()
+        text_buffer.insert(text_buffer.get_end_iter(), data)
+
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        scrolled_window.add_with_viewport(text_view)
+        self.search_bar = Gtk_SearchBar(text_view, text_view, scrolled_window)
+        launch_button = gtk.Button('Launch matrix verification')
+        self.search_bar.vbox.add(launch_button)
+        self.add_tab(self.search_bar.vbox, "Matrix flow", can_close=True, ref=file_name)
+        Gtk_Main.Gtk_Main().lateral_pane.help_message.change_message\
+            (Gtk_HelpMessage.Gtk_Message.ON_IMPORT_MATRIX_FLOW)
+
+    def add_matrix_flow_tab2(self, flowlist, firewalls, filename):
+        table = Gtk_Matrix_Table(flowlist, firewalls)
+        vbox = table.vbox
+        self.add_tab(vbox, 'Matrix flow', can_close=True, ref=filename)
+
+    def add_nat_rule_tab(self, firewall, nat_rule_list):
+        table = Gtk_Nat_Rule(nat_rule_list, firewall)
+        vbox = table.vbox
+        self.add_tab(vbox, 'Nat rules -- ' + firewall.hostname, can_close=True, ref=firewall.hostname + 'nat')
+
+
+    def add_ipsec_tunnels(self, firewall, ipsec_tunnels):
+        table = Gtk_IPSec_Tunnels(ipsec_tunnels, firewall)
+        vbox = table.vbox
+        self.add_tab(vbox, 'IPSec Tunnels -- ' + firewall.hostname, can_close=True, ref=firewall.hostname + 'ipsec')
+
 
 
 class Gtk_NoteBook:

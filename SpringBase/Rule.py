@@ -37,11 +37,11 @@ class Rule:
         self.protocol = protocol
         self.protocol_name = []
         self.ip_source = ip_source
-        self.ip_source_name = []
+        self.ip_source_name = [[], []]
         self.port_source = port_source
         self.port_source_name = []
         self.ip_dest = ip_dest
-        self.ip_dest_name = []
+        self.ip_dest_name = [[], []]
         self.port_dest = port_dest
         self.port_dest_name = []
         self.action = action
@@ -195,4 +195,33 @@ class Rule:
             res += ","
         res += "]" + separator + "  action: "
         res += self.action.to_string()
+        return res
+
+    def new_to_string(self,fw, separator='\n'):
+        res = "  id: "
+        res += str(self.identifier)
+        if self.name:
+            res += separator + "  name: "
+            res += self.name
+        res += ' from ' + fw.fw.hostname
+
+        res += separator + "  Zone source : " + str(self.ip_source_name[1])
+
+        res += separator + "  Zone destination : " + str(self.ip_dest_name[1])
+
+        res += separator + "  protocol: " + str(self.protocol_name)
+
+        res += "" + separator + "  ip_source: " + str(self.ip_source_name[0])
+
+        res += "" + separator + "  port_source: " + str(self.port_source_name)
+
+        res += "" + separator + "  ip_dest: " + str(self.ip_dest_name[0])
+
+        res += "" + separator + "  port_dest: " + str(self.port_dest_name)
+
+        res += "" + separator + "  action: "
+        res += self.action.to_string()
+
+        res += '\n\n'
+
         return res

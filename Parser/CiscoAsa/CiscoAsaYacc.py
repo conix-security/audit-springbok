@@ -11,6 +11,11 @@ but they must implement some function :
 - show():
 """
 
+######## Modification of the class by Maurice TCHAMGOUE N. on 29-05-2015
+###          * Adding the grammar to parse Routes
+
+
+
 from Parser.ply import yacc
 from Parser.CiscoAsa.CiscoAsaLex import tokens
 from Parser.CiscoAsa.CiscoAsaLex import lexer
@@ -23,11 +28,15 @@ from SpringBase.Operator import Operator
 from SpringBase.Firewall import Firewall
 from SpringBase.ACL import ACL
 from SpringBase.Action import Action
+from SpringBase.Route import Route
+from SpringBase.Nat_Rule import Nat_Rule
 import NetworkGraph
 import CiscoAsaPort
 import re
 import ntpath
 import socket
+from socket import inet_ntoa
+from struct import pack
 
 
 # Use for construct dictionary of object and object group
@@ -47,6 +56,9 @@ p_info = {
     'index_rule': 0,
     'global_rules': [],
     'raise_on_error': False,
+    'route_list': [],
+    'current_route' : Route(None, None,None, None,None, 1),
+    'index_route': 0,
 }
 
 
@@ -67,11 +79,16 @@ def init(name, raise_on_error=False):
     p_info['index_rule'] = 0
     p_info['global_rules'] = []
     p_info['raise_on_error'] = raise_on_error
+    p_info['route_list']= []
+    p_info['current_route'] = Route(None, None,None, None,None, 1)
+    p_info['index_route'] = 0
 
 
 def update():
     p_info['current_rule'] = Rule(None, None, [], [], [], [], [], False)
     p_info['index_rule'] = len(p_info['rule_list'])
+    p_info['current_route'] = Route(None, None,None, None,None, 1)
+    p_info['index_route'] = len(p_info['route_list'])
 
 
 def add_global_rules():
@@ -105,8 +122,34 @@ def finish():
 
     for rule in p_info['rule_list']:
         if rule.name not in p_info['bounded_rules']:
-            p_info['firewall'].unbounded_rules.add(rule.name)
+            p_info['firewall'].unbounded_rules.add(rule)
 
+    p_info['firewall'].route_list = list(p_info['route_list'])
+
+
+    global nats, globs
+    make_nat_list()
+    print 'ip_sec', p_info['firewall'].ipsec_maps
+    maps = p_info['firewall'].ipsec_maps
+    for k, v in maps.iteritems():
+        print 'k', k, 'v', v
+        for k1, v1 in v.iteritems():
+            if k1 != 'iface':
+                print "haha", k1, v1
+                if 'acl' in v1.keys():
+                    v1['acl'] = get_acl_by_name_2(p_info['firewall'], v1['acl'])
+    print maps
+    #print p_info['firewall'].unbounded_rules
+    #print [rule.name for rule in p_info['firewall'].acl[0].rules]
+
+
+def make_nat_list():
+    global globs, nats
+    for id, values in globs.iteritems():
+        if id in nats.keys():
+            rule = Nat_Rule(None, id, [], nats[id]['src'], [], [], [], globs[id]['dst'], [],
+                            'src', globs[id]['iface'], nats[id]['iface'])
+            p_info['firewall'].nat_rule_list.append(rule)
 
 def get_firewall():
     return [p_info['firewall']]
@@ -165,6 +208,11 @@ precedence = (
 )
 
 
+def calcDottedMask(mask):
+    bits = 0xffffffff ^ (1 << 32 - mask) - 1
+    return inet_ntoa(pack('>I', bits))
+
+
 def p_lines(p):
     '''lines : line
              | line lines'''
@@ -191,6 +239,9 @@ def p_line(p):
             | protocol_object_line NL
             | port_object_line NL
             | service_object_line NL
+            | route_line NL
+            | nat_rule_line NL
+            | map_attr_line NL
             | words NL
             | NL'''
     p[0] = p[1]
@@ -823,6 +874,173 @@ def p_port_service2(p):
     '''port_service : NUMBER'''
     p[0] = p[1]
 
+### Route parsing
+
+
+def p_route_line(p) :
+    '''route_line : ROUTE WORD IP_ADDR IP_ADDR IP_ADDR NUMBER'''
+    iface = p_info['firewall'].get_interface_by_name(str(p[2]))
+    if not isinstance(iface, Interface) :
+        for i in p_info['firewall'].interfaces :
+            iface = i.get_subif_by_name(str(p[7]))
+            if isinstance(iface, Interface) : break
+
+    route = Route(p_info['index_route'], iface, Ip(p[3]), Ip(p[4]), Ip(p[5]), int(p[6]))
+    p_info['route_list'].append(route)
+
+    p_info['index_route'] += 1
+
+
+
+### Nat Parsing
+
+globs = {}
+nats = {}
+
+def p_nat_rule_outside(p):
+    '''nat_rule_line : GLOBAL LPAREN WORD RPAREN NUMBER IP_ADDR'''
+    global nats, globs
+    if p[5] not in globs.keys():
+        globs[p[5]] = {}
+        globs[p[5]]['iface'] = []
+        iface = p_info['firewall'].get_interface_by_nameif(p[3])
+        globs[p[5]]['iface'].append(iface)
+        globs[p[5]]['dst'] = []
+        globs[p[5]]['dst'].append(Ip(p[6]))
+    else:
+        iface = p_info['firewall'].get_interface_by_nameif(p[3])
+        globs[p[5]]['iface'].append(iface)
+        globs[p[5]]['dst'].append(Ip(p[6]))
+
+    #nat_list = p_info['firewall'].nat_rule_list
+    #if p[5] not in [rule.name for rule in nat_list]:
+    #    new_nat_rule = Nat_Rule(None, p[5], [], [], [], [], [], [], [], 'src', None, None)
+    #    new_nat_rule.translate_address.append(p[6])
+
+
+
+def p_nat_rule_outside2(p):
+    '''nat_rule_line : GLOBAL LPAREN WORD RPAREN NUMBER IP_ADDR HYPHEN IP_ADDR'''
+
+def p_nat_rule_inside(p):
+    '''nat_rule_line : NAT LPAREN WORD RPAREN NUMBER IP_ADDR IP_ADDR'''
+    global nats, globs
+    if p[5] not in nats.keys():
+        nats[p[5]] = {}
+        nats[p[5]]['iface'] = []
+        iface = p_info['firewall'].get_interface_by_name(p[3])
+        nats[p[5]]['iface'].append(iface)
+        nats[p[5]]['src'] = []
+        nats[p[5]]['src'].append(Ip(p[6], p[7]))
+    else:
+        iface = p_info['firewall'].get_interface_by_name(p[3])
+        nats[p[5]]['iface'].append(iface)
+        nats[p[5]]['src'].append(Ip(p[6], p[7]))
+
+
+#rule = Nat_Rule(None, id, [], nats[id]['src'], [], [], [], globs[id]['dst'], [],
+#                            'src', globs[id]['iface'], nats[id]['iface'])
+#            p_info['firewall'].nat_rule_list.append(rule)
+
+def p_nat_rule6(p):
+    '''nat_rule_line : GLOBAL LPAREN WORD RPAREN NUMBER INTERFACE'''
+
+def p_nat_rule3(p):
+    '''nat_rule_line : ALIAS LPAREN WORD RPAREN IP_ADDR IP_ADDR IP_ADDR'''
+
+def p_nat_rule_static(p):
+    '''nat_rule_line : STATIC LPAREN WORD COMA WORD RPAREN IP_ADDR IP_ADDR NETMASK IP_ADDR'''
+    in_iface = p_info['firewall'].get_interface_by_name(p[3])
+    out_iface = p_info['firewall'].get_interface_by_name(p[5])
+    rule = Nat_Rule(None, None, [], [Ip(p[7], p[10])], [],[] , [], [Ip(p[8], p[10])], [],
+                            'static', [out_iface], [in_iface])
+    p_info['firewall'].nat_rule_list.append(rule)
+
+def p_nat_rule_static1(p):
+    '''nat_rule_line : STATIC LPAREN WORD COMA WORD RPAREN TCP IP_ADDR NUMBER IP_ADDR NUMBER NETMASK IP_ADDR
+                     | STATIC LPAREN WORD COMA WORD RPAREN UDP IP_ADDR NUMBER IP_ADDR NUMBER NETMASK IP_ADDR
+                     | STATIC LPAREN WORD COMA WORD RPAREN WORD IP_ADDR NUMBER IP_ADDR NUMBER NETMASK IP_ADDR
+    '''
+    in_iface = p_info['firewall'].get_interface_by_name(p[3])
+    out_iface = p_info['firewall'].get_interface_by_name(p[5])
+    rule = Nat_Rule(None, None, [Protocol(p[7])], [Ip(p[8], p[13])], [], [], [Port(int(p[9]))], [Ip(p[10], p[13])],
+                    [Port(int(p[11]))], 'static', [out_iface], [in_iface])
+    p_info['firewall'].nat_rule_list.append(rule)
+
+def p_nat_rule5(p):
+    '''nat_rule_line : NAT LPAREN WORD RPAREN NUMBER ACCESS_LIST item'''
+
+
+### IPSec Parsing
+
+
+def get_acl_by_name_2(firewall, acl_name):
+    acl = firewall.get_acl_by_name(acl_name)
+    if acl == None:
+        acl = ACL(acl_name)
+        for rule in firewall.unbounded_rules:
+            print rule.name, acl_name
+        acl.rules = [rule for rule in firewall.unbounded_rules if rule.name == acl_name]
+        acl.firewall = firewall
+        return acl
+    else:
+        return acl
+
+def p_ipsec_acl(p):
+    '''map_attr_line : CRYPTO MAP WORD NUMBER MATCH ADDRESS WORD
+                     | CRYPTO MAP WORD NUMBER MATCH ADDRESS NUMBER
+    '''
+    print '1'
+    maps = p_info['firewall'].ipsec_maps
+    if p[3] in maps.keys():
+        print '2'
+        if p[4] in maps[p[3]].keys():
+            print '3'
+            maps[p[3]][p[4]]['acl'] = p[7]#get_acl_by_name_2(p_info['firewall'], (p[7]))
+            print 'klkfnleknf', maps[p[3]][p[4]]['acl'].rules
+        else:
+            maps[p[3]][p[4]] = {}
+            maps[p[3]][p[4]]['acl'] = p[7]#get_acl_by_name_2(p_info['firewall'], (p[7]))
+            print 'klkfnleknf', maps[p[3]][p[4]]['acl'].rules
+    else:
+        maps[p[3]] = {}
+        if p[4] in maps[p[3]].keys():
+            maps[p[3]][p[4]]['acl'] = p[7]#get_acl_by_name_2(p_info['firewall'], (p[7]))
+        else:
+            maps[p[3]][p[4]] = {}
+            maps[p[3]][p[4]]['acl'] = p[7]#get_acl_by_name_2(p_info['firewall'], (p[7]))
+
+def p_ipsec_peer(p):
+    '''map_attr_line : CRYPTO MAP WORD NUMBER SET PEER IP_ADDR
+    '''
+    maps = p_info['firewall'].ipsec_maps
+    if p[3] in maps.keys():
+        if p[4] in maps[p[3]].keys():
+            maps[p[3]][p[4]]['peer_dst'] = Ip(p[7])
+        else:
+            maps[p[3]][p[4]] = {}
+            maps[p[3]][p[4]]['peer_dst'] = Ip(p[7])
+    else:
+        maps[p[3]] = {}
+        if p[4] in maps[p[3]].keys():
+            maps[p[3]][p[4]]['peer_dst'] = Ip(p[7])
+        else:
+            maps[p[3]][p[4]] = {}
+            maps[p[3]][p[4]]['peer_dst'] = Ip(p[7])
+
+
+
+def p_ipsec_iface(p):
+    '''map_attr_line : CRYPTO MAP WORD INTERFACE WORD
+    '''
+    maps = p_info['firewall'].ipsec_maps
+    if p[3] in maps.keys():
+        maps[p[3]]['iface'] = p_info['firewall'].get_interface_by_name(p[5])
+    else:
+        maps[p[3]] = {}
+        maps[p[3]]['iface'] = p_info['firewall'].get_interface_by_name(p[5])
+
+
 
 def p_error(p):
     if p_info['raise_on_error']:
@@ -842,6 +1060,6 @@ if __name__ == '__main__':
         except EOFError:
             break
         if not s: continue
-        print s
+        #print s
         result = parser.parse(s + '\n')
-        print result
+        #print result
