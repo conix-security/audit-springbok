@@ -181,3 +181,14 @@ class Operator:
             return "%s-%s" % (self.v1.to_string(), self.v2.to_string())
         else:
             return "%s %s %s" % (self.operator, self.v1.to_string(), self.v2.to_string())
+
+    def seria_compare(self):
+        """
+        use to compare list of IP
+        """
+        serialize = self.operator
+        if isinstance(self.v1, Ip) or isinstance(self.v1, Port) or isinstance(self.v1, Protocol):
+            serialize += self.v1.seria_compare()
+        if isinstance(self.v2, Ip) or isinstance(self.v2, Port) or isinstance(self.v2, Protocol):
+            serialize += self.v2.seria_compare()
+        return serialize

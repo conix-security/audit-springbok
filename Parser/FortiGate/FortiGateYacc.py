@@ -27,7 +27,7 @@ import NetworkGraph
 import re
 import ntpath
 import socket
-
+import os
 
 class FirewallVDOM:
     def __init__(self, fw, vdom, used_object, bounded_rules):
@@ -78,8 +78,10 @@ def init(name, raise_on_error=False):
     restore_or_create_fw(None)
 
 
-# restore the firewall context corresponding to vdom or create it
 def restore_or_create_fw(vdom):
+    """
+    restore the firewall context corresponding to vdom or create it
+    """
     # reset to normal state
     _init(vdom)
     # try to restore
@@ -98,8 +100,10 @@ def restore_or_create_fw(vdom):
     p_info['firewall_list'].append(FirewallVDOM(p_info['firewall'], vdom, p_info['used_object'], p_info['bounded_rules']))
 
 
-# reset for each VDOM
 def _init(vdom):
+    """
+    reset for each VDOM
+    """
     object_dict.clear()
     p_info['firewall'] = Firewall()
     p_info['firewall'].name = p_info['name']
@@ -119,8 +123,6 @@ def _init(vdom):
 
 def update():
     pass
-
-
 
 
 def finish():
@@ -145,25 +147,23 @@ def get_firewall():
                     break
     end_zones()
     print 'acls---------------------------b'
-    out = open('/home/maurice/Bureau/outrules.txt', 'w')
+    path = os.path.dirname(os.path.abspath(__file__)) + "/../../output/"
+    out = open(path + 'outrules.txt', 'w')
     for fw_vdom in p_info['firewall_list']:
         for acl in fw_vdom.fw.acl:
             for rule in acl.rules:
                 print rule.new_to_string(fw_vdom)
                 out.write(rule.new_to_string(fw_vdom))
-                #print 'ip_source---->', rule.ip_source_name
-                #print 'ip_dest---->', rule.ip_dest_name
-                #print rule.protocol_name
-                #print rule.port_dest_name
-                #print rule.port_source_name
     print 'acls---------------------------e'
     out.close()
     return [fw_vdom.fw for fw_vdom in p_info['firewall_list']]
 
+
 def end_zones():
     print '--------------Zone list-------------------'
     print p_info['zone_list']
-    f = open('/home/maurice/zones2', 'w')
+    path = os.path.dirname(os.path.abspath(__file__)) + "/../../output/"
+    f = open(path + 'zones2', 'w')
     for k, v in p_info['zone_list'].iteritems():
         print 'zone name : ', k
         f.write(k + '\n')
@@ -260,15 +260,19 @@ def add_rule(rule):
             acl.rules.append(rule)
 
 
-# remove the rule who his identifier match id
 def remove_rule(id):
+    """
+    remove the rule who his identifier match id
+    """
     p_info['firewall'].del_rule_by_id(id)
     for fw in p_info['firewall_list']:
         fw.del_rule_by_id(id)
 
 
-# remove quote from variable name if any
 def remove_quote(name):
+    """
+    remove quote from variable name if any
+    """
     if re.match(r'\".*\"', name):
         return name[1:-1]
     return name
@@ -346,14 +350,14 @@ def p_item(p):
     p[0] = p[1]
 
 
-### opt_item
+# opt_item
 def p_optitem(p):
     '''optitem : item
                | empty'''
     p[0] = p[1]
 
 
-### words
+# words
 def p_words_1(p):
     '''words : WORD'''
     p[0] = p[1]
@@ -399,7 +403,6 @@ def p_hostname_line(p):
 
 
 # edit line
-
 def p_edit_line(p):
     '''edit_line : EDIT NUMBER
                  | EDIT WORD'''
@@ -423,15 +426,15 @@ def p_edit_line(p):
         p_info['current_zone'] = remove_quote(p[2])
 
 
-# address parse
+""" address parse"""
 
-### address line
+# address line
 def p_addr_line(p):
     '''addr_line : CONFIG FIREWALL ADDRESS'''
     push_state('address')
 
 
-### end_ip
+# end_ip
 def p_addr_set_line_1(p):
     '''addr_set_line : SET END_IP IP_ADDR'''
     if p_info['range_ip']:
@@ -440,12 +443,14 @@ def p_addr_set_line_1(p):
     else:
         p_info['range_ip'] = Ip(p[3])
 
-### fqdn set line (used also for service definition)
+
+# fqdn set line (used also for service definition)
 def p_addr_set_line_2(p):
     '''addr_set_line : SET FQDN WORD'''
     object_dict[p_info['current_object']].append({'address': Operator('EQ', Ip(socket.gethostbyname(remove_quote(p[3]))))})
 
-### start-ip
+
+# start-ip
 def p_addr_set_line_3(p):
     '''addr_set_line : SET START_IP IP_ADDR'''
     if p_info['range_ip']:
@@ -454,23 +459,26 @@ def p_addr_set_line_3(p):
     else:
         p_info['range_ip'] = Ip(p[3])
 
-### subnet 1
+
+# subnet 1
 def p_addr_set_line_4(p):
     '''addr_set_line : SET SUBNET IP_ADDR IP_ADDR'''
     object_dict[p_info['current_object']].append({'address': Operator('EQ', Ip(p[3], p[4]))})
 
-### subnet 2
+
+# subnet 2
 def p_addr_set_line_5(p):
     '''addr_set_line : SET SUBNET IP_ADDR SLASH NUMBER'''
     object_dict[p_info['current_object']].append({'address': Operator('EQ', Ip(p[3], Ip.CidrToMask(int(p[5]))))})
 
 
-## config addr service
+# config addr service
 def p_addr_service_line(p):
     '''config_service_line : CONFIG SERVICE'''
     push_state('service_address')
 
-### service address end port
+
+# service address end port
 def p_addr_service_set_line_1(p):
     '''service_set_line : SET END_PORT NUMBER'''
     if p_info['range_port']:
@@ -479,11 +487,13 @@ def p_addr_service_set_line_1(p):
     else:
         p_info['range_port'] = Port(p[3])
 
-### service address protocol -> redirect service_set_line
+
+# service address protocol -> redirect service_set_line
 def p_addr_service_set_line_2(p):
     '''service_set_line : service_set_line'''
 
-### service address start port
+
+# service address start port
 def p_addr_service_set_line_3(p):
     '''service_set_line : SET START_PORT NUMBER'''
     if p_info['range_port']:
@@ -493,35 +503,35 @@ def p_addr_service_set_line_3(p):
         p_info['range_port'] = Port(p[3])
 
 
-### subnet 2
+# subnet 2
 def p_addr_set_line_6(p):
-    '''addr_set_line : SET WILDCARD IP_ADDR IP_ADDR'''
+    """addr_set_line : SET WILDCARD IP_ADDR IP_ADDR"""
     object_dict[p_info['current_object']].append({'address': Operator('EQ', Ip(p[3], p[4]))})
 
 
-# service parse
+"""service parse"""
 
-### service line
+# service line
 def p_service_line(p):
-    '''service_line : CONFIG FIREWALL SERVICE CUSTOM'''
+    """service_line : CONFIG FIREWALL SERVICE CUSTOM"""
     push_state('service')
 
 
-### ip set line 1
+# ip set line 1
 def p_service_set_line_2_1(p):
-    '''service_set_line : SET IPRANGE IP_ADDR'''
+    """service_set_line : SET IPRANGE IP_ADDR"""
     object_dict[p_info['current_object']].append({'address': Operator('EQ', Ip(p[3]))})
 
 
-### ip set line 2
+# ip set line 2
 def p_service_set_line_2_2(p):
-    '''service_set_line : SET IPRANGE IP_ADDR MINUS IP_ADDR'''
+    """service_set_line : SET IPRANGE IP_ADDR MINUS IP_ADDR"""
     object_dict[p_info['current_object']].append({'address': Operator('RANGE', Ip(p[3]), Ip(p[5]))})
 
 
-### protocol set line
+# protocol set line
 def p_service_set_line_3_1(p):
-    '''service_set_line : SET PROTOCOL WORD'''
+    """service_set_line : SET PROTOCOL WORD"""
     if p[3].lower() in ('ftp', 'http'):
         object_dict[p_info['current_object']].append({'port_dst': Operator('EQ', Port(p[3].lower()))})
     else:
@@ -529,60 +539,60 @@ def p_service_set_line_3_1(p):
 
 
 def p_service_set_line_3_2(p):
-    '''service_set_line : SET PROTOCOL_NUMBER NUMBER'''
+    """service_set_line : SET PROTOCOL_NUMBER NUMBER"""
     object_dict[p_info['current_object']].append({'protocol': Operator('EQ', Protocol(p[3]))})
 
 
 def p_service_set_line_3_3(p):
-    '''service_set_line : SET PROTOCOL IP'''
+    """service_set_line : SET PROTOCOL IP"""
 
 
 def p_service_set_line_3_4(p):
-    '''service_set_line : SET PROTOCOL TCP_UDP_SCTP'''
+    """service_set_line : SET PROTOCOL TCP_UDP_SCTP"""
     object_dict[p_info['current_object']].append({'protocol': Operator('EQ', Protocol('tcp'))})
     object_dict[p_info['current_object']].append({'protocol': Operator('EQ', Protocol('udp'))})
     object_dict[p_info['current_object']].append({'protocol': Operator('EQ', Protocol('sctp'))})
 
 
-### sctp port range
+# sctp port range
 def p_service_set_line_4(p):
-    '''service_set_line : SET SCTP_PORTRANGE port_services'''
+    """service_set_line : SET SCTP_PORTRANGE port_services"""
     object_dict[p_info['current_object']].append({'protocol': Operator('EQ', Protocol('SCTP'))})
 
 
-### tcp port range
+# tcp port range
 def p_service_set_line_5(p):
-    '''service_set_line : SET TCP_PORTRANGE port_services'''
+    """service_set_line : SET TCP_PORTRANGE port_services"""
     object_dict[p_info['current_object']].append({'protocol': Operator('EQ', Protocol('TCP'))})
 
 
-### udp port range
+# udp port range
 def p_service_set_line_6(p):
-    '''service_set_line : SET UDP_PORTRANGE port_services'''
+    """service_set_line : SET UDP_PORTRANGE port_services"""
     object_dict[p_info['current_object']].append({'protocol': Operator('EQ', Protocol('UDP'))})
 
 
-### port services for custom service definition
+# port services for custom service definition
 def p_port_services(p):
-    '''port_services : port_service port_services
-                     | port_service'''
+    """port_services : port_service port_services
+                     | port_service"""
 
 
-### port service definition 1
+# port service definition 1
 def p_port_service_1(p):
-    '''port_service : NUMBER'''
+    """port_service : NUMBER"""
     object_dict[p_info['current_object']].append({'port_dst': Operator('EQ', Port(p[1]))})
 
 
-### port service definition 2
+# port service definition 2
 def p_port_service_2(p):
-    '''port_service : NUMBER MINUS NUMBER'''
+    """port_service : NUMBER MINUS NUMBER"""
     object_dict[p_info['current_object']].append({'port_dst': Operator('RANGE', Port(p[1]), Port(p[3]))})
 
 
-### port service definition 3
+# port service definition 3
 def p_port_service_3(p):
-    '''port_service : NUMBER MINUS NUMBER COLON NUMBER MINUS NUMBER'''
+    """port_service : NUMBER MINUS NUMBER COLON NUMBER MINUS NUMBER"""
     object_dict[p_info['current_object']].append({'port_dst': Operator('RANGE', Port(p[1]), Port(p[3]))})
     object_dict[p_info['current_object']].append({'port_src': Operator('RANGE', Port(p[5]), Port(p[7]))})
 
@@ -590,8 +600,8 @@ def p_port_service_3(p):
 # member list
 
 def p_member_list(p):
-    '''member_list : WORD
-                   | WORD member_list'''
+    """member_list : WORD
+                   | WORD member_list"""
     if get_state() in ('address', 'address_group', 'service', 'service_group'):
         object_dict[p_info['current_object']].append({'object': remove_quote(p[1])})
     elif get_state() == 'interface':
@@ -600,45 +610,47 @@ def p_member_list(p):
         p_info['zone_list'][p_info['current_interface'].nameif].append(remove_quote(p[1]))
 
 
-### group set line
+# group set line
 def p_group_set_line_1(p):
-    '''group_set_line : SET MEMBER member_list'''
+    """group_set_line : SET MEMBER member_list"""
 
 
-# address group
+"""address group"""
 
-### addrgrp line
+
+# addrgrp line
 def p_addrgrp_line(p):
-    '''addrgrp_line : CONFIG FIREWALL ADDRGRP'''
+    """addrgrp_line : CONFIG FIREWALL ADDRGRP"""
     push_state('address_group')
 
 
 # service group
 
-### service group line
+# service group line
 def p_service_group_line(p):
-    '''service_group_line : CONFIG FIREWALL SERVICE GROUP'''
+    """service_group_line : CONFIG FIREWALL SERVICE GROUP"""
     push_state('service_group')
 
 
-# interface
+""" interface """
 
-### interface line
+
+# interface line
 def p_interface_line(p):
-    '''interface_line : CONFIG SYSTEM INTERFACE'''
+    """interface_line : CONFIG SYSTEM INTERFACE"""
     push_state('interface')
 
 
-### interface ip addr
+# interface ip addr
 def p_interface_set_line_1(p):
-    '''interface_set_line : SET IP IP_ADDR IP_ADDR'''
+    """interface_set_line : SET IP IP_ADDR IP_ADDR"""
     if get_state() == 'interface':
         p_info['current_interface'].network = Ip(p[3], p[4])
 
 
-### interface name
+# interface name
 def p_interface_set_line_2(p):
-    '''interface_set_line : SET ALIAS WORD'''
+    """interface_set_line : SET ALIAS WORD"""
     if get_state() == 'interface':
         if p_info['current_interface'].name:
             p_info['current_interface'].name += remove_quote(p[3])
@@ -646,28 +658,30 @@ def p_interface_set_line_2(p):
             p_info['current_interface'].name = remove_quote(p[3])
 
 
-### interface vland
+# interface vland
 def p_interface_set_line_3(p):
-    '''interface_set_line : SET VLANID NUMBER'''
+    """interface_set_line : SET VLANID NUMBER"""
     if get_state() == 'interface':
         p_info['current_interface'].attributes['vlanid'] = p[3]
 
-# zone
 
-### zone line
+""" zone """
+
+
+# zone line
 def p_zone_line(p):
-    '''zone_line : CONFIG SYSTEM ZONE'''
+    """zone_line : CONFIG SYSTEM ZONE"""
     push_state('zone')
 
 
-### zone_set
+# zone_set
 def p_zone_set_line(p):
-    '''zone_set_line : SET INTERFACE zone_words'''
+    """zone_set_line : SET INTERFACE zone_words"""
 
 
 def p_zone_words(p):
-    '''zone_words : WORD
-                  | WORD zone_words'''
+    """zone_words : WORD
+                  | WORD zone_words"""
     if get_state() == 'zone' and p_info['current_zone']:
         p_info['zone_list'][p_info['current_zone']].append(remove_quote(p[1]))
     elif get_state() == 'interface' and p_info['current_interface']:
@@ -679,77 +693,79 @@ def p_zone_words(p):
         if remove_quote(p[1]) in p_info['zone_list']:
             p_info['current_interface'].name += ' (' + ', '.join(p_info['zone_list'][remove_quote(p[1])]) + ')'
 
-# policy parse
 
-### policy_line
+""" policy parse """
+
+
+# policy_line
 def p_policy_line(p):
-    '''policy_line : CONFIG FIREWALL POLICY'''
+    """policy_line : CONFIG FIREWALL POLICY"""
     push_state('policy')
 
 
-### action line
+# action line
 def p_policy_set_line_1(p):
-    '''policy_set_line : SET ACTION ACCEPT'''
+    """policy_set_line : SET ACTION ACCEPT"""
     if get_state() == 'policy':
         p_info['current_rule'].action = Action(True)
 
 
 def p_policy_set_line_2(p):
-    '''policy_set_line : SET ACTION DENY'''
+    """policy_set_line : SET ACTION DENY"""
     if get_state() == 'policy':
         p_info['current_rule'].action = Action(False)
 
 
-### dst address line
+# dst address line
 def p_policy_set_line_3(p):
-    '''policy_set_line : SET DST_ADDR dst_addr_words'''
+    """policy_set_line : SET DST_ADDR dst_addr_words"""
 
 
-### dst address words variables
+# dst address words variables
 def p_dst_address_words(p):
-    '''dst_addr_words : WORD dst_addr_words
-                      | WORD'''
+    """dst_addr_words : WORD dst_addr_words
+                      | WORD"""
     if get_state() == 'policy':
         resolve(remove_quote(p[1]), 'dst')
 
 
-### label line
+# label line
 def p_policy_set_line_4(p):
-    '''policy_set_line : SET LABEL words'''
+    """policy_set_line : SET LABEL words"""
     if get_state() == 'policy':
         p_info['current_rule'].name = remove_quote(p[3])
 
 
-### service line
+# service line
 def p_policy_set_line_5(p):
-    '''policy_service_line : SET SERVICE service_words'''
+    """policy_service_line : SET SERVICE service_words"""
 
 
-### service words variables
+# service words variables
 def p_service_words(p):
-    '''service_words : WORD service_words
-                     | WORD'''
+    """service_words : WORD service_words
+                     | WORD"""
     if get_state() == 'policy':
         resolve(remove_quote(p[1]), 'service')
 
 
-### src address line
+# src address line
 def p_policy_set_line_6(p):
-    '''policy_set_line : SET SRC_ADDR src_addr_words'''
+    """policy_set_line : SET SRC_ADDR src_addr_words"""
 
 
-### src addr words variables
+# src addr words variables
 def p_src_addr_words(p):
-    '''src_addr_words : WORD src_addr_words
-                     | WORD'''
+    """src_addr_words : WORD src_addr_words
+                     | WORD"""
     if get_state() == 'policy':
         resolve(remove_quote(p[1]), 'src')
 
 zone_name = ''
 
-### interface line
+# interface line
 def p_policy_set_line_7(p):
-    '''policy_set_line : SET SRC_INTF itf_words'''
+    """policy_set_line : SET SRC_INTF itf_words"""
     global zone_name
     if get_state() == 'policy':
         p_info['srcintf'] = p[3]
@@ -759,7 +775,7 @@ def p_policy_set_line_7(p):
 
 
 def p_policy_set_line_8(p):
-    '''policy_set_line : SET DST_INTF itf_words'''
+    """policy_set_line : SET DST_INTF itf_words"""
     global zone_name
     if get_state() == 'policy':
         p_info['dstintf'] = p[3]
@@ -769,7 +785,7 @@ def p_policy_set_line_8(p):
 
 
 def p_itf_words_1(p):
-    '''itf_words : WORD'''
+    """itf_words : WORD"""
     global zone_name
     zone_name = remove_quote(p[1])
     test = remove_quote(p[1])
@@ -782,7 +798,7 @@ def p_itf_words_1(p):
 
 
 def p_itf_words_2(p):
-    '''itf_words : WORD itf_words'''
+    """itf_words : WORD itf_words"""
     global zone_name
     test = remove_quote(p[1])
     zone_name = remove_quote(p[1])
@@ -795,22 +811,22 @@ def p_itf_words_2(p):
 
 
 def p_policy_set_line_9(p):
-    '''policy_set_line : STATUS DISABLE'''
+    """policy_set_line : STATUS DISABLE"""
     if get_state() == 'policy':
         remove_rule(p_info['current_rule'].identifier)
 
 
 def p_policy_set_line_10(p):
-    '''policy_set_line : SET PERMIT_ANY_HOST WORD
-                       | SET PERMIT_STUN_HOST WORD'''
+    """policy_set_line : SET PERMIT_ANY_HOST WORD
+                       | SET PERMIT_STUN_HOST WORD"""
     if get_state() == 'policy':
         if re.search('enable', p[3], re.I):
             p_info['current_rule'].protocol.append(Operator('EQ', Protocol('udp')))
 
 
-### dst address negate
+# dst address negate
 def p_policy_set_line_11(p):
-    '''policy_set_line : SET DST_ADDR_NEGATE WORD'''
+    """policy_set_line : SET DST_ADDR_NEGATE WORD"""
     if re.match('enable', p[3], re.I):
         res = []
         for op in p_info['current_rule'].ip_dest:
@@ -818,9 +834,9 @@ def p_policy_set_line_11(p):
         p_info['current_rule'].ip_dest = res
 
 
-### src address negate
+# src address negate
 def p_policy_set_line_12(p):
-    '''policy_set_line : SET SRC_ADDR_NEGATE WORD'''
+    """policy_set_line : SET SRC_ADDR_NEGATE WORD"""
     if re.match('enable', p[3], re.I):
         res = []
         for op in p_info['current_rule'].ip_source:
@@ -829,22 +845,20 @@ def p_policy_set_line_12(p):
 
 
 # config error
-
 def p_config_error(p):
-    '''config_line : CONFIG error'''
+    """config_line : CONFIG error"""
     push_state('error-' + p[2].value)
 
 
 # end_next_line
-
 def p_end_line(p):
-    '''end_line : END'''
+    """end_line : END"""
     pop_state()
 
-# next line
 
+# next line
 def p_next_line(p):
-    '''next_line : NEXT'''
+    """next_line : NEXT"""
 
 
 def p_error(p):
@@ -869,4 +883,3 @@ if __name__ == '__main__':
         print s
         result = parser.parse(s + '\n')
         print result
-

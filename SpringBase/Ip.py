@@ -73,7 +73,6 @@ class Ip:
                 res = synthesize(res, Bdd.AND, Robdd.make_x(index + i))
             else:
                 res = synthesize(res, Bdd.AND, Robdd.make_not_x(index + i))
-
         return res
 
     @staticmethod
@@ -255,3 +254,8 @@ class Ip:
             if i.ip & i.mask & ip.mask == ip.ip & i.mask & ip.mask:
                 return i
         return None
+
+    def seria_compare(self):
+        serialize = str(self.ip)
+        serialize += str(self.mask)
+        return serialize

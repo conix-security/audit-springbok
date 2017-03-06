@@ -31,9 +31,6 @@ import networkx as nx
 ###          * Adding of some menu to manage the matrix flow verification
 ###          * Adding a menu to show routes on the topology
 
-
-
-
 class Gtk_MenuBar:
     """Gtk_MenuBar class.
     This class contains all methods for the menubar :
@@ -73,6 +70,10 @@ class Gtk_MenuBar:
         self.submenu_file.append(self.menu_save)
         self.menu_save.connect("activate", self.on_save_project)
 
+        # Extract excel #
+        self.menu_extract_excel = gtk.MenuItem("Extract excel")
+        self.submenu_file.append(self.menu_extract_excel)
+
         # Quit #
         self.menu_quit = gtk.MenuItem("Quit")
         self.submenu_file.append(self.menu_quit)
@@ -80,6 +81,7 @@ class Gtk_MenuBar:
 
         self.menu_file = gtk.MenuItem("File")
         self.menu_file.set_submenu(self.submenu_file)
+
 
         # Audit #
         self.submenu_audit = gtk.Menu()
@@ -131,7 +133,6 @@ class Gtk_MenuBar:
         self.submenu_view.append(self.menu_show_vpn)
         self.menu_show_vpn.connect("activate", self.on_show_vpn)
 
-
         self.menu_view = gtk.MenuItem("View")
         self.menu_view.set_submenu(self.submenu_view)
 
@@ -147,8 +148,6 @@ class Gtk_MenuBar:
         self.submenu_compliance.append(self.menu_create_matrix_flow)
         self.menu_create_matrix_flow.connect("activate", self.on_create_matrix_flow)
 
-
-
         self.menu_compliance = gtk.MenuItem("Compliance")
         self.menu_compliance.set_submenu(self.submenu_compliance)
 
@@ -159,15 +158,15 @@ class Gtk_MenuBar:
         self.menubar.append(self.menu_view)
         self.menubar.append(self.menu_compliance)
 
-    ## to create a blank matrix flow table. It will
-    #  be filled by the user
     def on_create_matrix_flow(self, widget):
-        #Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab2([], '', None)
-        #Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab2([], self.actives_fw[0], None)# dont forget to uncomment
-        Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab2([], self.actives_fw, None)# dont forget to uncomment
+        """
+            Create a blank matrix flow table. It will
+            be filled by the user
+        """
+        Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab2([], self.tmp_fw_list, None)
 
     def on_import_matrix_file(self, widget):
-        """Import matrix flow file and show it in a new window"""
+        """"Import matrix flow file and show it in a new window"""
 
         Gtk_Main.Gtk_Main().statusbar.change_message("Importing matrix flow file ...")
 
@@ -177,44 +176,16 @@ class Gtk_MenuBar:
             return
         data = open(filename).read()
 
-        #matrix_flow = MatrixFlowParser(data)
-        #result = matrix_flow.parse()
-        #flowlist = list(matrix_flow.flow_list)
-        #for flow in flowlist:
-        #    pass#print flow.to_string()
-        #Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab2(flowlist, self.actives_fw[0], filename) ###  dont forget to uncomment
-        #Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab2(flowlist, '', filename)
-
-
-
-        #Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab(filename)
         Gtk_Main.Gtk_Main().lateral_pane.help_message.change_message(Gtk_Message.ON_IMPORT_MATRIX_FLOW)
         self.filenames.append(filename)
 
-        #a = Gtk_Main.Gtk_Main().notebook.tab_dict
-        '''
-        data = ''
-        for f in self.filenames:
-            for b in a[f]:
-                if isinstance(b, gtk.ScrolledWindow):
-                    for nb in b:
-                        for nbx in nb :
-                            if isinstance(nbx, gtk.TextView):
-                                buffer = nbx.get_buffer()
-                                start_iter = buffer.get_start_iter()
-                                end_iter = buffer.get_end_iter()
-                                data = buffer.get_text(start_iter, end_iter)
-        '''
-        #print data
+        # parse Data
         matrix_flow = MatrixFlowParser(data)
-        result = matrix_flow.parse()
+        matrix_flow.parse()
         flowlist = list(matrix_flow.flow_list)
-        for flow in flowlist:
-            pass#print flow.to_string()
+
+        # Send data to the right controller
         Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab2(flowlist, self.tmp_fw_list, filename)
-        #Gtk_Main.Gtk_Main().notebook.add_matrix_flow_tab(filename)
-
-
 
     def open_filechooser(self, name, multiple_select=False):
         """Open a file chooser for opening a file.
@@ -309,6 +280,7 @@ class Gtk_MenuBar:
 
         Gtk_Main.Gtk_Main().statusbar.change_message("Construct ROBDD ...")
 
+        # Add check for reduce rule number
         for fw in self.tmp_fw_list:
             t0 = time.time()
             fw.build_bdd()
@@ -318,9 +290,6 @@ class Gtk_MenuBar:
             Gtk_Main.Gtk_Main().change_statusbar(message)
 
         Gtk_Main.Gtk_Main().statusbar.change_message("Ready")
-
-
-
 
     def file_popup_menu(self, filename):
         """Detect firewall type and parse the conf file"""
@@ -383,9 +352,6 @@ class Gtk_MenuBar:
 
         button_start.connect("clicked", on_click)
         button_cancel.connect("clicked", lambda x: popup.destroy())
-
-
-
 
     def file_popup_menu2(self, filename):
         """Detect firewall type and parse the conf file"""
@@ -463,7 +429,6 @@ class Gtk_MenuBar:
         button_start.connect("clicked", on_click)
         button_cancel.connect("clicked", lambda x: popup.destroy())
 
-
     def on_open_project(self, widget):
         """Open project and load saved object"""
         Gtk_Main.Gtk_Main().statusbar.change_message("Open project ...")
@@ -488,19 +453,24 @@ class Gtk_MenuBar:
 
         fh = open(filename, 'rb')
         p = pickle.Unpickler(fh)
+
         # get network graph singleton
         NetworkGraph.NetworkGraph._instance = p.load()
+
         # get saved query path
         [Gtk_Main.Gtk_Main().lateral_pane.path.add_row(m) for m in p.load()]
         Gtk_Main.Gtk_Main().lateral_pane.path_data = p.load()
+
         # get notebook list
         notebook_list = p.load()
         fh.close()
 
         # add firewall list
         [Gtk_Main.Gtk_Main().lateral_pane.firewalls.add_row(fw.hostname) for fw in NetworkGraph.NetworkGraph().firewalls]
+
         # redraw
         Gtk_Main.Gtk_Main().networkcanvas.draw()
+
         # add notebook page
         for i in notebook_list:
             if isinstance(i, ACL):
@@ -636,19 +606,18 @@ class Gtk_MenuBar:
         g = NetworkGraph.NetworkGraph().graph
 
         for node in g.nodes():
-            #print node
+            # print node
             if isinstance(node, Firewall):
                 print node.route_list
             else:
-                pass#print node.to_string()
+                pass  # print node.to_string()
 
         print 'end nodes\n'
-        #'''
         for edge in g.edges(data=True):
-            #print edge
-            firewall , ip= (edge[0], edge[1])  if isinstance(edge[0], Firewall) and isinstance(edge[1], Ip)\
+            # print edge
+            firewall, ip = (edge[0], edge[1]) if isinstance(edge[0], Firewall) and isinstance(edge[1], Ip)\
                 else (edge[1], edge[0])
-            route_list  = firewall.route_list
+            route_list = firewall.route_list
             iface = self.get_iface_from_ip(firewall, ip)
             routes = []
             for route in route_list:
@@ -672,16 +641,13 @@ class Gtk_MenuBar:
                 Gtk_Main.Gtk_Main().lateral_pane.focus_firewall()
                 Gtk_Main.Gtk_Main().draw()
 
-        #'''
-
-
     def on_show_nat(self, widget):
+        """To do"""
         print 'nat'
-
-
         pass
 
     def on_show_vpn(self, widget):
+        """To do"""
         print ('vpn')
         pass
 
@@ -697,8 +663,6 @@ class Gtk_MenuBar:
         To print gateways and destinations network in a right way
         """
 
-
-
     def get_iface_from_ip(self, firewall, ip):
         for iface in firewall.interfaces:
             if ip != None and firewall != None:
@@ -708,9 +672,7 @@ class Gtk_MenuBar:
                 return
         print firewall.hostname, ip.to_string()
 
-
-
-#### The following two functions are used to convert an IP address from it
+# The following two functions are used to convert an IP address from it
 #    dotted format to the decimal one and vice-versa
 
 def fromDotted2Dec(ipaddr):
@@ -719,3 +681,4 @@ def fromDotted2Dec(ipaddr):
 def fromDec2Dotted(mask):
     bits = 0xffffffff ^ (1 << 32 - mask) - 1
     return inet_ntoa(pack('>I', bits))
+

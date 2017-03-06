@@ -130,3 +130,7 @@ class Port:
             return socket.getservbyport(port)
         except:
             return None
+
+    def seria_compare(self):
+        serialize = str(self.port)
+        return serialize

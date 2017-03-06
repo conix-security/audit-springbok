@@ -126,3 +126,7 @@ class Protocol:
             except:
                 pass
         return None
+
+    def seria_compare(self):
+        serialize = str(self.protocol)
+        return serialize
