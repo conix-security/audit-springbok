@@ -5,7 +5,7 @@
 from Protocol import Protocol
 from Ip import Ip
 from Port import Port
-import Gtk.Gtk_Main
+#import Gtk.Gtk_Main
 
 
 ######## Modification of the class by Maurice TCHAMGOUE N. on 22-06-2015
@@ -135,7 +135,7 @@ class Firewall:
         for a in self.acl:
             for rule in a.rules:
                 rule.toBDD()
-                Gtk.Gtk_Main.Gtk_Main().update_interface()
+                #Gtk.Gtk_Main.Gtk_Main().update_interface()
         self.ready = True
 
     def is_ready(self):

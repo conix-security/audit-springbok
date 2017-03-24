@@ -9,7 +9,6 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 
-
 from SpringBase.Rule import Rule
 from SpringBase.Operator import Operator
 from SpringBase.Ip import Ip
@@ -28,7 +27,6 @@ from struct import pack
 
 class Gtk_IPSec_Tunnels:
 
-
     # To add a new row in the matrix table
     def add_row(self, elements=None):
         self.liststore.append(elements)
@@ -42,7 +40,7 @@ class Gtk_IPSec_Tunnels:
                                        None, None, None, None, None, None, False, 'white'])
         self.id_calculation()
 
-    #to remove an element in the matrix table (by its reference)
+    # to remove an element in the matrix table (by its reference)
     def remove_row(self, liststore, ref):
         liststore.remove(ref)
 
@@ -274,13 +272,13 @@ class Gtk_IPSec_Tunnels:
     #  is going to be performed.
 
     def __init__(self,  vpn_list, firewall):
-        #the liststore wich will contains all the flows
+        # the liststore wich will contains all the flows
         self.liststore = gtk.ListStore(str, str, str, str, str, str, str, str, str, str, str)
 
-        #the treeview
+        # the treeview
         self.treeview = gtk.TreeView(self.liststore)
 
-        #different renderers of type text
+        # different renderers of type text
         self.cellId = gtk.CellRendererText()
         self.cellId.set_property('editable', False)
         self.cellId.set_property('xalign', 0.5)
@@ -335,7 +333,6 @@ class Gtk_IPSec_Tunnels:
         self.cellPort_dst.set_property('editable', False)
         self.cellPort_dst.set_property('xalign', 0.5)
         self.cellPort_dst.connect('edited', self.on_modify_value, self.liststore, 10)
-
 
         # different type of columns of our table
         self.columnId = gtk.TreeViewColumn('Id', self.cellId, text=0)
@@ -398,8 +395,7 @@ class Gtk_IPSec_Tunnels:
         self.lastColumn.set_fixed_width(1)
         self.treeview.append_column(self.lastColumn)
 
-
-        #self.add_flows_to_table(nat_rule_list)
+        # self.add_flows_to_table(nat_rule_list)
         self.add_tunels_to_table(vpn_list)
 
         self.scrolled = gtk.ScrolledWindow()
@@ -409,19 +405,17 @@ class Gtk_IPSec_Tunnels:
         self.hbox1 = gtk.HBox()
         self.vbox1 = gtk.VBox()
 
-
         self.vbox.pack_start(self.hbox)
-        #self.vbox.pack_start(self.hbox1)
+        # self.vbox.pack_start(self.hbox1)
 
         self.table = gtk.Table(10, 20, True)
         self.table.attach(self.scrolled, 0, 20, 0, 10)
         self.hbox.pack_start(self.table)
 
         self.flows = []
-        self.firewall = firewall ## remember to change it in firewall (receive in parameter)
+        self.firewall = firewall  # remember to change it in firewall (receive in parameter)
         self.result = {}
 
-
-        ### Begining of showing results
+        # Begining of showing results
 
         self.treeview1 = gtk.TreeView()

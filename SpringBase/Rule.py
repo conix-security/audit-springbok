@@ -197,7 +197,67 @@ class Rule:
         res += self.action.to_string()
         return res
 
-    def new_to_string(self,fw, separator='\n'):
+    def to_string_list(self):
+        res = list()
+        res.append(str(self.identifier))
+        tmp = ""
+        if self.name:
+            tmp = self.name
+        res.append(tmp)
+        tmp = ""
+        for name in self.protocol_name:
+            if len(name):
+                tmp += name + ", "
+        res.append(tmp)
+        tmp = ""
+        for i in self.protocol:
+            tmp += i.to_string()
+            tmp += ", "
+        res.append(tmp)
+        tmp = ""
+        for name in self.ip_source_name:
+            if len(name):
+                tmp += name[0] + ", "
+        res.append(tmp)
+        tmp = ""
+        for i in self.ip_source:
+            tmp += i.to_string()
+            tmp += ", "
+        res.append(tmp)
+        tmp = ""
+        for name in self.port_source_name:
+            if len(name):
+                tmp += name + ", "
+        res.append(tmp)
+        tmp = ""
+        for i in self.port_source:
+            tmp += i.to_string()
+            tmp += ", "
+        res.append(tmp)
+        tmp = ""
+        for name in self.ip_dest_name:
+            if len(name):
+                tmp += name[0] + ", "
+        res.append(tmp)
+        tmp = ""
+        for i in self.ip_dest:
+            tmp += i.to_string()
+            tmp += ", "
+        res.append(tmp)
+        tmp = ""
+        for name in self.port_dest_name:
+            if len(name):
+                tmp += name + ", "
+        res.append(tmp)
+        tmp = ""
+        for i in self.port_dest:
+            tmp += i.to_string()
+            tmp += ", "
+        res.append(tmp)
+        res.append(self.action.to_string())
+        return res
+
+    def new_to_string(self, fw, separator='\n'):
         res = "  id: "
         res += str(self.identifier)
         if self.name:

@@ -2,9 +2,10 @@ import zipfile
 import os
 import shutil
 import xml.etree.ElementTree as ET
+import re
 from xml.etree.ElementTree import tostring
 
-class ExcelToolkit:
+class ExcelToolKit:
     """
     Toolkit for get and set value from a Xlsx file
     """
@@ -145,7 +146,7 @@ class ExcelToolkit:
         """
         return the index of a string if the string is not in the list
         then it add it at the end and return the index
-        If you don't want to add it then send false into the seconde parameter
+        If you don't want to add it then send false into the second parameter
         """
         value = str(value)
         value_idx = None
@@ -189,6 +190,8 @@ class ExcelToolkit:
         """
         if self.current_sheet is None:
             return False
+        if isinstance(col, int):
+            col = self.colnum_string(col)
 
         sheet_data_node = self.current_sheet
         # Search for the Row & create it if not exist
@@ -196,10 +199,10 @@ class ExcelToolkit:
         superior_row = None
         search_row = None
         for idx, row in enumerate(rows):
-            if int(row.attrib["r"]) == line:
+            if int(row.attrib["r"]) == int(line):
                 search_row = idx
                 break
-            if int(row.attrib["r"]) > line:
+            if int(row.attrib["r"]) > int(line):
                 superior_row = idx
                 break
         if search_row is None:
@@ -210,8 +213,8 @@ class ExcelToolkit:
                 search_row_idx = superior_row
             else:
                 self.current_sheet.append(new_row)
-                search_row = self.current_sheet[len(rows)-1]
-                search_row_idx = len(rows)-1
+                search_row = self.current_sheet[len(rows)]
+                search_row_idx = len(rows)
         else:
             search_row_idx = search_row
             search_row = self.current_sheet[search_row_idx]
@@ -223,7 +226,7 @@ class ExcelToolkit:
             if column.attrib["r"] == (col+str(line)):
                 search_col = idx
                 break
-            if column.attrib["r"] > (col+str(line)):
+            if self.colNameToNum(column.attrib["r"][:column.attrib["r"].index(str(line))]) > self.colNameToNum(col):
                 superior_col = idx
                 break
 
@@ -247,8 +250,11 @@ class ExcelToolkit:
         """
         return the value in the data sheet at the coordinate (line,col)
         """
+        line = int(line)
         if self.current_sheet is None:
             return False
+        if isinstance(col, int):
+            col = self.colnum_string(col)
 
         sheet_data_node = self.current_sheet
         rows = self.get_child_by_tag(sheet_data_node, "row")
@@ -295,10 +301,59 @@ class ExcelToolkit:
                                         data.append(column.attrib["r"])
                         else:
                             if elem.tag == "v":
-                                if str(elem.text) == str(value):
-                                    data.append(column.attrib["r"])
+                                if column.attrib["t"] == "n":
+                                    if str(elem.text) == str(value):
+                                        data.append(column.attrib["r"])
+                                elif column.attrib["t"] == "s":
+                                    if str(elem.text) == str(value_idx):
+                                        data.append(column.attrib["r"])
         return data
 
+    def colnum_string(self, n):
+        """
+        convert column number to column letter
+        """
+        div = n
+        string = ""
+        while div > 0:
+            module = (div - 1) % 26
+            string = chr(65 + module) + string
+            div = int((div - module) / 26)
+        return string
+
+    def last_column_in_line(self, line):
+        """
+        return the last column letter in the line given
+        """
+        for row in self.current_sheet:
+            if row.attrib["r"] == str(line):
+                col_attrib = row[len(row)-1].attrib["r"]
+                ip_source_line = re.search(r'\d+', col_attrib).group()
+                return col_attrib[:col_attrib.index(ip_source_line)]
+        return None
+
+    def last_line_in_column(self, column):
+        """
+        return the last line number in the column given
+        """
+        if isinstance(column, int):
+            column = self.colnum_string(column)
+        last_line = None
+        for idx, row in enumerate(self.current_sheet):
+            for col in row:
+                if col.attrib["r"] == column+row.attrib["r"]:
+                        last_line = row.attrib["r"]
+        if isinstance(last_line, str):
+            last_line = int(last_line)
+        return last_line
+
+    def colNameToNum(self, name):
+        pow = 1
+        colNum = 0
+        for letter in name[::-1]:
+            colNum += (int(letter, 36) - 9) * pow
+            pow *= 26
+        return colNum
 """
 ExcelToolKit((string)path_to_file, (optional string) path_to_tmp_dir)
 unzip_file()
@@ -307,9 +362,11 @@ get_value((int)line, (string)col)
 set_value((int) line, (string)col)
 save_sheet()
 zip_file()
+colnum_string(number)
 """
 
 #EXAMPLE
+"""
 toolkit = ExcelToolkit(os.path.dirname(os.path.abspath(__file__)) + "/file1.xlsx")
 toolkit.unzip_file()
 toolkit.select_sheet(1)
@@ -320,4 +377,5 @@ for coord in toolkit.get_coord_from_value("Test-21"):
     print coord
 toolkit.save_sheet()
 toolkit.zip_file(os.path.dirname(os.path.abspath(__file__)) + "/final_file.xlsx")
+"""
 

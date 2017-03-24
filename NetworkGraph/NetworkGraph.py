@@ -4,8 +4,14 @@
 import networkx as nx
 from Node import *
 from Edge import *
+from SpringBase.Operator import Operator
 from SpringBase.Ip import Ip
+from SpringBase.Rule import Rule
+from SpringBase.Port import Port
+from SpringBase.Protocol import Protocol
+from SpringBase.Action import Action
 from SpringBase.Interface import Interface
+
 
 
 
@@ -197,10 +203,187 @@ class NetworkGraph(object):
             raise
 
         self._new_get_all_simple_paths(source_node, dest_node)
-        #print 'len res', len(self.res), self.res
         return self.res
 
-        #return nx.all_simple_paths(self.multidigraph, source_node, dest_node)
+        # return nx.all_simple_paths(self.multidigraph, source_node, dest_node)
+
+    def get_all_simple_path_new(self, rule, current_path, ip_dest_final):
+        path_list = []
+
+        data_list = self.get_reachable_ip(rule, current_path)
+        for data in data_list:
+            tmp = list(current_path)
+            tmp.append(data[1])
+            if self.ip_operator_compare(data[1][1], ip_dest_final):
+                path_list.append(tmp)
+            else:
+                tmp_list = self.get_all_simple_path_new(data[0], tmp, ip_dest_final)
+                path_list = path_list + tmp_list
+        return path_list
+
+    def get_reachable_ip(self, rule, current_path):
+        data = []
+        for fw in self.firewalls:
+            for acl in fw.acl:
+                for current_rule in acl.rules:
+                    if current_rule.action.chain == rule.action.chain and current_rule.action.goto == rule.action.goto:
+                        port_source_list = self.regular_list_compare_operator(rule.port_source, current_rule.port_source)
+                        port_dest_list = self.regular_list_compare_operator(rule.port_dest, current_rule.port_dest)
+                        protocol_list = self.regular_list_compare_operator(rule.protocol, current_rule.protocol)
+                        if (port_source_list is not None) \
+                                and (port_dest_list is not None) \
+                                and (protocol_list is not None):
+
+                            check_ip = False
+                            for ip_ope in current_rule.ip_source:
+                                if self.ip_operator_compare(ip_ope, rule.ip_source[0]):
+                                    check_ip = True
+                            if check_ip:
+                                for operator in current_rule.ip_dest:
+                                    check_op = True
+                                    for current_op in current_path:
+                                        if current_op[1].v1.ip == operator.v1.ip and current_op[1].v1.mask == operator.v1.mask:
+                                            check_op = False
+                                    if check_op:
+                                        for tmp_data in data:
+                                            if tmp_data[1][0] == fw.hostname and tmp_data[1][1].v1.ip == operator.v1.ip and \
+                                                            tmp_data[1][1].v1.mask == operator.v1.mask:
+                                                check_op = False
+                                        if check_op:
+                                            tmp_struct = []
+                                            new_rule = Rule(0, 'query_path', protocol_list, [operator],
+                                                            port_source_list, [], port_dest_list,
+                                                            Action(True))
+                                            tmp_struct.append(new_rule)
+                                            tmp_struct.append([fw.hostname, operator, new_rule])
+                                            data.append(tmp_struct)
+        return data
+
+    def ip_operator_compare(self, operator_1, operator_2):
+        """
+        take two ip_operator in input
+        return true if the second one is contain or is equal to the first
+        """
+        check = False
+        # 4294967295 value for 255.255.255.255
+        if operator_1.v1.mask != 4294967295:
+            tmp_val = 4294967295
+            ip_min_check = operator_1.v1.ip & operator_1.v1.mask
+            tmp_val = tmp_val ^ operator_1.v1.mask
+            ip_max_check = operator_1.v1.ip | tmp_val
+            operator_1 = Operator("RANGE", Ip(ip_min_check), Ip(ip_max_check))
+        if operator_2.v1.mask != 4294967295:
+            tmp_val = 4294967295
+            ip_min_check = operator_2.v1.ip & operator_2.v1.mask
+            tmp_val = tmp_val ^ operator_2.v1.mask
+            ip_max_check = operator_2.v1.ip | tmp_val
+            operator_2 = Operator("RANGE", Ip(ip_min_check), Ip(ip_max_check))
+        if operator_1.operator == "RANGE" and operator_2.operator == "RANGE":
+            if operator_1.v1.ip <= operator_2.v1.ip <= operator_1.v2.ip:
+                if operator_1.v1.ip <= operator_2.v2.ip <= operator_1.v2.ip:
+                    check = True
+        elif operator_1.operator == "RANGE" and operator_2.operator != "RANGE":
+            if operator_1.v1.ip <= operator_2.v1.ip <= operator_1.v2.ip:
+                check = True
+        elif operator_1.operator != "RANGE" and operator_2.operator == "RANGE":
+            if operator_1.v1.ip == operator_2.v1.ip and operator_1.v1.ip == operator_2.v2.ip:
+                    check = True
+        elif operator_1.operator != "RANGE" and operator_2.operator != "RANGE":
+            if operator_1.v1.ip == operator_2.v1.ip:
+                check = True
+        return check
+
+    def port_operator_compare(self, ope1, ope2):
+        data = None
+        if ope1.operator == "EQ" and ope2.operator == "EQ":
+            if ope1.v1.port == ope2.v1.port:
+                data = ope1
+        elif ope1.operator == "RANGE" and ope2.operator == "EQ":
+            if ope1.v1.port <= ope2.v1.port <= ope1.v2.port:
+                data = ope2
+        elif ope1.operator == "EQ" and ope2.operator == "RANGE":
+            if ope2.v1.port <= ope1.v1.port <= ope2.v2.port:
+                data = ope1
+        elif ope1.operator == "RANGE" and ope2.operator == "RANGE":
+            if ope1.v1.port <= ope2.v1.port <= ope1.v2.port:
+                if ope2.v2.port <= ope1.v2.port:
+                    data = ope2
+                else:
+                    data = ope2
+                    data.v2.port = ope1.v2.port
+            elif ope2.v1.port < ope1.v1.port:
+                if ope1.v1.port < ope2.v2.port < ope1.v2.port:
+                    data = ope2
+                    data.v1.port = ope1.v1.port
+                elif ope1.v2.port < ope2.v2.port:
+                    data = ope1
+        return data
+
+    def protocol_operator_compare(self, ope1, ope2):
+        data = None
+        if ope1.operator == "EQ" and ope2.operator == "EQ":
+            if ope1.v1.protocol == ope2.v1.protocol:
+                data = ope1
+        elif ope1.operator == "RANGE" and ope2.operator == "EQ":
+            if ope1.v1.protocol <= ope2.v1.protocol <= ope1.v2.protocol:
+                data = ope2
+        elif ope1.operator == "EQ" and ope2.operator == "RANGE":
+            if ope2.v1.protocol <= ope1.v1.protocol <= ope2.v2.protocol:
+                data = ope1
+        elif ope1.operator == "RANGE" and ope2.operator == "RANGE":
+            if ope1.v1.protocol <= ope2.v1.protocol <= ope1.v2.protocol:
+                if ope2.v2.protocol <= ope1.v2.protocol:
+                    data = ope2
+                else:
+                    data = ope2
+                    data.v2.protocol = ope1.v2.protocol
+            elif ope2.v1.protocol < ope1.v1.protocol:
+                if ope1.v1.protocol < ope2.v2.protocol < ope1.v2.protocol:
+                    data = ope2
+                    data.v1.protocol = ope1.v1.protocol
+                elif ope1.v2.protocol < ope2.v2.protocol:
+                    data = ope1
+        return data
+
+    def regular_list_compare_operator(self, operators1, operators2):
+        """
+        Compare two operator list
+        return all the element in common in the both list
+        """
+        return_list = None
+        check_list_seria = []
+        if not len(operators1) and len(operators2):
+            if len(operators2):
+                return_list = operators2
+        elif len(operators1) and not len(operators2):
+            if len(operators1):
+                return_list = operators1
+        elif not len(operators1) and not len(operators2):
+            return_list = []
+        elif len(operators1) and len(operators2):
+            if isinstance(operators1[0].v1, Port):
+                for ope1 in operators1:
+                    for ope2 in operators2:
+                        compare_ope = self.port_operator_compare(ope1, ope2)
+                        if compare_ope is not None:
+                            compare_seria = compare_ope.seria_compare()
+                            if compare_seria not in check_list_seria:
+                                if return_list is None:
+                                    return_list = []
+                                check_list_seria.append(compare_seria)
+                                return_list.append(compare_ope)
+            elif isinstance(operators1[0].v1, Protocol):
+                for ope1 in operators1:
+                    for ope2 in operators2:
+                        compare_ope = self.protocol_operator_compare(ope1, ope2)
+                        if compare_ope is not None:
+                            compare_seria = compare_ope.seria_compare()
+                            if compare_seria not in check_list_seria:
+                                if return_list is None:
+                                    return_list = []
+                                check_list_seria.append(compare_seria)
+                                return_list.append(compare_ope)
+        return return_list
 
     def _new_get_all_simple_paths(self, source_node, dest_node):
         """Retrieve all simple paths between two node of the graph.
@@ -213,18 +396,37 @@ class NetworkGraph(object):
         """Recursive implementation of DSF search algorithm to find all simple paths
            between two nodes
         """
-        for son in self.multidigraph.neighbors(source_node):
-            if son == dest_node:
-                tmp_list = []
-                for node in self.marks:
-                    tmp_list.append(node)
-                tmp_list.append(dest_node)
-                self.res.append(list(tmp_list))
-            elif son not in self.marks:
-                self.marks.append(son)
-                self.__new_all_simple_paths(son, dest_node)
-                self.marks.pop()
-
+        if len(self.res) < 100:
+            son_list = self.multidigraph.neighbors(source_node)
+            for son in son_list:
+                if son == dest_node:
+                    tmp_list = []
+                    for node in self.marks:
+                        tmp_list.append(node)
+                    tmp_list.append(dest_node)
+                    self.res.append(list(tmp_list))
+                else:
+                    check = True
+                    if son is not None:
+                        for mark in self.marks:
+                            if son.ip == mark.ip and son.mask == mark.mask:
+                                check = False
+                                break
+                        if check:
+                            self.marks.append(son)
+                            self.__new_all_simple_paths(son, dest_node)
+                            self.marks.pop()
+    """
+    def algo_de_recherche(source, dest, list_of_ip)
+        list_ip_reachable = get all ip reachable corresponding to the message
+        for ip in list_ip_reachable
+            if ip == dest:
+                list_of_ip.append(dest)
+            if ip is in list_of_ip:
+                continue
+            else
+            list_of_ip = algo_ip_reachable(ip,dest, list_of_ip.append(ip))
+    """
     def get_acl_list(self, src=None, dst=None, firewall=None):
         """Get all acl filtered by optional parameters
 

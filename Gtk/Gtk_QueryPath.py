@@ -17,7 +17,7 @@ from ROBDD.synthesis import synthesize
 from ROBDD.operators import Bdd
 #from SpringBase.Firewall import Firewall
 import time
-
+from graphviz import Digraph
 
 class Gtk_QueryPath:
     """Gtk_QueryPath class.
@@ -32,9 +32,9 @@ class Gtk_QueryPath:
     def __init__(self, source_entry=None, dest_entry=None):
         self.popup = gtk.Window()
         self.popup.set_title("Query Path")
-
         self.popup.set_modal(True)
         self.popup.set_transient_for(Gtk_Main.Gtk_Main().window)
+
         self.popup.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_DIALOG)
 
         vbox = gtk.VBox()
@@ -96,7 +96,8 @@ class Gtk_QueryPath:
         self.popup.show_all()
 
     def on_click(self, widget):
-        """Event listener : launch when "Run Query" is clicked.
+        """
+        Event listener : launch when "Run Query" is clicked.
         Launch the query path search algorithm.
         """
         protocol_op = []
@@ -125,11 +126,12 @@ class Gtk_QueryPath:
 
         res = []
 
+
         try:
             res, routedPaths = run_query(test_rule)
             if not res:
                 raise
-        except:
+        except ValueError:
             # message popup if no result
             Gtk_DialogBox("No path found !")
 
@@ -150,7 +152,7 @@ class Gtk_QueryPath:
                 g.graph[path[i]][path[i + 1]]['object'].mark_path()
                 i += 1
             Gtk_Main.Gtk_Main().lateral_pane.path.add_row(path_to_string(path_data[0], '\n'))
-
+        routedPaths = []
         # add routed path result
         for path_data in routedPaths:
             path = path_data[0]
@@ -219,6 +221,57 @@ def treeview_output(query_path):
     Gtk_Main.Gtk_Main().notebook.add_tab(treeview.scrolled_window, "Query path import", can_close=True,
                                          ref=query_path, export=Gtk_Export.export_query_path)
 
+def create_graph(simple_path):
+    dot = Digraph(comment='Query Result')
+    current_node = 0
+    last_node = 0
+    for idx1, path in enumerate(simple_path):
+        for idx2, component in enumerate(path):
+            # save the id of the last node
+            if idx1 == 0 and (idx2 == len(path) - 1):
+                last_node = current_node + 1
+
+            # complete the tree
+            if idx1 == 0 and idx2 == 0:
+                to_print = ""
+                if component[1].operator == "EQ":
+                    to_print += "ip: " + Ip.Ip.toString(component[1].v1.ip) + \
+                                "\nmask: " + Ip.Ip.toString(component[1].v1.mask)
+                if component[1].operator == "RANGE":
+                    to_print += "ip: " + Ip.Ip.toString(component[1].v1.ip) + \
+                                " - " + Ip.Ip.toString(component[1].v2.ip)
+                dot.node(str(0), to_print)
+                current_node += 1
+            elif idx1 != 0 and idx2 == 0:
+                continue
+            elif idx1 != 0 and idx2 == (len(path) - 1):
+                dot.node(str(current_node), component[0])
+                current_node += 1
+                if idx2 == 1:
+                    dot.edge(str(0), str(current_node - 1))
+                else:
+                    dot.edge(str(current_node - 2), str(current_node - 1))
+                dot.edge(str(current_node - 1), str(last_node))
+            else:
+                dot.node(str(current_node), component[0])
+                current_node += 1
+                to_print = ""
+                if component[1].operator == "EQ":
+                    to_print += "ip: " + Ip.Ip.toString(component[1].v1.ip) + \
+                                "\nmask: " + Ip.Ip.toString(component[1].v1.mask)
+                if component[1].operator == "RANGE":
+                    to_print += "ip: " + Ip.Ip.toString(component[1].v1.ip) + " - " + Ip.Ip.toString(component[1].v2.ip)
+                dot.node(str(current_node), to_print)
+                if idx2 == 1:
+                    dot.edge(str(0), str(current_node - 1))
+                    dot.edge(str(current_node - 1), str(current_node))
+                else:
+                    dot.edge(str(current_node - 2), str(current_node - 1))
+                    dot.edge(str(current_node - 1), str(current_node))
+                current_node += 1
+
+    dot.render('output/query-result.gv', view=True)
+
 
 def run_query(rule, ip_source=None, ip_dest=None):
     """Get all simple path, run query and return a formatted result list.
@@ -238,9 +291,12 @@ def run_query(rule, ip_source=None, ip_dest=None):
     g = NetworkGraph.NetworkGraph()
 
 
-
     # get all simple path
     start = time.time()
+    simple_path = g.get_all_simple_path_new(rule, [["", rule.ip_source[0]]], rule.ip_dest[0])
+    if len(simple_path):
+        create_graph(simple_path)
+
     simple_path = g.get_all_simple_path(ip_source, ip_dest)
     end = time.time()
     print 'temps mis = ', str(end - start)
@@ -253,20 +309,20 @@ def run_query(rule, ip_source=None, ip_dest=None):
         if node[1]['object'].marker_type == 'to':
             ip_dest = node[0]
 
-    '''
+    """
     simple_path = []
     [simple_path.append(i) for i in g.get_all_simple_path(ip_source, ip_dest)]
     # delete double
     simple_path.sort()
     simple_path = list(simple_path for simple_path, _ in itertools.groupby(simple_path))
-    '''
+    """
 
 
     ress = []
     count = 0
-    length = sum(1 for _ in simple_path)
+    length = len(simple_path)
     for i in range(len(simple_path)):
-        pass#print simple_path[i]
+        pass # print simple_path[i]
     for path in simple_path:
         i = 0
         trouve = False
@@ -309,14 +365,12 @@ def run_query(rule, ip_source=None, ip_dest=None):
             i += 1
 
         if i == len(path) - 1:
-            #res += [(list(path), rule_list[0])]
-            #res += [(list(path), [l for l in rule_list])]
+            # res += [(list(path), rule_list[0])]
+            # res += [(list(path), [l for l in rule_list])]
 
             for l in rule_list:
                 # add the path list for each list in rule_list
                 res += [(list(path), l)]
-
-
 
     # format result #
     for path_data in res:
@@ -336,17 +390,18 @@ def run_query(rule, ip_source=None, ip_dest=None):
             i += 1
             acl_index += 1
     routed_paths = get_routed_paths(list(res), ip_dest)
-    #print res[0][0]
+    # print res[0][0]
 
-    ## delete double from res
+    # delete double from res
 
-    #remove_double(res)
-    #remove_bad_path(res)
-    #print 'res', res
+    # remove_double(res)
+    # remove_bad_path(res)
+    # print 'res', res
 
     # delete bad results : path containing the same firewall twice or more
 
     return (res, routed_paths)
+
 
 def get_routed_paths(res, ip_dest):
     finalRes = list(res)

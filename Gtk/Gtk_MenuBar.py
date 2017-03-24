@@ -26,6 +26,9 @@ from socket import *
 from socket import inet_ntoa
 from struct import pack
 import networkx as nx
+import os
+from Tools.ExcelToolKit import ExcelToolKit
+import re
 
 ######## Modification of the class by Maurice TCHAMGOUE N.
 ###          * Adding of some menu to manage the matrix flow verification
@@ -70,9 +73,15 @@ class Gtk_MenuBar:
         self.submenu_file.append(self.menu_save)
         self.menu_save.connect("activate", self.on_save_project)
 
-        # Extract excel #
-        self.menu_extract_excel = gtk.MenuItem("Extract excel")
+        # Extract rules to excel #
+        self.menu_extract_excel = gtk.MenuItem("Extract rules to excel")
         self.submenu_file.append(self.menu_extract_excel)
+        self.menu_extract_excel.connect("activate", self.on_extract_excel)
+
+        # Generate Matrix Table #
+        self.menu_matrix_table = gtk.MenuItem("Generate Matrix Table")
+        self.submenu_file.append(self.menu_matrix_table)
+        self.menu_matrix_table.connect("activate", self.on_generate_matrix)
 
         # Quit #
         self.menu_quit = gtk.MenuItem("Quit")
@@ -252,6 +261,67 @@ class Gtk_MenuBar:
 
         return filename
 
+    def on_generate_matrix(self, widget):
+        """
+        Create a Matrix of flow Table in the output file with the current Fw load
+        """
+        start_line = 2
+        start_col = 2
+        if len(self.tmp_fw_list) == 0:
+            return
+        Gtk_Main.Gtk_Main().statusbar.change_message("Generating Matrix...")
+        filename = os.path.dirname(os.path.abspath(__file__)) + "/../input/template_matrix_table.xlsx"
+        toolkit = ExcelToolKit(filename, os.path.dirname(os.path.abspath(__file__)) + "/../Tools/tmp_file/")
+        toolkit.unzip_file()
+        toolkit.select_sheet(1)
+        for fw in self.tmp_fw_list:
+            for acl in fw.acl:
+                if len(acl.rules):
+                    for rule in acl.rules:
+                        rule_string = rule.to_string_list()
+                        # search if ip_source or dest in the table
+                        ip_source_coord = toolkit.get_coord_from_value(rule_string[5])
+                        ip_dest_coord = toolkit.get_coord_from_value(rule_string[9])
+                        ip_source_line = None
+                        ip_dest_col = None
+                        if len(ip_source_coord):
+                            for ip_source in ip_source_coord:
+                                ip_source_line = re.search(r'\d+', ip_source).group()
+                                ip_source_col = ip_source[:ip_source.index(ip_source_line)]
+                                if ip_source_col != toolkit.colnum_string(start_col):
+                                    ip_source_line = None
+                                else:
+                                    break
+                        if len(ip_dest_coord):
+                            for ip_dest in ip_dest_coord:
+                                ip_dest_line = re.search(r'\d+', ip_dest).group()
+                                ip_dest_col = ip_dest[:ip_dest.index(ip_dest_line)]
+                                if int(ip_dest_line) != start_line:
+                                    ip_dest_col = None
+                                else:
+                                    break
+                        if ip_source_line is None:
+                            ip_source_line = toolkit.last_line_in_column(start_col)
+                            ip_source_line = start_line + 1 if ip_source_line is None else ip_source_line + 1
+                            toolkit.set_value(ip_source_line, start_col, rule_string[5])
+                        if ip_dest_col is None:
+                            ip_dest_col = toolkit.colNameToNum(toolkit.last_column_in_line(start_line))
+                            ip_dest_col = start_col + 1 if ip_dest_col is None else ip_dest_col + 1
+                            toolkit.set_value(start_line, ip_dest_col, rule_string[9])
+                        actual_value = toolkit.get_value(ip_source_line, ip_dest_col)
+                        if actual_value is None:
+                            actual_value = ""
+                        actual_value += "protocol: " + rule_string[2] + ": " + rule_string[3] + "\nport_src: " + \
+                                        rule_string[6] + ": " + rule_string[7]
+                        actual_value += "\nport_dest: " + rule_string[10] + ": " + rule_string[11] + \
+                                        "\naction: " + rule_string[12] \
+                                        + "\nfirewall: " + fw.hostname + "\nrule" + str(rule.identifier) + "\n\n"
+                        toolkit.set_value(ip_source_line, ip_dest_col, actual_value)
+        toolkit.save_sheet()
+        toolkit.zip_file(os.path.dirname(os.path.abspath(__file__)) + "/../output/matrix_table.xlsx")
+        Gtk_Main.Gtk_Main().statusbar.change_message("Matrix Table ready")
+        return
+
     def menu_file_import(self):
         """Launch a Menu to browse and import files.
         Parse each file.
@@ -276,10 +346,35 @@ class Gtk_MenuBar:
                     gtk.main_iteration_do(False)
                 time.sleep(0.1)
 
+        # Clean all the fw content
+        to_delete_lists = []
+        for fw in self.tmp_fw_list:
+            to_delete = {}
+            for idx1, acl1 in enumerate(fw.acl):
+                if len(acl1.rules):
+                    if idx1 in to_delete:
+                        break
+                    for idx2, acl2 in enumerate(fw.acl):
+                        if idx1 == idx2:
+                            continue
+                        if idx2 in to_delete:
+                            continue
+                        if len(acl2.rules):
+                            check = 0
+                            if len(acl1.rules) == len(acl2.rules):
+                                for idx3, rule in enumerate(acl1.rules):
+                                    if acl1.rules[idx3].identifier == acl2.rules[idx3].identifier:
+                                        check += 1
+                                if check == len(acl1.rules):
+                                    to_delete[idx1] = ""
+                            else:
+                                continue
+            to_delete_lists.append(to_delete)
+        for idx, to_delete in enumerate(to_delete_lists):
+            self.tmp_fw_list[idx].acl = [i for j, i in enumerate(self.tmp_fw_list[idx].acl) if j not in to_delete]
+
         Gtk_Main.Gtk_Main().lateral_pane.help_message.change_message(Gtk_Message.TOPOLOGY_MESSAGE)
-
         Gtk_Main.Gtk_Main().statusbar.change_message("Construct ROBDD ...")
-
         # Add check for reduce rule number
         for fw in self.tmp_fw_list:
             t0 = time.time()
@@ -290,6 +385,29 @@ class Gtk_MenuBar:
             Gtk_Main.Gtk_Main().change_statusbar(message)
 
         Gtk_Main.Gtk_Main().statusbar.change_message("Ready")
+
+    def on_extract_excel(self, widget):
+        currentLine = 3
+        currentCol = 2
+        if len(self.tmp_fw_list) == 0:
+            return
+        filename = os.path.dirname(os.path.abspath(__file__)) + "/../input/template_rule_to_excel.xlsx"
+        print filename
+        toolkit = ExcelToolKit(filename, os.path.dirname(os.path.abspath(__file__)) + "/../Tools/tmp_file/")
+        toolkit.unzip_file()
+        toolkit.select_sheet(1)
+        Gtk_Main.Gtk_Main().statusbar.change_message("Extracting rules...")
+        for fw in self.tmp_fw_list:
+            for acl in fw.acl:
+                if len(acl.rules):
+                    for rule in acl.rules:
+                        for idx, data in enumerate(rule.to_string_list()):
+                            toolkit.set_value(currentLine, toolkit.colnum_string(idx+currentCol), data)
+                        currentLine += 1
+        Gtk_Main.Gtk_Main().statusbar.change_message("Extract ready")
+        toolkit.save_sheet()
+        toolkit.zip_file(os.path.dirname(os.path.abspath(__file__)) + "/../output/rule_to_excel.xlsx")
+        print toolkit.get_value(1, "A")
 
     def file_popup_menu(self, filename):
         """Detect firewall type and parse the conf file"""
@@ -604,7 +722,6 @@ class Gtk_MenuBar:
             by adding routes
         """
         g = NetworkGraph.NetworkGraph().graph
-
         for node in g.nodes():
             # print node
             if isinstance(node, Firewall):
@@ -665,7 +782,7 @@ class Gtk_MenuBar:
 
     def get_iface_from_ip(self, firewall, ip):
         for iface in firewall.interfaces:
-            if ip != None and firewall != None:
+            if ip != None and iface.network != None:
                 if iface.network.to_string() == ip.to_string():
                     return iface
             else:
@@ -673,7 +790,7 @@ class Gtk_MenuBar:
         print firewall.hostname, ip.to_string()
 
 # The following two functions are used to convert an IP address from it
-#    dotted format to the decimal one and vice-versa
+# dotted format to the decimal one and vice-versa
 
 def fromDotted2Dec(ipaddr):
     return sum([bin(int(x)).count('1') for x in ipaddr.split('.')])
