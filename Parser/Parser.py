@@ -12,7 +12,7 @@ import os
 parser_list = [('Parser.CiscoAsa.CiscoAsaYacc', 'Cisco Asa', ['access-list']),
                ('Parser.Juniper_JunOS_11.JuniperNetscreenYacc', 'Juniper Netscreen', ['set policy.*from.*to']),
                ('Parser.FortiGate.FortiGateYacc', 'Fortinet FortiGate', ['config firewall policy']),
-               ('Parser.IpTables.IpTablesYacc', 'Iptables', ['iptables', '\*filter']),
+               ('Parser.IpTables.IpTablesParser', 'Iptables', ['iptables', 'Chain']),
                ('Parser.CheckPoint.CheckPointYacc', 'CheckPoint', ['\(\n'])]
 
 
@@ -45,7 +45,7 @@ def parser(file_name, yacc_parser, progressBar):
     _parse_kit.init(file_name)
 
     t0 = time.time()  # start timer
-    count , ctr = 0, 0
+    count, ctr = 0, 0
 
     os.system("rm ../parse*")
 

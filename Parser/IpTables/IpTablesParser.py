@@ -9,15 +9,27 @@ from SpringBase.Firewall import Firewall
 from socket import inet_ntoa
 from struct import pack
 
-class IptablesParser:
 
-    def __init__(self):
-        self.link_table = {}
-        self.all_tree = []
-        self.identifier = 0
-        self.rules = []
-        self.all_blocks = []
-        self.link_table = {}
+class IptablesParser:
+    instance = None
+
+    def __init__(self, line=0):
+        if not IptablesParser.instance:
+            IptablesParser.instance = IptablesParser.__IptablesParser(line)
+        elif line != 0:
+            IptablesParser.instance.file_line = line
+
+    class __IptablesParser:
+        def __init__(self, line):
+            self.link_table = {}
+            self.all_tree = []
+            self.identifier = 0
+            self.rules = []
+            self.all_blocks = []
+            self.file_line = line
+            self.fw = []
+            self.filename = ""
+            self.tmp_block = []
 
     # (Operator('EQ', Ip(src_ip.split('/')[0], fromDec2Dotted(int(src_ip.split('/')[1])))))
     def get_rule_from_iptable_line(self, rule_line):
@@ -158,7 +170,6 @@ class IptablesParser:
                 if tmp_list == None:
                     ips_list[len(ips_list) - 1] = None
                     break
-        print len(ips_list)
         return ips_list[len(ips_list) - 1]
 
     def merge_rules(self, list_rules):
@@ -189,20 +200,20 @@ class IptablesParser:
         ip_dest_list = self.merge_ip(ip_dest_list)
 
         if protocol_list is None \
-                or port_source_list is None\
-                or port_dest_list is None\
-                or ip_source_list is None\
+                or port_source_list is None \
+                or port_dest_list is None \
+                or ip_source_list is None \
                 or ip_dest_list is None:
             print "Error merging iptables rules"
             return None
         # create a new rule
-        rule = Rule(self.identifier, "", protocol_list,
-             ip_source_list,
-             port_source_list,
-             ip_dest_list,
-             port_dest_list,
-             action_list[len(action_list)-1])
-        self.identifier += 1
+        rule = Rule(self.instance.identifier, "", protocol_list,
+                    ip_source_list,
+                    port_source_list,
+                    ip_dest_list,
+                    port_dest_list,
+                    action_list[len(action_list)-1])
+        self.instance.identifier += 1
         return rule
 
     def get_rules_from_path_list(self, path_list):
@@ -223,7 +234,7 @@ class IptablesParser:
         return the node which name is node_name
         """
         node = None
-        for item in self.all_tree:
+        for item in self.instance.all_tree:
             if item.name == node_name:
                 node = item
                 break
@@ -239,6 +250,10 @@ class IptablesParser:
             if idx >= 2:
                 if component[0] != "ACCEPT" and component[0] != "DROP":
                     new_node = self.get_node(component[0])
+                    if new_node is None:
+                        print "coucou"
+                    if new_node.data_list is None:
+                        print "coucou"
                     path_list_from_node = self.create_all_path_from_node(new_node)
                     for path in path_list_from_node:
                         path.insert(0, component)
@@ -249,41 +264,34 @@ class IptablesParser:
                     path_list.append(tmp)
         return path_list
 
-    def create_block_from_file(self, fname):
+    def create_block_from_file(self, content):
         """
         split the iptables files into blocks
         """
-        with open(fname) as f:
-            content = f.readline()
-            block = []
-            while content:
-                # print content
-                if content == "\n":
-                    self.all_blocks.append(block)
-                    block = []
-                else:
-                    test = content.split(" ")
-                    test = [i for i in test if i != ""]
-                    block.append(test)
-                content = f.readline()
-            self.all_blocks.append(block)
+        if content == "\n":
+            self.instance.all_blocks.append(self.instance.tmp_block)
+            self.instance.tmp_block = []
+        else:
+            data = content.split(" ")
+            data = [i for i in data if i != ""]
+            self.instance.tmp_block.append(data)
 
     def complete_all_tree(self):
         """
         add a node to the tree for each blocks
         """
-        for block in self.all_blocks:
-            new_node = IptableNode(block[0][1])
+        for block in self.instance.all_blocks:
+            new_node = IptablesNode(block[0][1])
             for idx, component in enumerate(block):
                 if idx >= 2:
                     new_node.data_list = block
                     if component[0] != "ACCEPT" and component != "DROP":
-                        if component[0] in self.link_table.keys():
-                            if block[0][1] not in self.link_table[component[0]]:
-                                self.link_table[component[0]] = self.link_table[component[0]] + " " + block[0][1]
+                        if component[0] in self.instance.link_table.keys():
+                            if block[0][1] not in self.instance.link_table[component[0]]:
+                                self.instance.link_table[component[0]] = self.instance.link_table[component[0]] + " " + block[0][1]
                         else:
-                            self.link_table[component[0]] = block[0][1]
-            self.all_tree.append(new_node)
+                            self.instance.link_table[component[0]] = block[0][1]
+            self.instance.all_tree.append(new_node)
 
     def get_general_rule(self, node):
         """
@@ -292,49 +300,25 @@ class IptablesParser:
         rule = None
         txt = node.data_list[0][2]+ " " +node.data_list[0][3]
         if txt == "(policy DROP)\n":
-            rule = Rule(self.identifier, "all", [], [], [], [], [], Action(False))
-            self.identifier += 1
+            rule = Rule(self.instance.identifier, "all", [], [], [], [], [], Action(False))
+            self.instance.identifier += 1
         elif txt == "(policy ACCEPT)\n":
-            rule = Rule(self.identifier, "all", [], [], [], [], [], Action(False))
-            self.identifier += 1
+            rule = Rule(self.instance.identifier, "all", [], [], [], [], [], Action(False))
+            self.instance.identifier += 1
         return rule
 
-    def parse(self, filename):
-        self.create_block_from_file(filename)
-        self.complete_all_tree()
+    def parse(self, line, test = 0, debug=0):
+        self.instance.identifier += 1
+        self.create_block_from_file(line)
+        if self.instance.identifier == self.instance.file_line:
+            self.instance.all_blocks.append(self.instance.tmp_block)
+            self.complete_all_tree()
+            self.instance.identifier = 0
 
-        # select the 3 main nodes
-        input_node = self.get_node("INPUT")
-        output_node = self.get_node("OUTPUT")
-        forward_node = self.get_node("FORWARD")
 
-        # create every path from the 3 nodes
-        input_path_list = self.create_all_path_from_node(input_node)
-        output_path_list = self.create_all_path_from_node(output_node)
-        forward_path_list = self.create_all_path_from_node(forward_node)
 
-        # create the rules which correspond to the path list
-        input_rules = self.get_rules_from_path_list(input_path_list)
-        output_rules = self.get_rules_from_path_list(output_path_list)
-        forward_rules = self.get_rules_from_path_list(forward_path_list)
 
-        # add the rule for default drop or accept
-        input_rules.append(self.get_general_rule(input_node))
-        output_rules.append(self.get_general_rule(output_node))
-        forward_rules.append(self.get_general_rule(forward_node))
-
-        # create the fw
-        acl_input = ACL("INPUT").rules = input_rules
-        acl_output = ACL("OUTPUT").rules = output_rules
-        acl_forward = ACL("FORWARD").rules = forward_rules
-        new_fw = Firewall()
-        new_fw.acl = [acl_input, acl_output, acl_forward]
-        new_fw.hostname = filename
-        new_fw.name = filename
-
-        return new_fw
-
-class IptableNode(object):
+class IptablesNode(object):
     def __init__(self, name):
         self.data_list = []
         self.name = name
@@ -346,5 +330,93 @@ def fromDec2Dotted(mask):
     bits = 0xffffffff ^ (1 << 32 - mask) - 1
     return inet_ntoa(pack('>I', bits))
 
+
+parser = IptablesParser()
+lexer = None
+
+
+def file_len(fname):
+    """Return the number of line in the file"""
+    i = 0
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
+
+
+def init(fname, check=False):
+    if not check:
+        my_parse = IptablesParser()
+        my_parse.instance.link_table = {}
+        my_parse.instance.all_tree = []
+        my_parse.instance.identifier = 0
+        my_parse.instance.rules = []
+        my_parse.instance.all_blocks = []
+        my_parse.instance.file_line = 0
+        my_parse.instance.fw = []
+        my_parse.instance.filename = ""
+        my_parse.instance.tmp_block = []
+        my_parse = IptablesParser(file_len(fname))
+        my_parse.instance.filename = fname
+
+def update():
+    pass
+
+
+def finish():
+    my_parser = IptablesParser()
+    # select the 3 main nodes
+    input_node = my_parser.get_node("INPUT")
+    output_node = my_parser.get_node("OUTPUT")
+    forward_node = my_parser.get_node("FORWARD")
+
+    # create every path from the 3 nodes
+    input_path_list = my_parser.create_all_path_from_node(input_node)
+    output_path_list = my_parser.create_all_path_from_node(output_node)
+    forward_path_list = my_parser.create_all_path_from_node(forward_node)
+
+    # create the rules which correspond to the path list
+    input_rules = my_parser.get_rules_from_path_list(input_path_list)
+    output_rules = my_parser.get_rules_from_path_list(output_path_list)
+    forward_rules = my_parser.get_rules_from_path_list(forward_path_list)
+
+    # add the rule for default drop or accept
+    input_rules.append(my_parser.get_general_rule(input_node))
+    output_rules.append(my_parser.get_general_rule(output_node))
+    forward_rules.append(my_parser.get_general_rule(forward_node))
+
+    # create the fw
+    acl_input = ACL("INPUT")
+    acl_input.rules = input_rules
+    acl_output = ACL("OUTPUT")
+    acl_output.rules = output_rules
+    acl_forward = ACL("FORWARD")
+    acl_forward.rules = forward_rules
+    new_fw = Firewall()
+    new_fw.acl = [acl_input, acl_output, acl_forward]
+    new_fw.hostname = my_parser.instance.filename
+    new_fw.name = my_parser.instance.filename
+    my_parser.instance.fw.append(new_fw)
+
+def get_firewall():
+    my_parser = IptablesParser()
+    fw = my_parser.instance.fw
+    my_parser.instance = None
+    return fw
+
+
+def show():
+    pass
+
+"""
 fname = "iptables01.txt"
 fw = IptablesParser().parse(fname)
+"""
+
+"""
+ init(name, raise_on_error=False)
+- update():
+- finish():
+- get_firewall():
+- show():
+"""
