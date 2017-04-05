@@ -9,47 +9,250 @@ Grammar
 Rule 0     S' -> lines
 Rule 1     lines -> line
 Rule 2     lines -> line lines
-Rule 3     line -> hyphen_line NL
-Rule 4     line -> protocol_line NL
-Rule 5     line -> ip_src_line NL
-Rule 6     line -> ip_dst_line NL
-Rule 7     line -> port_src_line NL
-Rule 8     line -> port_dst_line NL
-Rule 9     line -> NL
-Rule 10    line -> error NL
-Rule 11    hyphen_line -> DBL_HYPHEN
-Rule 12    protocol_line -> PROTOCOL COLON WORD
-Rule 13    ip_src_line -> IP_SRC COLON WORD WORD
-Rule 14    ip_src_line -> IP_SRC COLON WORD
-Rule 15    ip_dst_line -> IP_DST COLON WORD WORD
-Rule 16    ip_dst_line -> IP_DST COLON WORD
-Rule 17    port_src_line -> PORT_SRC COLON WORD
-Rule 18    port_dst_line -> PORT_DST COLON WORD
+Rule 3     line -> hostname_line NL
+Rule 4     line -> policy_line NL
+Rule 5     line -> policy_id_line NL
+Rule 6     line -> words NL
+Rule 7     line -> policy_context_line NL
+Rule 8     line -> address_line NL
+Rule 9     line -> service_line NL
+Rule 10    line -> group_line NL
+Rule 11    line -> interface_line NL
+Rule 12    line -> route_line NL
+Rule 13    line -> EXIT NL
+Rule 14    line -> NL
+Rule 15    line -> error NL
+Rule 16    empty -> <empty>
+Rule 17    items -> item items
+Rule 18    items -> item
+Rule 19    item -> WORD
+Rule 20    item -> NUMBER
+Rule 21    words -> WORD
+Rule 22    words -> WORD words
+Rule 23    object_name -> WORD
+Rule 24    hostname_line -> SET HOSTNAME words
+Rule 25    address_line -> SET ADDRESS WORD object_name WORD
+Rule 26    address_line -> SET ADDRESS WORD object_name WORD words
+Rule 27    address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR
+Rule 28    address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR words
+Rule 29    address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash NUMBER
+Rule 30    address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash NUMBER words
+Rule 31    opt_slash -> SLASH
+Rule 32    opt_slash -> empty
+Rule 33    service_line -> SET SERVICE object_name service_plus
+Rule 34    service_line -> SET SERVICE object_name service_protocol
+Rule 35    service_line -> SET SERVICE WORD TIMEOUT items
+Rule 36    service_line -> SET SERVICE WORD TIMEOUT NEVER
+Rule 37    service_line -> SET SERVICE WORD SESSION_CACHE
+Rule 38    service_plus -> PLUS ICMP TYPE NUMBER CODE NUMBER
+Rule 39    service_plus -> PLUS protocol SRC_PORT NUMBER HYPHEN NUMBER DST_PORT NUMBER HYPHEN NUMBER
+Rule 40    service_plus -> PLUS WORD items
+Rule 41    service_protocol -> PROTOCOL protocol opt_protocol_src opt_protocol_dst
+Rule 42    service_protocol -> PROTOCOL ICMP TYPE NUMBER CODE NUMBER
+Rule 43    service_protocol -> PROTOCOL WORD items
+Rule 44    opt_protocol_src -> SRC_PORT NUMBER HYPHEN NUMBER
+Rule 45    opt_protocol_src -> empty
+Rule 46    opt_protocol_dst -> DST_PORT NUMBER HYPHEN NUMBER
+Rule 47    opt_protocol_dst -> DST_PORT NUMBER HYPHEN NUMBER TIMEOUT NUMBER
+Rule 48    opt_protocol_dst -> DST_PORT NUMBER HYPHEN NUMBER TIMEOUT NEVER
+Rule 49    opt_protocol_dst -> empty
+Rule 50    protocol -> TCP
+Rule 51    protocol -> UDP
+Rule 52    protocol -> NUMBER
+Rule 53    group_line -> SET GROUP ADDRESS item object_name opt_group_add opt_group_comment opt_hidden
+Rule 54    group_line -> SET GROUP SERVICE object_name opt_group_add opt_group_comment opt_hidden
+Rule 55    opt_group_add -> ADD object_name
+Rule 56    opt_group_add -> empty
+Rule 57    opt_group_comment -> COMMENT items
+Rule 58    opt_group_comment -> empty
+Rule 59    opt_hidden -> HIDDEN
+Rule 60    opt_hidden -> empty
+Rule 61    interface_line -> SET INTERFACE object_name IP IP_ADDR SLASH NUMBER
+Rule 62    interface_line -> SET INTERFACE object_name IP IP_ADDR SLASH NUMBER SECONDARY
+Rule 63    interface_line -> SET INTERFACE object_name opt_tag ZONE object_name
+Rule 64    opt_tag -> TAG NUMBER
+Rule 65    opt_tag -> empty
+Rule 66    policy_line -> SET POLICY opt_global opt_id opt_position opt_name opt_zone rules opt_nat action options
+Rule 67    policy_line -> SET POLICY MOVE NUMBER BEFORE NUMBER
+Rule 68    policy_line -> SET POLICY MOVE NUMBER AFTER NUMBER
+Rule 69    policy_line -> SET POLICY DEFAULT_PERMIT_ALL
+Rule 70    policy_line -> UNSET POLICY DEFAULT_PERMIT_ALL
+Rule 71    opt_global -> GLOBAL
+Rule 72    opt_global -> empty
+Rule 73    opt_id -> ID NUMBER
+Rule 74    opt_id -> empty
+Rule 75    opt_position -> TOP
+Rule 76    opt_position -> BEFORE NUMBER
+Rule 77    opt_position -> empty
+Rule 78    opt_name -> NAME object_name
+Rule 79    opt_name -> empty
+Rule 80    opt_zone -> FROM object_name TO item
+Rule 81    opt_zone -> empty
+Rule 82    rules -> src_addr dst_addr svc_name
+Rule 83    src_addr -> object_name
+Rule 84    src_addr -> ANY
+Rule 85    dst_addr -> object_name
+Rule 86    dst_addr -> ANY
+Rule 87    svc_name -> object_name
+Rule 88    svc_name -> ANY
+Rule 89    opt_nat -> NAT opt_src_nat opt_dst_nat
+Rule 90    opt_nat -> empty
+Rule 91    opt_src_nat -> SRC
+Rule 92    opt_src_nat -> SRC DIP_ID NUMBER
+Rule 93    opt_src_nat -> empty
+Rule 94    opt_dst_nat -> DST IP IP_ADDR
+Rule 95    opt_dst_nat -> DST IP IP_ADDR IP_ADDR
+Rule 96    opt_dst_nat -> DST IP IP_ADDR PORT item
+Rule 97    opt_dst_nat -> empty
+Rule 98    action -> DENY
+Rule 99    action -> REJECT
+Rule 100   action -> PERMIT
+Rule 101   action -> tunnel
+Rule 102   tunnel -> TUNNEL L2TP item
+Rule 103   tunnel -> TUNNEL VPN_GROUP item
+Rule 104   tunnel -> TUNNEL VPN item
+Rule 105   tunnel -> TUNNEL VPN item L2TP item
+Rule 106   tunnel -> TUNNEL VPN item PAIR_POLICY item
+Rule 107   options -> option options
+Rule 108   options -> empty
+Rule 109   option -> WORD
+Rule 110   option -> NUMBER
+Rule 111   option -> DISABLE
+Rule 112   option -> ATTACK
+Rule 113   option -> AV
+Rule 114   option -> ZONE
+Rule 115   option -> TIMEOUT
+Rule 116   policy_id_line -> SET POLICY opt_global ID NUMBER
+Rule 117   policy_id_line -> SET POLICY opt_global ID NUMBER APPLICATION options
+Rule 118   policy_id_line -> SET POLICY opt_global ID NUMBER ATTACK options
+Rule 119   policy_id_line -> SET POLICY opt_global ID NUMBER AV options
+Rule 120   policy_id_line -> SET POLICY opt_global ID NUMBER DISABLE
+Rule 121   policy_context_line -> SET DST_ADDRESS object_name
+Rule 122   policy_context_line -> SET DST_ADDRESS NEGATE
+Rule 123   policy_context_line -> SET SRC_ADDRESS object_name
+Rule 124   policy_context_line -> SET SRC_ADDRESS NEGATE
+Rule 125   policy_context_line -> SET SERVICE object_name
+Rule 126   policy_context_line -> SET items
+Rule 127   route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR
+Rule 128   route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR PREFERENCE NUMBER
 
 Terminals, with rules where they appear
 
-COLON                : 12 13 14 15 16 17 18
-DBL_HYPHEN           : 11
-IP_DST               : 15 16
-IP_SRC               : 13 14
-NL                   : 3 4 5 6 7 8 9 10
-PORT_DST             : 18
-PORT_SRC             : 17
-PROTOCOL             : 12
-WORD                 : 12 13 13 14 15 15 16 17 18
+ADD                  : 55
+ADDRESS              : 25 26 27 28 29 30 53
+AFTER                : 68
+ANY                  : 84 86 88
+APPLICATION          : 117
+ATTACK               : 112 118
+AV                   : 113 119
+BEFORE               : 67 76
+CODE                 : 38 42
+COMMENT              : 57
+DEFAULT_PERMIT_ALL   : 69 70
+DENY                 : 98
+DIP_ID               : 92
+DISABLE              : 111 120
+DST                  : 94 95 96
+DST_ADDRESS          : 121 122
+DST_PORT             : 39 46 47 48
+EXIT                 : 13
+FROM                 : 80
+GATEWAY              : 127 128
+GLOBAL               : 71
+GROUP                : 53 54
+HIDDEN               : 59
+HOSTNAME             : 24
+HYPHEN               : 39 39 44 46 47 48
+ICMP                 : 38 42
+ID                   : 73 116 117 118 119 120
+INTERFACE            : 61 62 63 127 128
+IP                   : 61 62 94 95 96
+IP_ADDR              : 27 27 28 28 29 30 61 62 94 95 95 96 127 127 128 128
+L2TP                 : 102 105
+MOVE                 : 67 68
+NAME                 : 78
+NAT                  : 89
+NEGATE               : 122 124
+NEVER                : 36 48
+NL                   : 3 4 5 6 7 8 9 10 11 12 13 14 15
+NUMBER               : 20 29 30 38 38 39 39 39 39 42 42 44 44 46 46 47 47 47 48 48 52 61 62 64 67 67 68 68 73 76 92 110 116 117 118 119 120 127 128 128
+PAIR_POLICY          : 106
+PERMIT               : 100
+PLUS                 : 38 39 40
+POLICY               : 66 67 68 69 70 116 117 118 119 120
+PORT                 : 96
+PREFERENCE           : 128
+PROTOCOL             : 41 42 43
+REJECT               : 99
+ROUTE                : 127 128
+SECONDARY            : 62
+SERVICE              : 33 34 35 36 37 54 125
+SESSION_CACHE        : 37
+SET                  : 24 25 26 27 28 29 30 33 34 35 36 37 53 54 61 62 63 66 67 68 69 116 117 118 119 120 121 122 123 124 125 126 127 128
+SLASH                : 31 61 62 127 128
+SRC                  : 91 92
+SRC_ADDRESS          : 123 124
+SRC_PORT             : 39 44
+TAG                  : 64
+TCP                  : 50
+TIMEOUT              : 35 36 47 48 115
+TO                   : 80
+TOP                  : 75
+TUNNEL               : 102 103 104 105 106
+TYPE                 : 38 42
+UDP                  : 51
+UNSET                : 70
+VPN                  : 104 105 106
+VPN_GROUP            : 103
+WORD                 : 19 21 22 23 25 25 26 26 27 28 29 30 35 36 37 40 43 109 127 128
 WS                   : 
-error                : 10
+ZONE                 : 63 114
+error                : 15
 
 Nonterminals, with rules where they appear
 
-hyphen_line          : 3
-ip_dst_line          : 6
-ip_src_line          : 5
+action               : 66
+address_line         : 8
+dst_addr             : 82
+empty                : 32 45 49 56 58 60 65 72 74 77 79 81 90 93 97 108
+group_line           : 10
+hostname_line        : 3
+interface_line       : 11
+item                 : 17 18 53 80 96 102 103 104 105 105 106 106
+items                : 17 35 40 43 57 126
 line                 : 1 2
 lines                : 2 0
-port_dst_line        : 8
-port_src_line        : 7
-protocol_line        : 4
+object_name          : 25 26 27 28 29 30 33 34 53 54 55 61 62 63 63 78 80 83 85 87 121 123 125
+opt_dst_nat          : 89
+opt_global           : 66 116 117 118 119 120
+opt_group_add        : 53 54
+opt_group_comment    : 53 54
+opt_hidden           : 53 54
+opt_id               : 66
+opt_name             : 66
+opt_nat              : 66
+opt_position         : 66
+opt_protocol_dst     : 41
+opt_protocol_src     : 41
+opt_slash            : 27 28 29 30
+opt_src_nat          : 89
+opt_tag              : 63
+opt_zone             : 66
+option               : 107
+options              : 66 107 117 118 119
+policy_context_line  : 7
+policy_id_line       : 5
+policy_line          : 4
+protocol             : 39 41
+route_line           : 12
+rules                : 66
+service_line         : 9
+service_plus         : 33
+service_protocol     : 34
+src_addr             : 82
+svc_name             : 82
+tunnel               : 101
+words                : 6 22 24 26 28 30
 
 Parsing method: LALR
 
@@ -58,395 +261,2816 @@ state 0
     (0) S' -> . lines
     (1) lines -> . line
     (2) lines -> . line lines
-    (3) line -> . hyphen_line NL
-    (4) line -> . protocol_line NL
-    (5) line -> . ip_src_line NL
-    (6) line -> . ip_dst_line NL
-    (7) line -> . port_src_line NL
-    (8) line -> . port_dst_line NL
-    (9) line -> . NL
-    (10) line -> . error NL
-    (11) hyphen_line -> . DBL_HYPHEN
-    (12) protocol_line -> . PROTOCOL COLON WORD
-    (13) ip_src_line -> . IP_SRC COLON WORD WORD
-    (14) ip_src_line -> . IP_SRC COLON WORD
-    (15) ip_dst_line -> . IP_DST COLON WORD WORD
-    (16) ip_dst_line -> . IP_DST COLON WORD
-    (17) port_src_line -> . PORT_SRC COLON WORD
-    (18) port_dst_line -> . PORT_DST COLON WORD
+    (3) line -> . hostname_line NL
+    (4) line -> . policy_line NL
+    (5) line -> . policy_id_line NL
+    (6) line -> . words NL
+    (7) line -> . policy_context_line NL
+    (8) line -> . address_line NL
+    (9) line -> . service_line NL
+    (10) line -> . group_line NL
+    (11) line -> . interface_line NL
+    (12) line -> . route_line NL
+    (13) line -> . EXIT NL
+    (14) line -> . NL
+    (15) line -> . error NL
+    (24) hostname_line -> . SET HOSTNAME words
+    (66) policy_line -> . SET POLICY opt_global opt_id opt_position opt_name opt_zone rules opt_nat action options
+    (67) policy_line -> . SET POLICY MOVE NUMBER BEFORE NUMBER
+    (68) policy_line -> . SET POLICY MOVE NUMBER AFTER NUMBER
+    (69) policy_line -> . SET POLICY DEFAULT_PERMIT_ALL
+    (70) policy_line -> . UNSET POLICY DEFAULT_PERMIT_ALL
+    (116) policy_id_line -> . SET POLICY opt_global ID NUMBER
+    (117) policy_id_line -> . SET POLICY opt_global ID NUMBER APPLICATION options
+    (118) policy_id_line -> . SET POLICY opt_global ID NUMBER ATTACK options
+    (119) policy_id_line -> . SET POLICY opt_global ID NUMBER AV options
+    (120) policy_id_line -> . SET POLICY opt_global ID NUMBER DISABLE
+    (21) words -> . WORD
+    (22) words -> . WORD words
+    (121) policy_context_line -> . SET DST_ADDRESS object_name
+    (122) policy_context_line -> . SET DST_ADDRESS NEGATE
+    (123) policy_context_line -> . SET SRC_ADDRESS object_name
+    (124) policy_context_line -> . SET SRC_ADDRESS NEGATE
+    (125) policy_context_line -> . SET SERVICE object_name
+    (126) policy_context_line -> . SET items
+    (25) address_line -> . SET ADDRESS WORD object_name WORD
+    (26) address_line -> . SET ADDRESS WORD object_name WORD words
+    (27) address_line -> . SET ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR
+    (28) address_line -> . SET ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR words
+    (29) address_line -> . SET ADDRESS WORD object_name IP_ADDR opt_slash NUMBER
+    (30) address_line -> . SET ADDRESS WORD object_name IP_ADDR opt_slash NUMBER words
+    (33) service_line -> . SET SERVICE object_name service_plus
+    (34) service_line -> . SET SERVICE object_name service_protocol
+    (35) service_line -> . SET SERVICE WORD TIMEOUT items
+    (36) service_line -> . SET SERVICE WORD TIMEOUT NEVER
+    (37) service_line -> . SET SERVICE WORD SESSION_CACHE
+    (53) group_line -> . SET GROUP ADDRESS item object_name opt_group_add opt_group_comment opt_hidden
+    (54) group_line -> . SET GROUP SERVICE object_name opt_group_add opt_group_comment opt_hidden
+    (61) interface_line -> . SET INTERFACE object_name IP IP_ADDR SLASH NUMBER
+    (62) interface_line -> . SET INTERFACE object_name IP IP_ADDR SLASH NUMBER SECONDARY
+    (63) interface_line -> . SET INTERFACE object_name opt_tag ZONE object_name
+    (127) route_line -> . SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR
+    (128) route_line -> . SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR PREFERENCE NUMBER
 
-    NL              shift and go to state 3
-    error           shift and go to state 12
-    DBL_HYPHEN      shift and go to state 5
-    PROTOCOL        shift and go to state 13
-    IP_SRC          shift and go to state 15
-    IP_DST          shift and go to state 6
-    PORT_SRC        shift and go to state 11
-    PORT_DST        shift and go to state 8
+    EXIT            shift and go to state 14
+    NL              shift and go to state 4
+    error           shift and go to state 15
+    SET             shift and go to state 3
+    UNSET           shift and go to state 2
+    WORD            shift and go to state 11
 
-    port_src_line                  shift and go to state 1
-    port_dst_line                  shift and go to state 2
-    ip_src_line                    shift and go to state 4
-    lines                          shift and go to state 7
-    hyphen_line                    shift and go to state 9
-    protocol_line                  shift and go to state 10
-    line                           shift and go to state 14
-    ip_dst_line                    shift and go to state 16
+    hostname_line                  shift and go to state 1
+    route_line                     shift and go to state 5
+    policy_line                    shift and go to state 6
+    group_line                     shift and go to state 7
+    service_line                   shift and go to state 8
+    policy_context_line            shift and go to state 16
+    words                          shift and go to state 9
+    policy_id_line                 shift and go to state 10
+    line                           shift and go to state 12
+    lines                          shift and go to state 13
+    address_line                   shift and go to state 17
+    interface_line                 shift and go to state 18
 
 state 1
 
-    (7) line -> port_src_line . NL
-
-    NL              shift and go to state 17
-
-
-state 2
-
-    (8) line -> port_dst_line . NL
-
-    NL              shift and go to state 18
-
-
-state 3
-
-    (9) line -> NL .
-
-    NL              reduce using rule 9 (line -> NL .)
-    error           reduce using rule 9 (line -> NL .)
-    DBL_HYPHEN      reduce using rule 9 (line -> NL .)
-    PROTOCOL        reduce using rule 9 (line -> NL .)
-    IP_SRC          reduce using rule 9 (line -> NL .)
-    IP_DST          reduce using rule 9 (line -> NL .)
-    PORT_SRC        reduce using rule 9 (line -> NL .)
-    PORT_DST        reduce using rule 9 (line -> NL .)
-    $end            reduce using rule 9 (line -> NL .)
-
-
-state 4
-
-    (5) line -> ip_src_line . NL
+    (3) line -> hostname_line . NL
 
     NL              shift and go to state 19
 
 
+state 2
+
+    (70) policy_line -> UNSET . POLICY DEFAULT_PERMIT_ALL
+
+    POLICY          shift and go to state 20
+
+
+state 3
+
+    (24) hostname_line -> SET . HOSTNAME words
+    (66) policy_line -> SET . POLICY opt_global opt_id opt_position opt_name opt_zone rules opt_nat action options
+    (67) policy_line -> SET . POLICY MOVE NUMBER BEFORE NUMBER
+    (68) policy_line -> SET . POLICY MOVE NUMBER AFTER NUMBER
+    (69) policy_line -> SET . POLICY DEFAULT_PERMIT_ALL
+    (116) policy_id_line -> SET . POLICY opt_global ID NUMBER
+    (117) policy_id_line -> SET . POLICY opt_global ID NUMBER APPLICATION options
+    (118) policy_id_line -> SET . POLICY opt_global ID NUMBER ATTACK options
+    (119) policy_id_line -> SET . POLICY opt_global ID NUMBER AV options
+    (120) policy_id_line -> SET . POLICY opt_global ID NUMBER DISABLE
+    (121) policy_context_line -> SET . DST_ADDRESS object_name
+    (122) policy_context_line -> SET . DST_ADDRESS NEGATE
+    (123) policy_context_line -> SET . SRC_ADDRESS object_name
+    (124) policy_context_line -> SET . SRC_ADDRESS NEGATE
+    (125) policy_context_line -> SET . SERVICE object_name
+    (126) policy_context_line -> SET . items
+    (25) address_line -> SET . ADDRESS WORD object_name WORD
+    (26) address_line -> SET . ADDRESS WORD object_name WORD words
+    (27) address_line -> SET . ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR
+    (28) address_line -> SET . ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR words
+    (29) address_line -> SET . ADDRESS WORD object_name IP_ADDR opt_slash NUMBER
+    (30) address_line -> SET . ADDRESS WORD object_name IP_ADDR opt_slash NUMBER words
+    (33) service_line -> SET . SERVICE object_name service_plus
+    (34) service_line -> SET . SERVICE object_name service_protocol
+    (35) service_line -> SET . SERVICE WORD TIMEOUT items
+    (36) service_line -> SET . SERVICE WORD TIMEOUT NEVER
+    (37) service_line -> SET . SERVICE WORD SESSION_CACHE
+    (53) group_line -> SET . GROUP ADDRESS item object_name opt_group_add opt_group_comment opt_hidden
+    (54) group_line -> SET . GROUP SERVICE object_name opt_group_add opt_group_comment opt_hidden
+    (61) interface_line -> SET . INTERFACE object_name IP IP_ADDR SLASH NUMBER
+    (62) interface_line -> SET . INTERFACE object_name IP IP_ADDR SLASH NUMBER SECONDARY
+    (63) interface_line -> SET . INTERFACE object_name opt_tag ZONE object_name
+    (127) route_line -> SET . ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR
+    (128) route_line -> SET . ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR PREFERENCE NUMBER
+    (17) items -> . item items
+    (18) items -> . item
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    HOSTNAME        shift and go to state 31
+    POLICY          shift and go to state 28
+    DST_ADDRESS     shift and go to state 27
+    SRC_ADDRESS     shift and go to state 23
+    SERVICE         shift and go to state 22
+    ADDRESS         shift and go to state 33
+    GROUP           shift and go to state 21
+    INTERFACE       shift and go to state 29
+    ROUTE           shift and go to state 24
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    item                           shift and go to state 32
+    items                          shift and go to state 30
+
+state 4
+
+    (14) line -> NL .
+
+    EXIT            reduce using rule 14 (line -> NL .)
+    NL              reduce using rule 14 (line -> NL .)
+    error           reduce using rule 14 (line -> NL .)
+    SET             reduce using rule 14 (line -> NL .)
+    UNSET           reduce using rule 14 (line -> NL .)
+    WORD            reduce using rule 14 (line -> NL .)
+    $end            reduce using rule 14 (line -> NL .)
+
+
 state 5
 
-    (11) hyphen_line -> DBL_HYPHEN .
+    (12) line -> route_line . NL
 
-    NL              reduce using rule 11 (hyphen_line -> DBL_HYPHEN .)
+    NL              shift and go to state 34
 
 
 state 6
 
-    (15) ip_dst_line -> IP_DST . COLON WORD WORD
-    (16) ip_dst_line -> IP_DST . COLON WORD
+    (4) line -> policy_line . NL
 
-    COLON           shift and go to state 20
+    NL              shift and go to state 35
 
 
 state 7
 
-    (0) S' -> lines .
+    (10) line -> group_line . NL
 
+    NL              shift and go to state 36
 
 
 state 8
 
-    (18) port_dst_line -> PORT_DST . COLON WORD
+    (9) line -> service_line . NL
 
-    COLON           shift and go to state 21
+    NL              shift and go to state 37
 
 
 state 9
 
-    (3) line -> hyphen_line . NL
+    (6) line -> words . NL
 
-    NL              shift and go to state 22
+    NL              shift and go to state 38
 
 
 state 10
 
-    (4) line -> protocol_line . NL
+    (5) line -> policy_id_line . NL
 
-    NL              shift and go to state 23
+    NL              shift and go to state 39
 
 
 state 11
 
-    (17) port_src_line -> PORT_SRC . COLON WORD
+    (21) words -> WORD .
+    (22) words -> WORD . words
+    (21) words -> . WORD
+    (22) words -> . WORD words
 
-    COLON           shift and go to state 24
+    NL              reduce using rule 21 (words -> WORD .)
+    WORD            shift and go to state 11
 
+    words                          shift and go to state 40
 
 state 12
-
-    (10) line -> error . NL
-
-    NL              shift and go to state 25
-
-
-state 13
-
-    (12) protocol_line -> PROTOCOL . COLON WORD
-
-    COLON           shift and go to state 26
-
-
-state 14
 
     (1) lines -> line .
     (2) lines -> line . lines
     (1) lines -> . line
     (2) lines -> . line lines
-    (3) line -> . hyphen_line NL
-    (4) line -> . protocol_line NL
-    (5) line -> . ip_src_line NL
-    (6) line -> . ip_dst_line NL
-    (7) line -> . port_src_line NL
-    (8) line -> . port_dst_line NL
-    (9) line -> . NL
-    (10) line -> . error NL
-    (11) hyphen_line -> . DBL_HYPHEN
-    (12) protocol_line -> . PROTOCOL COLON WORD
-    (13) ip_src_line -> . IP_SRC COLON WORD WORD
-    (14) ip_src_line -> . IP_SRC COLON WORD
-    (15) ip_dst_line -> . IP_DST COLON WORD WORD
-    (16) ip_dst_line -> . IP_DST COLON WORD
-    (17) port_src_line -> . PORT_SRC COLON WORD
-    (18) port_dst_line -> . PORT_DST COLON WORD
+    (3) line -> . hostname_line NL
+    (4) line -> . policy_line NL
+    (5) line -> . policy_id_line NL
+    (6) line -> . words NL
+    (7) line -> . policy_context_line NL
+    (8) line -> . address_line NL
+    (9) line -> . service_line NL
+    (10) line -> . group_line NL
+    (11) line -> . interface_line NL
+    (12) line -> . route_line NL
+    (13) line -> . EXIT NL
+    (14) line -> . NL
+    (15) line -> . error NL
+    (24) hostname_line -> . SET HOSTNAME words
+    (66) policy_line -> . SET POLICY opt_global opt_id opt_position opt_name opt_zone rules opt_nat action options
+    (67) policy_line -> . SET POLICY MOVE NUMBER BEFORE NUMBER
+    (68) policy_line -> . SET POLICY MOVE NUMBER AFTER NUMBER
+    (69) policy_line -> . SET POLICY DEFAULT_PERMIT_ALL
+    (70) policy_line -> . UNSET POLICY DEFAULT_PERMIT_ALL
+    (116) policy_id_line -> . SET POLICY opt_global ID NUMBER
+    (117) policy_id_line -> . SET POLICY opt_global ID NUMBER APPLICATION options
+    (118) policy_id_line -> . SET POLICY opt_global ID NUMBER ATTACK options
+    (119) policy_id_line -> . SET POLICY opt_global ID NUMBER AV options
+    (120) policy_id_line -> . SET POLICY opt_global ID NUMBER DISABLE
+    (21) words -> . WORD
+    (22) words -> . WORD words
+    (121) policy_context_line -> . SET DST_ADDRESS object_name
+    (122) policy_context_line -> . SET DST_ADDRESS NEGATE
+    (123) policy_context_line -> . SET SRC_ADDRESS object_name
+    (124) policy_context_line -> . SET SRC_ADDRESS NEGATE
+    (125) policy_context_line -> . SET SERVICE object_name
+    (126) policy_context_line -> . SET items
+    (25) address_line -> . SET ADDRESS WORD object_name WORD
+    (26) address_line -> . SET ADDRESS WORD object_name WORD words
+    (27) address_line -> . SET ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR
+    (28) address_line -> . SET ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR words
+    (29) address_line -> . SET ADDRESS WORD object_name IP_ADDR opt_slash NUMBER
+    (30) address_line -> . SET ADDRESS WORD object_name IP_ADDR opt_slash NUMBER words
+    (33) service_line -> . SET SERVICE object_name service_plus
+    (34) service_line -> . SET SERVICE object_name service_protocol
+    (35) service_line -> . SET SERVICE WORD TIMEOUT items
+    (36) service_line -> . SET SERVICE WORD TIMEOUT NEVER
+    (37) service_line -> . SET SERVICE WORD SESSION_CACHE
+    (53) group_line -> . SET GROUP ADDRESS item object_name opt_group_add opt_group_comment opt_hidden
+    (54) group_line -> . SET GROUP SERVICE object_name opt_group_add opt_group_comment opt_hidden
+    (61) interface_line -> . SET INTERFACE object_name IP IP_ADDR SLASH NUMBER
+    (62) interface_line -> . SET INTERFACE object_name IP IP_ADDR SLASH NUMBER SECONDARY
+    (63) interface_line -> . SET INTERFACE object_name opt_tag ZONE object_name
+    (127) route_line -> . SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR
+    (128) route_line -> . SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR PREFERENCE NUMBER
 
     $end            reduce using rule 1 (lines -> line .)
-    NL              shift and go to state 3
-    error           shift and go to state 12
-    DBL_HYPHEN      shift and go to state 5
-    PROTOCOL        shift and go to state 13
-    IP_SRC          shift and go to state 15
-    IP_DST          shift and go to state 6
-    PORT_SRC        shift and go to state 11
-    PORT_DST        shift and go to state 8
+    EXIT            shift and go to state 14
+    NL              shift and go to state 4
+    error           shift and go to state 15
+    SET             shift and go to state 3
+    UNSET           shift and go to state 2
+    WORD            shift and go to state 11
 
-    port_src_line                  shift and go to state 1
-    port_dst_line                  shift and go to state 2
-    ip_src_line                    shift and go to state 4
-    lines                          shift and go to state 27
-    hyphen_line                    shift and go to state 9
-    protocol_line                  shift and go to state 10
-    line                           shift and go to state 14
-    ip_dst_line                    shift and go to state 16
+    hostname_line                  shift and go to state 1
+    route_line                     shift and go to state 5
+    policy_line                    shift and go to state 6
+    group_line                     shift and go to state 7
+    service_line                   shift and go to state 8
+    policy_context_line            shift and go to state 16
+    words                          shift and go to state 9
+    policy_id_line                 shift and go to state 10
+    line                           shift and go to state 12
+    lines                          shift and go to state 41
+    address_line                   shift and go to state 17
+    interface_line                 shift and go to state 18
+
+state 13
+
+    (0) S' -> lines .
+
+
+
+state 14
+
+    (13) line -> EXIT . NL
+
+    NL              shift and go to state 42
+
 
 state 15
 
-    (13) ip_src_line -> IP_SRC . COLON WORD WORD
-    (14) ip_src_line -> IP_SRC . COLON WORD
+    (15) line -> error . NL
 
-    COLON           shift and go to state 28
+    NL              shift and go to state 43
 
 
 state 16
 
-    (6) line -> ip_dst_line . NL
+    (7) line -> policy_context_line . NL
 
-    NL              shift and go to state 29
+    NL              shift and go to state 44
 
 
 state 17
 
-    (7) line -> port_src_line NL .
+    (8) line -> address_line . NL
 
-    NL              reduce using rule 7 (line -> port_src_line NL .)
-    error           reduce using rule 7 (line -> port_src_line NL .)
-    DBL_HYPHEN      reduce using rule 7 (line -> port_src_line NL .)
-    PROTOCOL        reduce using rule 7 (line -> port_src_line NL .)
-    IP_SRC          reduce using rule 7 (line -> port_src_line NL .)
-    IP_DST          reduce using rule 7 (line -> port_src_line NL .)
-    PORT_SRC        reduce using rule 7 (line -> port_src_line NL .)
-    PORT_DST        reduce using rule 7 (line -> port_src_line NL .)
-    $end            reduce using rule 7 (line -> port_src_line NL .)
+    NL              shift and go to state 45
 
 
 state 18
 
-    (8) line -> port_dst_line NL .
+    (11) line -> interface_line . NL
 
-    NL              reduce using rule 8 (line -> port_dst_line NL .)
-    error           reduce using rule 8 (line -> port_dst_line NL .)
-    DBL_HYPHEN      reduce using rule 8 (line -> port_dst_line NL .)
-    PROTOCOL        reduce using rule 8 (line -> port_dst_line NL .)
-    IP_SRC          reduce using rule 8 (line -> port_dst_line NL .)
-    IP_DST          reduce using rule 8 (line -> port_dst_line NL .)
-    PORT_SRC        reduce using rule 8 (line -> port_dst_line NL .)
-    PORT_DST        reduce using rule 8 (line -> port_dst_line NL .)
-    $end            reduce using rule 8 (line -> port_dst_line NL .)
+    NL              shift and go to state 46
 
 
 state 19
 
-    (5) line -> ip_src_line NL .
+    (3) line -> hostname_line NL .
 
-    NL              reduce using rule 5 (line -> ip_src_line NL .)
-    error           reduce using rule 5 (line -> ip_src_line NL .)
-    DBL_HYPHEN      reduce using rule 5 (line -> ip_src_line NL .)
-    PROTOCOL        reduce using rule 5 (line -> ip_src_line NL .)
-    IP_SRC          reduce using rule 5 (line -> ip_src_line NL .)
-    IP_DST          reduce using rule 5 (line -> ip_src_line NL .)
-    PORT_SRC        reduce using rule 5 (line -> ip_src_line NL .)
-    PORT_DST        reduce using rule 5 (line -> ip_src_line NL .)
-    $end            reduce using rule 5 (line -> ip_src_line NL .)
+    EXIT            reduce using rule 3 (line -> hostname_line NL .)
+    NL              reduce using rule 3 (line -> hostname_line NL .)
+    error           reduce using rule 3 (line -> hostname_line NL .)
+    SET             reduce using rule 3 (line -> hostname_line NL .)
+    UNSET           reduce using rule 3 (line -> hostname_line NL .)
+    WORD            reduce using rule 3 (line -> hostname_line NL .)
+    $end            reduce using rule 3 (line -> hostname_line NL .)
 
 
 state 20
 
-    (15) ip_dst_line -> IP_DST COLON . WORD WORD
-    (16) ip_dst_line -> IP_DST COLON . WORD
+    (70) policy_line -> UNSET POLICY . DEFAULT_PERMIT_ALL
 
-    WORD            shift and go to state 30
+    DEFAULT_PERMIT_ALL shift and go to state 47
 
 
 state 21
 
-    (18) port_dst_line -> PORT_DST COLON . WORD
+    (53) group_line -> SET GROUP . ADDRESS item object_name opt_group_add opt_group_comment opt_hidden
+    (54) group_line -> SET GROUP . SERVICE object_name opt_group_add opt_group_comment opt_hidden
 
-    WORD            shift and go to state 31
+    ADDRESS         shift and go to state 49
+    SERVICE         shift and go to state 48
 
 
 state 22
 
-    (3) line -> hyphen_line NL .
+    (125) policy_context_line -> SET SERVICE . object_name
+    (33) service_line -> SET SERVICE . object_name service_plus
+    (34) service_line -> SET SERVICE . object_name service_protocol
+    (35) service_line -> SET SERVICE . WORD TIMEOUT items
+    (36) service_line -> SET SERVICE . WORD TIMEOUT NEVER
+    (37) service_line -> SET SERVICE . WORD SESSION_CACHE
+    (23) object_name -> . WORD
 
-    NL              reduce using rule 3 (line -> hyphen_line NL .)
-    error           reduce using rule 3 (line -> hyphen_line NL .)
-    DBL_HYPHEN      reduce using rule 3 (line -> hyphen_line NL .)
-    PROTOCOL        reduce using rule 3 (line -> hyphen_line NL .)
-    IP_SRC          reduce using rule 3 (line -> hyphen_line NL .)
-    IP_DST          reduce using rule 3 (line -> hyphen_line NL .)
-    PORT_SRC        reduce using rule 3 (line -> hyphen_line NL .)
-    PORT_DST        reduce using rule 3 (line -> hyphen_line NL .)
-    $end            reduce using rule 3 (line -> hyphen_line NL .)
+    WORD            shift and go to state 50
 
+    object_name                    shift and go to state 51
 
 state 23
 
-    (4) line -> protocol_line NL .
+    (123) policy_context_line -> SET SRC_ADDRESS . object_name
+    (124) policy_context_line -> SET SRC_ADDRESS . NEGATE
+    (23) object_name -> . WORD
 
-    NL              reduce using rule 4 (line -> protocol_line NL .)
-    error           reduce using rule 4 (line -> protocol_line NL .)
-    DBL_HYPHEN      reduce using rule 4 (line -> protocol_line NL .)
-    PROTOCOL        reduce using rule 4 (line -> protocol_line NL .)
-    IP_SRC          reduce using rule 4 (line -> protocol_line NL .)
-    IP_DST          reduce using rule 4 (line -> protocol_line NL .)
-    PORT_SRC        reduce using rule 4 (line -> protocol_line NL .)
-    PORT_DST        reduce using rule 4 (line -> protocol_line NL .)
-    $end            reduce using rule 4 (line -> protocol_line NL .)
+    NEGATE          shift and go to state 52
+    WORD            shift and go to state 54
 
+    object_name                    shift and go to state 53
 
 state 24
 
-    (17) port_src_line -> PORT_SRC COLON . WORD
+    (127) route_line -> SET ROUTE . IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR
+    (128) route_line -> SET ROUTE . IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR PREFERENCE NUMBER
 
-    WORD            shift and go to state 32
+    IP_ADDR         shift and go to state 55
 
 
 state 25
 
-    (10) line -> error NL .
+    (20) item -> NUMBER .
 
-    NL              reduce using rule 10 (line -> error NL .)
-    error           reduce using rule 10 (line -> error NL .)
-    DBL_HYPHEN      reduce using rule 10 (line -> error NL .)
-    PROTOCOL        reduce using rule 10 (line -> error NL .)
-    IP_SRC          reduce using rule 10 (line -> error NL .)
-    IP_DST          reduce using rule 10 (line -> error NL .)
-    PORT_SRC        reduce using rule 10 (line -> error NL .)
-    PORT_DST        reduce using rule 10 (line -> error NL .)
-    $end            reduce using rule 10 (line -> error NL .)
+    WORD            reduce using rule 20 (item -> NUMBER .)
+    NUMBER          reduce using rule 20 (item -> NUMBER .)
+    NL              reduce using rule 20 (item -> NUMBER .)
+    HIDDEN          reduce using rule 20 (item -> NUMBER .)
+    L2TP            reduce using rule 20 (item -> NUMBER .)
+    PAIR_POLICY     reduce using rule 20 (item -> NUMBER .)
+    DISABLE         reduce using rule 20 (item -> NUMBER .)
+    ATTACK          reduce using rule 20 (item -> NUMBER .)
+    AV              reduce using rule 20 (item -> NUMBER .)
+    ZONE            reduce using rule 20 (item -> NUMBER .)
+    TIMEOUT         reduce using rule 20 (item -> NUMBER .)
+    DENY            reduce using rule 20 (item -> NUMBER .)
+    REJECT          reduce using rule 20 (item -> NUMBER .)
+    PERMIT          reduce using rule 20 (item -> NUMBER .)
+    TUNNEL          reduce using rule 20 (item -> NUMBER .)
+    ANY             reduce using rule 20 (item -> NUMBER .)
 
 
 state 26
 
-    (12) protocol_line -> PROTOCOL COLON . WORD
+    (19) item -> WORD .
 
-    WORD            shift and go to state 33
+    WORD            reduce using rule 19 (item -> WORD .)
+    NUMBER          reduce using rule 19 (item -> WORD .)
+    NL              reduce using rule 19 (item -> WORD .)
+    HIDDEN          reduce using rule 19 (item -> WORD .)
+    L2TP            reduce using rule 19 (item -> WORD .)
+    PAIR_POLICY     reduce using rule 19 (item -> WORD .)
+    DISABLE         reduce using rule 19 (item -> WORD .)
+    ATTACK          reduce using rule 19 (item -> WORD .)
+    AV              reduce using rule 19 (item -> WORD .)
+    ZONE            reduce using rule 19 (item -> WORD .)
+    TIMEOUT         reduce using rule 19 (item -> WORD .)
+    DENY            reduce using rule 19 (item -> WORD .)
+    REJECT          reduce using rule 19 (item -> WORD .)
+    PERMIT          reduce using rule 19 (item -> WORD .)
+    TUNNEL          reduce using rule 19 (item -> WORD .)
+    ANY             reduce using rule 19 (item -> WORD .)
 
 
 state 27
+
+    (121) policy_context_line -> SET DST_ADDRESS . object_name
+    (122) policy_context_line -> SET DST_ADDRESS . NEGATE
+    (23) object_name -> . WORD
+
+    NEGATE          shift and go to state 56
+    WORD            shift and go to state 54
+
+    object_name                    shift and go to state 57
+
+state 28
+
+    (66) policy_line -> SET POLICY . opt_global opt_id opt_position opt_name opt_zone rules opt_nat action options
+    (67) policy_line -> SET POLICY . MOVE NUMBER BEFORE NUMBER
+    (68) policy_line -> SET POLICY . MOVE NUMBER AFTER NUMBER
+    (69) policy_line -> SET POLICY . DEFAULT_PERMIT_ALL
+    (116) policy_id_line -> SET POLICY . opt_global ID NUMBER
+    (117) policy_id_line -> SET POLICY . opt_global ID NUMBER APPLICATION options
+    (118) policy_id_line -> SET POLICY . opt_global ID NUMBER ATTACK options
+    (119) policy_id_line -> SET POLICY . opt_global ID NUMBER AV options
+    (120) policy_id_line -> SET POLICY . opt_global ID NUMBER DISABLE
+    (71) opt_global -> . GLOBAL
+    (72) opt_global -> . empty
+    (16) empty -> .
+
+    MOVE            shift and go to state 58
+    DEFAULT_PERMIT_ALL shift and go to state 61
+    GLOBAL          shift and go to state 60
+    ID              reduce using rule 16 (empty -> .)
+    TOP             reduce using rule 16 (empty -> .)
+    BEFORE          reduce using rule 16 (empty -> .)
+    NAME            reduce using rule 16 (empty -> .)
+    FROM            reduce using rule 16 (empty -> .)
+    ANY             reduce using rule 16 (empty -> .)
+    WORD            reduce using rule 16 (empty -> .)
+
+    opt_global                     shift and go to state 62
+    empty                          shift and go to state 59
+
+state 29
+
+    (61) interface_line -> SET INTERFACE . object_name IP IP_ADDR SLASH NUMBER
+    (62) interface_line -> SET INTERFACE . object_name IP IP_ADDR SLASH NUMBER SECONDARY
+    (63) interface_line -> SET INTERFACE . object_name opt_tag ZONE object_name
+    (23) object_name -> . WORD
+
+    WORD            shift and go to state 54
+
+    object_name                    shift and go to state 63
+
+state 30
+
+    (126) policy_context_line -> SET items .
+
+    NL              reduce using rule 126 (policy_context_line -> SET items .)
+
+
+state 31
+
+    (24) hostname_line -> SET HOSTNAME . words
+    (21) words -> . WORD
+    (22) words -> . WORD words
+
+    WORD            shift and go to state 11
+
+    words                          shift and go to state 64
+
+state 32
+
+    (17) items -> item . items
+    (18) items -> item .
+    (17) items -> . item items
+    (18) items -> . item
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    HIDDEN          reduce using rule 18 (items -> item .)
+    NL              reduce using rule 18 (items -> item .)
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    item                           shift and go to state 32
+    items                          shift and go to state 65
+
+state 33
+
+    (25) address_line -> SET ADDRESS . WORD object_name WORD
+    (26) address_line -> SET ADDRESS . WORD object_name WORD words
+    (27) address_line -> SET ADDRESS . WORD object_name IP_ADDR opt_slash IP_ADDR
+    (28) address_line -> SET ADDRESS . WORD object_name IP_ADDR opt_slash IP_ADDR words
+    (29) address_line -> SET ADDRESS . WORD object_name IP_ADDR opt_slash NUMBER
+    (30) address_line -> SET ADDRESS . WORD object_name IP_ADDR opt_slash NUMBER words
+
+    WORD            shift and go to state 66
+
+
+state 34
+
+    (12) line -> route_line NL .
+
+    EXIT            reduce using rule 12 (line -> route_line NL .)
+    NL              reduce using rule 12 (line -> route_line NL .)
+    error           reduce using rule 12 (line -> route_line NL .)
+    SET             reduce using rule 12 (line -> route_line NL .)
+    UNSET           reduce using rule 12 (line -> route_line NL .)
+    WORD            reduce using rule 12 (line -> route_line NL .)
+    $end            reduce using rule 12 (line -> route_line NL .)
+
+
+state 35
+
+    (4) line -> policy_line NL .
+
+    EXIT            reduce using rule 4 (line -> policy_line NL .)
+    NL              reduce using rule 4 (line -> policy_line NL .)
+    error           reduce using rule 4 (line -> policy_line NL .)
+    SET             reduce using rule 4 (line -> policy_line NL .)
+    UNSET           reduce using rule 4 (line -> policy_line NL .)
+    WORD            reduce using rule 4 (line -> policy_line NL .)
+    $end            reduce using rule 4 (line -> policy_line NL .)
+
+
+state 36
+
+    (10) line -> group_line NL .
+
+    EXIT            reduce using rule 10 (line -> group_line NL .)
+    NL              reduce using rule 10 (line -> group_line NL .)
+    error           reduce using rule 10 (line -> group_line NL .)
+    SET             reduce using rule 10 (line -> group_line NL .)
+    UNSET           reduce using rule 10 (line -> group_line NL .)
+    WORD            reduce using rule 10 (line -> group_line NL .)
+    $end            reduce using rule 10 (line -> group_line NL .)
+
+
+state 37
+
+    (9) line -> service_line NL .
+
+    EXIT            reduce using rule 9 (line -> service_line NL .)
+    NL              reduce using rule 9 (line -> service_line NL .)
+    error           reduce using rule 9 (line -> service_line NL .)
+    SET             reduce using rule 9 (line -> service_line NL .)
+    UNSET           reduce using rule 9 (line -> service_line NL .)
+    WORD            reduce using rule 9 (line -> service_line NL .)
+    $end            reduce using rule 9 (line -> service_line NL .)
+
+
+state 38
+
+    (6) line -> words NL .
+
+    EXIT            reduce using rule 6 (line -> words NL .)
+    NL              reduce using rule 6 (line -> words NL .)
+    error           reduce using rule 6 (line -> words NL .)
+    SET             reduce using rule 6 (line -> words NL .)
+    UNSET           reduce using rule 6 (line -> words NL .)
+    WORD            reduce using rule 6 (line -> words NL .)
+    $end            reduce using rule 6 (line -> words NL .)
+
+
+state 39
+
+    (5) line -> policy_id_line NL .
+
+    EXIT            reduce using rule 5 (line -> policy_id_line NL .)
+    NL              reduce using rule 5 (line -> policy_id_line NL .)
+    error           reduce using rule 5 (line -> policy_id_line NL .)
+    SET             reduce using rule 5 (line -> policy_id_line NL .)
+    UNSET           reduce using rule 5 (line -> policy_id_line NL .)
+    WORD            reduce using rule 5 (line -> policy_id_line NL .)
+    $end            reduce using rule 5 (line -> policy_id_line NL .)
+
+
+state 40
+
+    (22) words -> WORD words .
+
+    NL              reduce using rule 22 (words -> WORD words .)
+
+
+state 41
 
     (2) lines -> line lines .
 
     $end            reduce using rule 2 (lines -> line lines .)
 
 
-state 28
+state 42
 
-    (13) ip_src_line -> IP_SRC COLON . WORD WORD
-    (14) ip_src_line -> IP_SRC COLON . WORD
+    (13) line -> EXIT NL .
 
-    WORD            shift and go to state 34
-
-
-state 29
-
-    (6) line -> ip_dst_line NL .
-
-    NL              reduce using rule 6 (line -> ip_dst_line NL .)
-    error           reduce using rule 6 (line -> ip_dst_line NL .)
-    DBL_HYPHEN      reduce using rule 6 (line -> ip_dst_line NL .)
-    PROTOCOL        reduce using rule 6 (line -> ip_dst_line NL .)
-    IP_SRC          reduce using rule 6 (line -> ip_dst_line NL .)
-    IP_DST          reduce using rule 6 (line -> ip_dst_line NL .)
-    PORT_SRC        reduce using rule 6 (line -> ip_dst_line NL .)
-    PORT_DST        reduce using rule 6 (line -> ip_dst_line NL .)
-    $end            reduce using rule 6 (line -> ip_dst_line NL .)
+    EXIT            reduce using rule 13 (line -> EXIT NL .)
+    NL              reduce using rule 13 (line -> EXIT NL .)
+    error           reduce using rule 13 (line -> EXIT NL .)
+    SET             reduce using rule 13 (line -> EXIT NL .)
+    UNSET           reduce using rule 13 (line -> EXIT NL .)
+    WORD            reduce using rule 13 (line -> EXIT NL .)
+    $end            reduce using rule 13 (line -> EXIT NL .)
 
 
-state 30
+state 43
 
-    (15) ip_dst_line -> IP_DST COLON WORD . WORD
-    (16) ip_dst_line -> IP_DST COLON WORD .
+    (15) line -> error NL .
 
-    WORD            shift and go to state 35
-    NL              reduce using rule 16 (ip_dst_line -> IP_DST COLON WORD .)
-
-
-state 31
-
-    (18) port_dst_line -> PORT_DST COLON WORD .
-
-    NL              reduce using rule 18 (port_dst_line -> PORT_DST COLON WORD .)
+    EXIT            reduce using rule 15 (line -> error NL .)
+    NL              reduce using rule 15 (line -> error NL .)
+    error           reduce using rule 15 (line -> error NL .)
+    SET             reduce using rule 15 (line -> error NL .)
+    UNSET           reduce using rule 15 (line -> error NL .)
+    WORD            reduce using rule 15 (line -> error NL .)
+    $end            reduce using rule 15 (line -> error NL .)
 
 
-state 32
+state 44
 
-    (17) port_src_line -> PORT_SRC COLON WORD .
+    (7) line -> policy_context_line NL .
 
-    NL              reduce using rule 17 (port_src_line -> PORT_SRC COLON WORD .)
-
-
-state 33
-
-    (12) protocol_line -> PROTOCOL COLON WORD .
-
-    NL              reduce using rule 12 (protocol_line -> PROTOCOL COLON WORD .)
-
-
-state 34
-
-    (13) ip_src_line -> IP_SRC COLON WORD . WORD
-    (14) ip_src_line -> IP_SRC COLON WORD .
-
-    WORD            shift and go to state 36
-    NL              reduce using rule 14 (ip_src_line -> IP_SRC COLON WORD .)
+    EXIT            reduce using rule 7 (line -> policy_context_line NL .)
+    NL              reduce using rule 7 (line -> policy_context_line NL .)
+    error           reduce using rule 7 (line -> policy_context_line NL .)
+    SET             reduce using rule 7 (line -> policy_context_line NL .)
+    UNSET           reduce using rule 7 (line -> policy_context_line NL .)
+    WORD            reduce using rule 7 (line -> policy_context_line NL .)
+    $end            reduce using rule 7 (line -> policy_context_line NL .)
 
 
-state 35
+state 45
 
-    (15) ip_dst_line -> IP_DST COLON WORD WORD .
+    (8) line -> address_line NL .
 
-    NL              reduce using rule 15 (ip_dst_line -> IP_DST COLON WORD WORD .)
+    EXIT            reduce using rule 8 (line -> address_line NL .)
+    NL              reduce using rule 8 (line -> address_line NL .)
+    error           reduce using rule 8 (line -> address_line NL .)
+    SET             reduce using rule 8 (line -> address_line NL .)
+    UNSET           reduce using rule 8 (line -> address_line NL .)
+    WORD            reduce using rule 8 (line -> address_line NL .)
+    $end            reduce using rule 8 (line -> address_line NL .)
 
 
-state 36
+state 46
 
-    (13) ip_src_line -> IP_SRC COLON WORD WORD .
+    (11) line -> interface_line NL .
 
-    NL              reduce using rule 13 (ip_src_line -> IP_SRC COLON WORD WORD .)
+    EXIT            reduce using rule 11 (line -> interface_line NL .)
+    NL              reduce using rule 11 (line -> interface_line NL .)
+    error           reduce using rule 11 (line -> interface_line NL .)
+    SET             reduce using rule 11 (line -> interface_line NL .)
+    UNSET           reduce using rule 11 (line -> interface_line NL .)
+    WORD            reduce using rule 11 (line -> interface_line NL .)
+    $end            reduce using rule 11 (line -> interface_line NL .)
+
+
+state 47
+
+    (70) policy_line -> UNSET POLICY DEFAULT_PERMIT_ALL .
+
+    NL              reduce using rule 70 (policy_line -> UNSET POLICY DEFAULT_PERMIT_ALL .)
+
+
+state 48
+
+    (54) group_line -> SET GROUP SERVICE . object_name opt_group_add opt_group_comment opt_hidden
+    (23) object_name -> . WORD
+
+    WORD            shift and go to state 54
+
+    object_name                    shift and go to state 67
+
+state 49
+
+    (53) group_line -> SET GROUP ADDRESS . item object_name opt_group_add opt_group_comment opt_hidden
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    item                           shift and go to state 68
+
+state 50
+
+    (35) service_line -> SET SERVICE WORD . TIMEOUT items
+    (36) service_line -> SET SERVICE WORD . TIMEOUT NEVER
+    (37) service_line -> SET SERVICE WORD . SESSION_CACHE
+    (23) object_name -> WORD .
+
+    TIMEOUT         shift and go to state 69
+    SESSION_CACHE   shift and go to state 70
+    PLUS            reduce using rule 23 (object_name -> WORD .)
+    PROTOCOL        reduce using rule 23 (object_name -> WORD .)
+    NL              reduce using rule 23 (object_name -> WORD .)
+
+
+state 51
+
+    (125) policy_context_line -> SET SERVICE object_name .
+    (33) service_line -> SET SERVICE object_name . service_plus
+    (34) service_line -> SET SERVICE object_name . service_protocol
+    (38) service_plus -> . PLUS ICMP TYPE NUMBER CODE NUMBER
+    (39) service_plus -> . PLUS protocol SRC_PORT NUMBER HYPHEN NUMBER DST_PORT NUMBER HYPHEN NUMBER
+    (40) service_plus -> . PLUS WORD items
+    (41) service_protocol -> . PROTOCOL protocol opt_protocol_src opt_protocol_dst
+    (42) service_protocol -> . PROTOCOL ICMP TYPE NUMBER CODE NUMBER
+    (43) service_protocol -> . PROTOCOL WORD items
+
+    NL              reduce using rule 125 (policy_context_line -> SET SERVICE object_name .)
+    PLUS            shift and go to state 74
+    PROTOCOL        shift and go to state 73
+
+    service_plus                   shift and go to state 71
+    service_protocol               shift and go to state 72
+
+state 52
+
+    (124) policy_context_line -> SET SRC_ADDRESS NEGATE .
+
+    NL              reduce using rule 124 (policy_context_line -> SET SRC_ADDRESS NEGATE .)
+
+
+state 53
+
+    (123) policy_context_line -> SET SRC_ADDRESS object_name .
+
+    NL              reduce using rule 123 (policy_context_line -> SET SRC_ADDRESS object_name .)
+
+
+state 54
+
+    (23) object_name -> WORD .
+
+    WORD            reduce using rule 23 (object_name -> WORD .)
+    IP_ADDR         reduce using rule 23 (object_name -> WORD .)
+    NL              reduce using rule 23 (object_name -> WORD .)
+    FROM            reduce using rule 23 (object_name -> WORD .)
+    ANY             reduce using rule 23 (object_name -> WORD .)
+    COMMENT         reduce using rule 23 (object_name -> WORD .)
+    HIDDEN          reduce using rule 23 (object_name -> WORD .)
+    TO              reduce using rule 23 (object_name -> WORD .)
+    NAT             reduce using rule 23 (object_name -> WORD .)
+    DENY            reduce using rule 23 (object_name -> WORD .)
+    REJECT          reduce using rule 23 (object_name -> WORD .)
+    PERMIT          reduce using rule 23 (object_name -> WORD .)
+    TUNNEL          reduce using rule 23 (object_name -> WORD .)
+    IP              reduce using rule 23 (object_name -> WORD .)
+    TAG             reduce using rule 23 (object_name -> WORD .)
+    ZONE            reduce using rule 23 (object_name -> WORD .)
+    ADD             reduce using rule 23 (object_name -> WORD .)
+
+
+state 55
+
+    (127) route_line -> SET ROUTE IP_ADDR . SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR
+    (128) route_line -> SET ROUTE IP_ADDR . SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR PREFERENCE NUMBER
+
+    SLASH           shift and go to state 75
+
+
+state 56
+
+    (122) policy_context_line -> SET DST_ADDRESS NEGATE .
+
+    NL              reduce using rule 122 (policy_context_line -> SET DST_ADDRESS NEGATE .)
+
+
+state 57
+
+    (121) policy_context_line -> SET DST_ADDRESS object_name .
+
+    NL              reduce using rule 121 (policy_context_line -> SET DST_ADDRESS object_name .)
+
+
+state 58
+
+    (67) policy_line -> SET POLICY MOVE . NUMBER BEFORE NUMBER
+    (68) policy_line -> SET POLICY MOVE . NUMBER AFTER NUMBER
+
+    NUMBER          shift and go to state 76
+
+
+state 59
+
+    (72) opt_global -> empty .
+
+    ID              reduce using rule 72 (opt_global -> empty .)
+    TOP             reduce using rule 72 (opt_global -> empty .)
+    BEFORE          reduce using rule 72 (opt_global -> empty .)
+    NAME            reduce using rule 72 (opt_global -> empty .)
+    FROM            reduce using rule 72 (opt_global -> empty .)
+    ANY             reduce using rule 72 (opt_global -> empty .)
+    WORD            reduce using rule 72 (opt_global -> empty .)
+
+
+state 60
+
+    (71) opt_global -> GLOBAL .
+
+    ID              reduce using rule 71 (opt_global -> GLOBAL .)
+    TOP             reduce using rule 71 (opt_global -> GLOBAL .)
+    BEFORE          reduce using rule 71 (opt_global -> GLOBAL .)
+    NAME            reduce using rule 71 (opt_global -> GLOBAL .)
+    FROM            reduce using rule 71 (opt_global -> GLOBAL .)
+    ANY             reduce using rule 71 (opt_global -> GLOBAL .)
+    WORD            reduce using rule 71 (opt_global -> GLOBAL .)
+
+
+state 61
+
+    (69) policy_line -> SET POLICY DEFAULT_PERMIT_ALL .
+
+    NL              reduce using rule 69 (policy_line -> SET POLICY DEFAULT_PERMIT_ALL .)
+
+
+state 62
+
+    (66) policy_line -> SET POLICY opt_global . opt_id opt_position opt_name opt_zone rules opt_nat action options
+    (116) policy_id_line -> SET POLICY opt_global . ID NUMBER
+    (117) policy_id_line -> SET POLICY opt_global . ID NUMBER APPLICATION options
+    (118) policy_id_line -> SET POLICY opt_global . ID NUMBER ATTACK options
+    (119) policy_id_line -> SET POLICY opt_global . ID NUMBER AV options
+    (120) policy_id_line -> SET POLICY opt_global . ID NUMBER DISABLE
+    (73) opt_id -> . ID NUMBER
+    (74) opt_id -> . empty
+    (16) empty -> .
+
+    ID              shift and go to state 78
+    TOP             reduce using rule 16 (empty -> .)
+    BEFORE          reduce using rule 16 (empty -> .)
+    NAME            reduce using rule 16 (empty -> .)
+    FROM            reduce using rule 16 (empty -> .)
+    ANY             reduce using rule 16 (empty -> .)
+    WORD            reduce using rule 16 (empty -> .)
+
+    opt_id                         shift and go to state 77
+    empty                          shift and go to state 79
+
+state 63
+
+    (61) interface_line -> SET INTERFACE object_name . IP IP_ADDR SLASH NUMBER
+    (62) interface_line -> SET INTERFACE object_name . IP IP_ADDR SLASH NUMBER SECONDARY
+    (63) interface_line -> SET INTERFACE object_name . opt_tag ZONE object_name
+    (64) opt_tag -> . TAG NUMBER
+    (65) opt_tag -> . empty
+    (16) empty -> .
+
+    IP              shift and go to state 80
+    TAG             shift and go to state 81
+    ZONE            reduce using rule 16 (empty -> .)
+
+    opt_tag                        shift and go to state 82
+    empty                          shift and go to state 83
+
+state 64
+
+    (24) hostname_line -> SET HOSTNAME words .
+
+    NL              reduce using rule 24 (hostname_line -> SET HOSTNAME words .)
+
+
+state 65
+
+    (17) items -> item items .
+
+    HIDDEN          reduce using rule 17 (items -> item items .)
+    NL              reduce using rule 17 (items -> item items .)
+
+
+state 66
+
+    (25) address_line -> SET ADDRESS WORD . object_name WORD
+    (26) address_line -> SET ADDRESS WORD . object_name WORD words
+    (27) address_line -> SET ADDRESS WORD . object_name IP_ADDR opt_slash IP_ADDR
+    (28) address_line -> SET ADDRESS WORD . object_name IP_ADDR opt_slash IP_ADDR words
+    (29) address_line -> SET ADDRESS WORD . object_name IP_ADDR opt_slash NUMBER
+    (30) address_line -> SET ADDRESS WORD . object_name IP_ADDR opt_slash NUMBER words
+    (23) object_name -> . WORD
+
+    WORD            shift and go to state 54
+
+    object_name                    shift and go to state 84
+
+state 67
+
+    (54) group_line -> SET GROUP SERVICE object_name . opt_group_add opt_group_comment opt_hidden
+    (55) opt_group_add -> . ADD object_name
+    (56) opt_group_add -> . empty
+    (16) empty -> .
+
+    ADD             shift and go to state 86
+    COMMENT         reduce using rule 16 (empty -> .)
+    HIDDEN          reduce using rule 16 (empty -> .)
+    NL              reduce using rule 16 (empty -> .)
+
+    opt_group_add                  shift and go to state 85
+    empty                          shift and go to state 87
+
+state 68
+
+    (53) group_line -> SET GROUP ADDRESS item . object_name opt_group_add opt_group_comment opt_hidden
+    (23) object_name -> . WORD
+
+    WORD            shift and go to state 54
+
+    object_name                    shift and go to state 88
+
+state 69
+
+    (35) service_line -> SET SERVICE WORD TIMEOUT . items
+    (36) service_line -> SET SERVICE WORD TIMEOUT . NEVER
+    (17) items -> . item items
+    (18) items -> . item
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    NEVER           shift and go to state 90
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    items                          shift and go to state 89
+    item                           shift and go to state 32
+
+state 70
+
+    (37) service_line -> SET SERVICE WORD SESSION_CACHE .
+
+    NL              reduce using rule 37 (service_line -> SET SERVICE WORD SESSION_CACHE .)
+
+
+state 71
+
+    (33) service_line -> SET SERVICE object_name service_plus .
+
+    NL              reduce using rule 33 (service_line -> SET SERVICE object_name service_plus .)
+
+
+state 72
+
+    (34) service_line -> SET SERVICE object_name service_protocol .
+
+    NL              reduce using rule 34 (service_line -> SET SERVICE object_name service_protocol .)
+
+
+state 73
+
+    (41) service_protocol -> PROTOCOL . protocol opt_protocol_src opt_protocol_dst
+    (42) service_protocol -> PROTOCOL . ICMP TYPE NUMBER CODE NUMBER
+    (43) service_protocol -> PROTOCOL . WORD items
+    (50) protocol -> . TCP
+    (51) protocol -> . UDP
+    (52) protocol -> . NUMBER
+
+    ICMP            shift and go to state 96
+    WORD            shift and go to state 91
+    TCP             shift and go to state 94
+    UDP             shift and go to state 95
+    NUMBER          shift and go to state 93
+
+    protocol                       shift and go to state 92
+
+state 74
+
+    (38) service_plus -> PLUS . ICMP TYPE NUMBER CODE NUMBER
+    (39) service_plus -> PLUS . protocol SRC_PORT NUMBER HYPHEN NUMBER DST_PORT NUMBER HYPHEN NUMBER
+    (40) service_plus -> PLUS . WORD items
+    (50) protocol -> . TCP
+    (51) protocol -> . UDP
+    (52) protocol -> . NUMBER
+
+    ICMP            shift and go to state 99
+    WORD            shift and go to state 98
+    TCP             shift and go to state 94
+    UDP             shift and go to state 95
+    NUMBER          shift and go to state 93
+
+    protocol                       shift and go to state 97
+
+state 75
+
+    (127) route_line -> SET ROUTE IP_ADDR SLASH . NUMBER INTERFACE WORD GATEWAY IP_ADDR
+    (128) route_line -> SET ROUTE IP_ADDR SLASH . NUMBER INTERFACE WORD GATEWAY IP_ADDR PREFERENCE NUMBER
+
+    NUMBER          shift and go to state 100
+
+
+state 76
+
+    (67) policy_line -> SET POLICY MOVE NUMBER . BEFORE NUMBER
+    (68) policy_line -> SET POLICY MOVE NUMBER . AFTER NUMBER
+
+    BEFORE          shift and go to state 102
+    AFTER           shift and go to state 101
+
+
+state 77
+
+    (66) policy_line -> SET POLICY opt_global opt_id . opt_position opt_name opt_zone rules opt_nat action options
+    (75) opt_position -> . TOP
+    (76) opt_position -> . BEFORE NUMBER
+    (77) opt_position -> . empty
+    (16) empty -> .
+
+    TOP             shift and go to state 103
+    BEFORE          shift and go to state 106
+    NAME            reduce using rule 16 (empty -> .)
+    FROM            reduce using rule 16 (empty -> .)
+    ANY             reduce using rule 16 (empty -> .)
+    WORD            reduce using rule 16 (empty -> .)
+
+    opt_position                   shift and go to state 104
+    empty                          shift and go to state 105
+
+state 78
+
+    (116) policy_id_line -> SET POLICY opt_global ID . NUMBER
+    (117) policy_id_line -> SET POLICY opt_global ID . NUMBER APPLICATION options
+    (118) policy_id_line -> SET POLICY opt_global ID . NUMBER ATTACK options
+    (119) policy_id_line -> SET POLICY opt_global ID . NUMBER AV options
+    (120) policy_id_line -> SET POLICY opt_global ID . NUMBER DISABLE
+    (73) opt_id -> ID . NUMBER
+
+    NUMBER          shift and go to state 107
+
+
+state 79
+
+    (74) opt_id -> empty .
+
+    TOP             reduce using rule 74 (opt_id -> empty .)
+    BEFORE          reduce using rule 74 (opt_id -> empty .)
+    NAME            reduce using rule 74 (opt_id -> empty .)
+    FROM            reduce using rule 74 (opt_id -> empty .)
+    ANY             reduce using rule 74 (opt_id -> empty .)
+    WORD            reduce using rule 74 (opt_id -> empty .)
+
+
+state 80
+
+    (61) interface_line -> SET INTERFACE object_name IP . IP_ADDR SLASH NUMBER
+    (62) interface_line -> SET INTERFACE object_name IP . IP_ADDR SLASH NUMBER SECONDARY
+
+    IP_ADDR         shift and go to state 108
+
+
+state 81
+
+    (64) opt_tag -> TAG . NUMBER
+
+    NUMBER          shift and go to state 109
+
+
+state 82
+
+    (63) interface_line -> SET INTERFACE object_name opt_tag . ZONE object_name
+
+    ZONE            shift and go to state 110
+
+
+state 83
+
+    (65) opt_tag -> empty .
+
+    ZONE            reduce using rule 65 (opt_tag -> empty .)
+
+
+state 84
+
+    (25) address_line -> SET ADDRESS WORD object_name . WORD
+    (26) address_line -> SET ADDRESS WORD object_name . WORD words
+    (27) address_line -> SET ADDRESS WORD object_name . IP_ADDR opt_slash IP_ADDR
+    (28) address_line -> SET ADDRESS WORD object_name . IP_ADDR opt_slash IP_ADDR words
+    (29) address_line -> SET ADDRESS WORD object_name . IP_ADDR opt_slash NUMBER
+    (30) address_line -> SET ADDRESS WORD object_name . IP_ADDR opt_slash NUMBER words
+
+    WORD            shift and go to state 112
+    IP_ADDR         shift and go to state 111
+
+
+state 85
+
+    (54) group_line -> SET GROUP SERVICE object_name opt_group_add . opt_group_comment opt_hidden
+    (57) opt_group_comment -> . COMMENT items
+    (58) opt_group_comment -> . empty
+    (16) empty -> .
+
+    COMMENT         shift and go to state 113
+    HIDDEN          reduce using rule 16 (empty -> .)
+    NL              reduce using rule 16 (empty -> .)
+
+    opt_group_comment              shift and go to state 114
+    empty                          shift and go to state 115
+
+state 86
+
+    (55) opt_group_add -> ADD . object_name
+    (23) object_name -> . WORD
+
+    WORD            shift and go to state 54
+
+    object_name                    shift and go to state 116
+
+state 87
+
+    (56) opt_group_add -> empty .
+
+    COMMENT         reduce using rule 56 (opt_group_add -> empty .)
+    HIDDEN          reduce using rule 56 (opt_group_add -> empty .)
+    NL              reduce using rule 56 (opt_group_add -> empty .)
+
+
+state 88
+
+    (53) group_line -> SET GROUP ADDRESS item object_name . opt_group_add opt_group_comment opt_hidden
+    (55) opt_group_add -> . ADD object_name
+    (56) opt_group_add -> . empty
+    (16) empty -> .
+
+    ADD             shift and go to state 86
+    COMMENT         reduce using rule 16 (empty -> .)
+    HIDDEN          reduce using rule 16 (empty -> .)
+    NL              reduce using rule 16 (empty -> .)
+
+    opt_group_add                  shift and go to state 117
+    empty                          shift and go to state 87
+
+state 89
+
+    (35) service_line -> SET SERVICE WORD TIMEOUT items .
+
+    NL              reduce using rule 35 (service_line -> SET SERVICE WORD TIMEOUT items .)
+
+
+state 90
+
+    (36) service_line -> SET SERVICE WORD TIMEOUT NEVER .
+
+    NL              reduce using rule 36 (service_line -> SET SERVICE WORD TIMEOUT NEVER .)
+
+
+state 91
+
+    (43) service_protocol -> PROTOCOL WORD . items
+    (17) items -> . item items
+    (18) items -> . item
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    items                          shift and go to state 118
+    item                           shift and go to state 32
+
+state 92
+
+    (41) service_protocol -> PROTOCOL protocol . opt_protocol_src opt_protocol_dst
+    (44) opt_protocol_src -> . SRC_PORT NUMBER HYPHEN NUMBER
+    (45) opt_protocol_src -> . empty
+    (16) empty -> .
+
+    SRC_PORT        shift and go to state 119
+    DST_PORT        reduce using rule 16 (empty -> .)
+    NL              reduce using rule 16 (empty -> .)
+
+    opt_protocol_src               shift and go to state 120
+    empty                          shift and go to state 121
+
+state 93
+
+    (52) protocol -> NUMBER .
+
+    SRC_PORT        reduce using rule 52 (protocol -> NUMBER .)
+    DST_PORT        reduce using rule 52 (protocol -> NUMBER .)
+    NL              reduce using rule 52 (protocol -> NUMBER .)
+
+
+state 94
+
+    (50) protocol -> TCP .
+
+    SRC_PORT        reduce using rule 50 (protocol -> TCP .)
+    DST_PORT        reduce using rule 50 (protocol -> TCP .)
+    NL              reduce using rule 50 (protocol -> TCP .)
+
+
+state 95
+
+    (51) protocol -> UDP .
+
+    SRC_PORT        reduce using rule 51 (protocol -> UDP .)
+    DST_PORT        reduce using rule 51 (protocol -> UDP .)
+    NL              reduce using rule 51 (protocol -> UDP .)
+
+
+state 96
+
+    (42) service_protocol -> PROTOCOL ICMP . TYPE NUMBER CODE NUMBER
+
+    TYPE            shift and go to state 122
+
+
+state 97
+
+    (39) service_plus -> PLUS protocol . SRC_PORT NUMBER HYPHEN NUMBER DST_PORT NUMBER HYPHEN NUMBER
+
+    SRC_PORT        shift and go to state 123
+
+
+state 98
+
+    (40) service_plus -> PLUS WORD . items
+    (17) items -> . item items
+    (18) items -> . item
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    items                          shift and go to state 124
+    item                           shift and go to state 32
+
+state 99
+
+    (38) service_plus -> PLUS ICMP . TYPE NUMBER CODE NUMBER
+
+    TYPE            shift and go to state 125
+
+
+state 100
+
+    (127) route_line -> SET ROUTE IP_ADDR SLASH NUMBER . INTERFACE WORD GATEWAY IP_ADDR
+    (128) route_line -> SET ROUTE IP_ADDR SLASH NUMBER . INTERFACE WORD GATEWAY IP_ADDR PREFERENCE NUMBER
+
+    INTERFACE       shift and go to state 126
+
+
+state 101
+
+    (68) policy_line -> SET POLICY MOVE NUMBER AFTER . NUMBER
+
+    NUMBER          shift and go to state 127
+
+
+state 102
+
+    (67) policy_line -> SET POLICY MOVE NUMBER BEFORE . NUMBER
+
+    NUMBER          shift and go to state 128
+
+
+state 103
+
+    (75) opt_position -> TOP .
+
+    NAME            reduce using rule 75 (opt_position -> TOP .)
+    FROM            reduce using rule 75 (opt_position -> TOP .)
+    ANY             reduce using rule 75 (opt_position -> TOP .)
+    WORD            reduce using rule 75 (opt_position -> TOP .)
+
+
+state 104
+
+    (66) policy_line -> SET POLICY opt_global opt_id opt_position . opt_name opt_zone rules opt_nat action options
+    (78) opt_name -> . NAME object_name
+    (79) opt_name -> . empty
+    (16) empty -> .
+
+    NAME            shift and go to state 129
+    FROM            reduce using rule 16 (empty -> .)
+    ANY             reduce using rule 16 (empty -> .)
+    WORD            reduce using rule 16 (empty -> .)
+
+    opt_name                       shift and go to state 130
+    empty                          shift and go to state 131
+
+state 105
+
+    (77) opt_position -> empty .
+
+    NAME            reduce using rule 77 (opt_position -> empty .)
+    FROM            reduce using rule 77 (opt_position -> empty .)
+    ANY             reduce using rule 77 (opt_position -> empty .)
+    WORD            reduce using rule 77 (opt_position -> empty .)
+
+
+state 106
+
+    (76) opt_position -> BEFORE . NUMBER
+
+    NUMBER          shift and go to state 132
+
+
+state 107
+
+    (116) policy_id_line -> SET POLICY opt_global ID NUMBER .
+    (117) policy_id_line -> SET POLICY opt_global ID NUMBER . APPLICATION options
+    (118) policy_id_line -> SET POLICY opt_global ID NUMBER . ATTACK options
+    (119) policy_id_line -> SET POLICY opt_global ID NUMBER . AV options
+    (120) policy_id_line -> SET POLICY opt_global ID NUMBER . DISABLE
+    (73) opt_id -> ID NUMBER .
+
+    NL              reduce using rule 116 (policy_id_line -> SET POLICY opt_global ID NUMBER .)
+    APPLICATION     shift and go to state 133
+    ATTACK          shift and go to state 134
+    AV              shift and go to state 136
+    DISABLE         shift and go to state 135
+    TOP             reduce using rule 73 (opt_id -> ID NUMBER .)
+    BEFORE          reduce using rule 73 (opt_id -> ID NUMBER .)
+    NAME            reduce using rule 73 (opt_id -> ID NUMBER .)
+    FROM            reduce using rule 73 (opt_id -> ID NUMBER .)
+    ANY             reduce using rule 73 (opt_id -> ID NUMBER .)
+    WORD            reduce using rule 73 (opt_id -> ID NUMBER .)
+
+
+state 108
+
+    (61) interface_line -> SET INTERFACE object_name IP IP_ADDR . SLASH NUMBER
+    (62) interface_line -> SET INTERFACE object_name IP IP_ADDR . SLASH NUMBER SECONDARY
+
+    SLASH           shift and go to state 137
+
+
+state 109
+
+    (64) opt_tag -> TAG NUMBER .
+
+    ZONE            reduce using rule 64 (opt_tag -> TAG NUMBER .)
+
+
+state 110
+
+    (63) interface_line -> SET INTERFACE object_name opt_tag ZONE . object_name
+    (23) object_name -> . WORD
+
+    WORD            shift and go to state 54
+
+    object_name                    shift and go to state 138
+
+state 111
+
+    (27) address_line -> SET ADDRESS WORD object_name IP_ADDR . opt_slash IP_ADDR
+    (28) address_line -> SET ADDRESS WORD object_name IP_ADDR . opt_slash IP_ADDR words
+    (29) address_line -> SET ADDRESS WORD object_name IP_ADDR . opt_slash NUMBER
+    (30) address_line -> SET ADDRESS WORD object_name IP_ADDR . opt_slash NUMBER words
+    (31) opt_slash -> . SLASH
+    (32) opt_slash -> . empty
+    (16) empty -> .
+
+    SLASH           shift and go to state 139
+    IP_ADDR         reduce using rule 16 (empty -> .)
+    NUMBER          reduce using rule 16 (empty -> .)
+
+    opt_slash                      shift and go to state 140
+    empty                          shift and go to state 141
+
+state 112
+
+    (25) address_line -> SET ADDRESS WORD object_name WORD .
+    (26) address_line -> SET ADDRESS WORD object_name WORD . words
+    (21) words -> . WORD
+    (22) words -> . WORD words
+
+    NL              reduce using rule 25 (address_line -> SET ADDRESS WORD object_name WORD .)
+    WORD            shift and go to state 11
+
+    words                          shift and go to state 142
+
+state 113
+
+    (57) opt_group_comment -> COMMENT . items
+    (17) items -> . item items
+    (18) items -> . item
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    items                          shift and go to state 143
+    item                           shift and go to state 32
+
+state 114
+
+    (54) group_line -> SET GROUP SERVICE object_name opt_group_add opt_group_comment . opt_hidden
+    (59) opt_hidden -> . HIDDEN
+    (60) opt_hidden -> . empty
+    (16) empty -> .
+
+    HIDDEN          shift and go to state 145
+    NL              reduce using rule 16 (empty -> .)
+
+    opt_hidden                     shift and go to state 144
+    empty                          shift and go to state 146
+
+state 115
+
+    (58) opt_group_comment -> empty .
+
+    HIDDEN          reduce using rule 58 (opt_group_comment -> empty .)
+    NL              reduce using rule 58 (opt_group_comment -> empty .)
+
+
+state 116
+
+    (55) opt_group_add -> ADD object_name .
+
+    COMMENT         reduce using rule 55 (opt_group_add -> ADD object_name .)
+    HIDDEN          reduce using rule 55 (opt_group_add -> ADD object_name .)
+    NL              reduce using rule 55 (opt_group_add -> ADD object_name .)
+
+
+state 117
+
+    (53) group_line -> SET GROUP ADDRESS item object_name opt_group_add . opt_group_comment opt_hidden
+    (57) opt_group_comment -> . COMMENT items
+    (58) opt_group_comment -> . empty
+    (16) empty -> .
+
+    COMMENT         shift and go to state 113
+    HIDDEN          reduce using rule 16 (empty -> .)
+    NL              reduce using rule 16 (empty -> .)
+
+    opt_group_comment              shift and go to state 147
+    empty                          shift and go to state 115
+
+state 118
+
+    (43) service_protocol -> PROTOCOL WORD items .
+
+    NL              reduce using rule 43 (service_protocol -> PROTOCOL WORD items .)
+
+
+state 119
+
+    (44) opt_protocol_src -> SRC_PORT . NUMBER HYPHEN NUMBER
+
+    NUMBER          shift and go to state 148
+
+
+state 120
+
+    (41) service_protocol -> PROTOCOL protocol opt_protocol_src . opt_protocol_dst
+    (46) opt_protocol_dst -> . DST_PORT NUMBER HYPHEN NUMBER
+    (47) opt_protocol_dst -> . DST_PORT NUMBER HYPHEN NUMBER TIMEOUT NUMBER
+    (48) opt_protocol_dst -> . DST_PORT NUMBER HYPHEN NUMBER TIMEOUT NEVER
+    (49) opt_protocol_dst -> . empty
+    (16) empty -> .
+
+    DST_PORT        shift and go to state 150
+    NL              reduce using rule 16 (empty -> .)
+
+    opt_protocol_dst               shift and go to state 149
+    empty                          shift and go to state 151
+
+state 121
+
+    (45) opt_protocol_src -> empty .
+
+    DST_PORT        reduce using rule 45 (opt_protocol_src -> empty .)
+    NL              reduce using rule 45 (opt_protocol_src -> empty .)
+
+
+state 122
+
+    (42) service_protocol -> PROTOCOL ICMP TYPE . NUMBER CODE NUMBER
+
+    NUMBER          shift and go to state 152
+
+
+state 123
+
+    (39) service_plus -> PLUS protocol SRC_PORT . NUMBER HYPHEN NUMBER DST_PORT NUMBER HYPHEN NUMBER
+
+    NUMBER          shift and go to state 153
+
+
+state 124
+
+    (40) service_plus -> PLUS WORD items .
+
+    NL              reduce using rule 40 (service_plus -> PLUS WORD items .)
+
+
+state 125
+
+    (38) service_plus -> PLUS ICMP TYPE . NUMBER CODE NUMBER
+
+    NUMBER          shift and go to state 154
+
+
+state 126
+
+    (127) route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE . WORD GATEWAY IP_ADDR
+    (128) route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE . WORD GATEWAY IP_ADDR PREFERENCE NUMBER
+
+    WORD            shift and go to state 155
+
+
+state 127
+
+    (68) policy_line -> SET POLICY MOVE NUMBER AFTER NUMBER .
+
+    NL              reduce using rule 68 (policy_line -> SET POLICY MOVE NUMBER AFTER NUMBER .)
+
+
+state 128
+
+    (67) policy_line -> SET POLICY MOVE NUMBER BEFORE NUMBER .
+
+    NL              reduce using rule 67 (policy_line -> SET POLICY MOVE NUMBER BEFORE NUMBER .)
+
+
+state 129
+
+    (78) opt_name -> NAME . object_name
+    (23) object_name -> . WORD
+
+    WORD            shift and go to state 54
+
+    object_name                    shift and go to state 156
+
+state 130
+
+    (66) policy_line -> SET POLICY opt_global opt_id opt_position opt_name . opt_zone rules opt_nat action options
+    (80) opt_zone -> . FROM object_name TO item
+    (81) opt_zone -> . empty
+    (16) empty -> .
+
+    FROM            shift and go to state 157
+    ANY             reduce using rule 16 (empty -> .)
+    WORD            reduce using rule 16 (empty -> .)
+
+    opt_zone                       shift and go to state 158
+    empty                          shift and go to state 159
+
+state 131
+
+    (79) opt_name -> empty .
+
+    FROM            reduce using rule 79 (opt_name -> empty .)
+    ANY             reduce using rule 79 (opt_name -> empty .)
+    WORD            reduce using rule 79 (opt_name -> empty .)
+
+
+state 132
+
+    (76) opt_position -> BEFORE NUMBER .
+
+    NAME            reduce using rule 76 (opt_position -> BEFORE NUMBER .)
+    FROM            reduce using rule 76 (opt_position -> BEFORE NUMBER .)
+    ANY             reduce using rule 76 (opt_position -> BEFORE NUMBER .)
+    WORD            reduce using rule 76 (opt_position -> BEFORE NUMBER .)
+
+
+state 133
+
+    (117) policy_id_line -> SET POLICY opt_global ID NUMBER APPLICATION . options
+    (107) options -> . option options
+    (108) options -> . empty
+    (109) option -> . WORD
+    (110) option -> . NUMBER
+    (111) option -> . DISABLE
+    (112) option -> . ATTACK
+    (113) option -> . AV
+    (114) option -> . ZONE
+    (115) option -> . TIMEOUT
+    (16) empty -> .
+
+    WORD            shift and go to state 160
+    NUMBER          shift and go to state 163
+    DISABLE         shift and go to state 166
+    ATTACK          shift and go to state 165
+    AV              shift and go to state 168
+    ZONE            shift and go to state 162
+    TIMEOUT         shift and go to state 167
+    NL              reduce using rule 16 (empty -> .)
+
+    empty                          shift and go to state 169
+    option                         shift and go to state 161
+    options                        shift and go to state 164
+
+state 134
+
+    (118) policy_id_line -> SET POLICY opt_global ID NUMBER ATTACK . options
+    (107) options -> . option options
+    (108) options -> . empty
+    (109) option -> . WORD
+    (110) option -> . NUMBER
+    (111) option -> . DISABLE
+    (112) option -> . ATTACK
+    (113) option -> . AV
+    (114) option -> . ZONE
+    (115) option -> . TIMEOUT
+    (16) empty -> .
+
+    WORD            shift and go to state 160
+    NUMBER          shift and go to state 163
+    DISABLE         shift and go to state 166
+    ATTACK          shift and go to state 165
+    AV              shift and go to state 168
+    ZONE            shift and go to state 162
+    TIMEOUT         shift and go to state 167
+    NL              reduce using rule 16 (empty -> .)
+
+    empty                          shift and go to state 169
+    option                         shift and go to state 161
+    options                        shift and go to state 170
+
+state 135
+
+    (120) policy_id_line -> SET POLICY opt_global ID NUMBER DISABLE .
+
+    NL              reduce using rule 120 (policy_id_line -> SET POLICY opt_global ID NUMBER DISABLE .)
+
+
+state 136
+
+    (119) policy_id_line -> SET POLICY opt_global ID NUMBER AV . options
+    (107) options -> . option options
+    (108) options -> . empty
+    (109) option -> . WORD
+    (110) option -> . NUMBER
+    (111) option -> . DISABLE
+    (112) option -> . ATTACK
+    (113) option -> . AV
+    (114) option -> . ZONE
+    (115) option -> . TIMEOUT
+    (16) empty -> .
+
+    WORD            shift and go to state 160
+    NUMBER          shift and go to state 163
+    DISABLE         shift and go to state 166
+    ATTACK          shift and go to state 165
+    AV              shift and go to state 168
+    ZONE            shift and go to state 162
+    TIMEOUT         shift and go to state 167
+    NL              reduce using rule 16 (empty -> .)
+
+    empty                          shift and go to state 169
+    option                         shift and go to state 161
+    options                        shift and go to state 171
+
+state 137
+
+    (61) interface_line -> SET INTERFACE object_name IP IP_ADDR SLASH . NUMBER
+    (62) interface_line -> SET INTERFACE object_name IP IP_ADDR SLASH . NUMBER SECONDARY
+
+    NUMBER          shift and go to state 172
+
+
+state 138
+
+    (63) interface_line -> SET INTERFACE object_name opt_tag ZONE object_name .
+
+    NL              reduce using rule 63 (interface_line -> SET INTERFACE object_name opt_tag ZONE object_name .)
+
+
+state 139
+
+    (31) opt_slash -> SLASH .
+
+    IP_ADDR         reduce using rule 31 (opt_slash -> SLASH .)
+    NUMBER          reduce using rule 31 (opt_slash -> SLASH .)
+
+
+state 140
+
+    (27) address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash . IP_ADDR
+    (28) address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash . IP_ADDR words
+    (29) address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash . NUMBER
+    (30) address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash . NUMBER words
+
+    IP_ADDR         shift and go to state 173
+    NUMBER          shift and go to state 174
+
+
+state 141
+
+    (32) opt_slash -> empty .
+
+    IP_ADDR         reduce using rule 32 (opt_slash -> empty .)
+    NUMBER          reduce using rule 32 (opt_slash -> empty .)
+
+
+state 142
+
+    (26) address_line -> SET ADDRESS WORD object_name WORD words .
+
+    NL              reduce using rule 26 (address_line -> SET ADDRESS WORD object_name WORD words .)
+
+
+state 143
+
+    (57) opt_group_comment -> COMMENT items .
+
+    HIDDEN          reduce using rule 57 (opt_group_comment -> COMMENT items .)
+    NL              reduce using rule 57 (opt_group_comment -> COMMENT items .)
+
+
+state 144
+
+    (54) group_line -> SET GROUP SERVICE object_name opt_group_add opt_group_comment opt_hidden .
+
+    NL              reduce using rule 54 (group_line -> SET GROUP SERVICE object_name opt_group_add opt_group_comment opt_hidden .)
+
+
+state 145
+
+    (59) opt_hidden -> HIDDEN .
+
+    NL              reduce using rule 59 (opt_hidden -> HIDDEN .)
+
+
+state 146
+
+    (60) opt_hidden -> empty .
+
+    NL              reduce using rule 60 (opt_hidden -> empty .)
+
+
+state 147
+
+    (53) group_line -> SET GROUP ADDRESS item object_name opt_group_add opt_group_comment . opt_hidden
+    (59) opt_hidden -> . HIDDEN
+    (60) opt_hidden -> . empty
+    (16) empty -> .
+
+    HIDDEN          shift and go to state 145
+    NL              reduce using rule 16 (empty -> .)
+
+    opt_hidden                     shift and go to state 175
+    empty                          shift and go to state 146
+
+state 148
+
+    (44) opt_protocol_src -> SRC_PORT NUMBER . HYPHEN NUMBER
+
+    HYPHEN          shift and go to state 176
+
+
+state 149
+
+    (41) service_protocol -> PROTOCOL protocol opt_protocol_src opt_protocol_dst .
+
+    NL              reduce using rule 41 (service_protocol -> PROTOCOL protocol opt_protocol_src opt_protocol_dst .)
+
+
+state 150
+
+    (46) opt_protocol_dst -> DST_PORT . NUMBER HYPHEN NUMBER
+    (47) opt_protocol_dst -> DST_PORT . NUMBER HYPHEN NUMBER TIMEOUT NUMBER
+    (48) opt_protocol_dst -> DST_PORT . NUMBER HYPHEN NUMBER TIMEOUT NEVER
+
+    NUMBER          shift and go to state 177
+
+
+state 151
+
+    (49) opt_protocol_dst -> empty .
+
+    NL              reduce using rule 49 (opt_protocol_dst -> empty .)
+
+
+state 152
+
+    (42) service_protocol -> PROTOCOL ICMP TYPE NUMBER . CODE NUMBER
+
+    CODE            shift and go to state 178
+
+
+state 153
+
+    (39) service_plus -> PLUS protocol SRC_PORT NUMBER . HYPHEN NUMBER DST_PORT NUMBER HYPHEN NUMBER
+
+    HYPHEN          shift and go to state 179
+
+
+state 154
+
+    (38) service_plus -> PLUS ICMP TYPE NUMBER . CODE NUMBER
+
+    CODE            shift and go to state 180
+
+
+state 155
+
+    (127) route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD . GATEWAY IP_ADDR
+    (128) route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD . GATEWAY IP_ADDR PREFERENCE NUMBER
+
+    GATEWAY         shift and go to state 181
+
+
+state 156
+
+    (78) opt_name -> NAME object_name .
+
+    FROM            reduce using rule 78 (opt_name -> NAME object_name .)
+    ANY             reduce using rule 78 (opt_name -> NAME object_name .)
+    WORD            reduce using rule 78 (opt_name -> NAME object_name .)
+
+
+state 157
+
+    (80) opt_zone -> FROM . object_name TO item
+    (23) object_name -> . WORD
+
+    WORD            shift and go to state 54
+
+    object_name                    shift and go to state 182
+
+state 158
+
+    (66) policy_line -> SET POLICY opt_global opt_id opt_position opt_name opt_zone . rules opt_nat action options
+    (82) rules -> . src_addr dst_addr svc_name
+    (83) src_addr -> . object_name
+    (84) src_addr -> . ANY
+    (23) object_name -> . WORD
+
+    ANY             shift and go to state 186
+    WORD            shift and go to state 54
+
+    src_addr                       shift and go to state 183
+    rules                          shift and go to state 184
+    object_name                    shift and go to state 185
+
+state 159
+
+    (81) opt_zone -> empty .
+
+    ANY             reduce using rule 81 (opt_zone -> empty .)
+    WORD            reduce using rule 81 (opt_zone -> empty .)
+
+
+state 160
+
+    (109) option -> WORD .
+
+    WORD            reduce using rule 109 (option -> WORD .)
+    NUMBER          reduce using rule 109 (option -> WORD .)
+    DISABLE         reduce using rule 109 (option -> WORD .)
+    ATTACK          reduce using rule 109 (option -> WORD .)
+    AV              reduce using rule 109 (option -> WORD .)
+    ZONE            reduce using rule 109 (option -> WORD .)
+    TIMEOUT         reduce using rule 109 (option -> WORD .)
+    NL              reduce using rule 109 (option -> WORD .)
+
+
+state 161
+
+    (107) options -> option . options
+    (107) options -> . option options
+    (108) options -> . empty
+    (109) option -> . WORD
+    (110) option -> . NUMBER
+    (111) option -> . DISABLE
+    (112) option -> . ATTACK
+    (113) option -> . AV
+    (114) option -> . ZONE
+    (115) option -> . TIMEOUT
+    (16) empty -> .
+
+    WORD            shift and go to state 160
+    NUMBER          shift and go to state 163
+    DISABLE         shift and go to state 166
+    ATTACK          shift and go to state 165
+    AV              shift and go to state 168
+    ZONE            shift and go to state 162
+    TIMEOUT         shift and go to state 167
+    NL              reduce using rule 16 (empty -> .)
+
+    option                         shift and go to state 161
+    empty                          shift and go to state 169
+    options                        shift and go to state 187
+
+state 162
+
+    (114) option -> ZONE .
+
+    WORD            reduce using rule 114 (option -> ZONE .)
+    NUMBER          reduce using rule 114 (option -> ZONE .)
+    DISABLE         reduce using rule 114 (option -> ZONE .)
+    ATTACK          reduce using rule 114 (option -> ZONE .)
+    AV              reduce using rule 114 (option -> ZONE .)
+    ZONE            reduce using rule 114 (option -> ZONE .)
+    TIMEOUT         reduce using rule 114 (option -> ZONE .)
+    NL              reduce using rule 114 (option -> ZONE .)
+
+
+state 163
+
+    (110) option -> NUMBER .
+
+    WORD            reduce using rule 110 (option -> NUMBER .)
+    NUMBER          reduce using rule 110 (option -> NUMBER .)
+    DISABLE         reduce using rule 110 (option -> NUMBER .)
+    ATTACK          reduce using rule 110 (option -> NUMBER .)
+    AV              reduce using rule 110 (option -> NUMBER .)
+    ZONE            reduce using rule 110 (option -> NUMBER .)
+    TIMEOUT         reduce using rule 110 (option -> NUMBER .)
+    NL              reduce using rule 110 (option -> NUMBER .)
+
+
+state 164
+
+    (117) policy_id_line -> SET POLICY opt_global ID NUMBER APPLICATION options .
+
+    NL              reduce using rule 117 (policy_id_line -> SET POLICY opt_global ID NUMBER APPLICATION options .)
+
+
+state 165
+
+    (112) option -> ATTACK .
+
+    WORD            reduce using rule 112 (option -> ATTACK .)
+    NUMBER          reduce using rule 112 (option -> ATTACK .)
+    DISABLE         reduce using rule 112 (option -> ATTACK .)
+    ATTACK          reduce using rule 112 (option -> ATTACK .)
+    AV              reduce using rule 112 (option -> ATTACK .)
+    ZONE            reduce using rule 112 (option -> ATTACK .)
+    TIMEOUT         reduce using rule 112 (option -> ATTACK .)
+    NL              reduce using rule 112 (option -> ATTACK .)
+
+
+state 166
+
+    (111) option -> DISABLE .
+
+    WORD            reduce using rule 111 (option -> DISABLE .)
+    NUMBER          reduce using rule 111 (option -> DISABLE .)
+    DISABLE         reduce using rule 111 (option -> DISABLE .)
+    ATTACK          reduce using rule 111 (option -> DISABLE .)
+    AV              reduce using rule 111 (option -> DISABLE .)
+    ZONE            reduce using rule 111 (option -> DISABLE .)
+    TIMEOUT         reduce using rule 111 (option -> DISABLE .)
+    NL              reduce using rule 111 (option -> DISABLE .)
+
+
+state 167
+
+    (115) option -> TIMEOUT .
+
+    WORD            reduce using rule 115 (option -> TIMEOUT .)
+    NUMBER          reduce using rule 115 (option -> TIMEOUT .)
+    DISABLE         reduce using rule 115 (option -> TIMEOUT .)
+    ATTACK          reduce using rule 115 (option -> TIMEOUT .)
+    AV              reduce using rule 115 (option -> TIMEOUT .)
+    ZONE            reduce using rule 115 (option -> TIMEOUT .)
+    TIMEOUT         reduce using rule 115 (option -> TIMEOUT .)
+    NL              reduce using rule 115 (option -> TIMEOUT .)
+
+
+state 168
+
+    (113) option -> AV .
+
+    WORD            reduce using rule 113 (option -> AV .)
+    NUMBER          reduce using rule 113 (option -> AV .)
+    DISABLE         reduce using rule 113 (option -> AV .)
+    ATTACK          reduce using rule 113 (option -> AV .)
+    AV              reduce using rule 113 (option -> AV .)
+    ZONE            reduce using rule 113 (option -> AV .)
+    TIMEOUT         reduce using rule 113 (option -> AV .)
+    NL              reduce using rule 113 (option -> AV .)
+
+
+state 169
+
+    (108) options -> empty .
+
+    NL              reduce using rule 108 (options -> empty .)
+
+
+state 170
+
+    (118) policy_id_line -> SET POLICY opt_global ID NUMBER ATTACK options .
+
+    NL              reduce using rule 118 (policy_id_line -> SET POLICY opt_global ID NUMBER ATTACK options .)
+
+
+state 171
+
+    (119) policy_id_line -> SET POLICY opt_global ID NUMBER AV options .
+
+    NL              reduce using rule 119 (policy_id_line -> SET POLICY opt_global ID NUMBER AV options .)
+
+
+state 172
+
+    (61) interface_line -> SET INTERFACE object_name IP IP_ADDR SLASH NUMBER .
+    (62) interface_line -> SET INTERFACE object_name IP IP_ADDR SLASH NUMBER . SECONDARY
+
+    NL              reduce using rule 61 (interface_line -> SET INTERFACE object_name IP IP_ADDR SLASH NUMBER .)
+    SECONDARY       shift and go to state 188
+
+
+state 173
+
+    (27) address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR .
+    (28) address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR . words
+    (21) words -> . WORD
+    (22) words -> . WORD words
+
+    NL              reduce using rule 27 (address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR .)
+    WORD            shift and go to state 11
+
+    words                          shift and go to state 189
+
+state 174
+
+    (29) address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash NUMBER .
+    (30) address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash NUMBER . words
+    (21) words -> . WORD
+    (22) words -> . WORD words
+
+    NL              reduce using rule 29 (address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash NUMBER .)
+    WORD            shift and go to state 11
+
+    words                          shift and go to state 190
+
+state 175
+
+    (53) group_line -> SET GROUP ADDRESS item object_name opt_group_add opt_group_comment opt_hidden .
+
+    NL              reduce using rule 53 (group_line -> SET GROUP ADDRESS item object_name opt_group_add opt_group_comment opt_hidden .)
+
+
+state 176
+
+    (44) opt_protocol_src -> SRC_PORT NUMBER HYPHEN . NUMBER
+
+    NUMBER          shift and go to state 191
+
+
+state 177
+
+    (46) opt_protocol_dst -> DST_PORT NUMBER . HYPHEN NUMBER
+    (47) opt_protocol_dst -> DST_PORT NUMBER . HYPHEN NUMBER TIMEOUT NUMBER
+    (48) opt_protocol_dst -> DST_PORT NUMBER . HYPHEN NUMBER TIMEOUT NEVER
+
+    HYPHEN          shift and go to state 192
+
+
+state 178
+
+    (42) service_protocol -> PROTOCOL ICMP TYPE NUMBER CODE . NUMBER
+
+    NUMBER          shift and go to state 193
+
+
+state 179
+
+    (39) service_plus -> PLUS protocol SRC_PORT NUMBER HYPHEN . NUMBER DST_PORT NUMBER HYPHEN NUMBER
+
+    NUMBER          shift and go to state 194
+
+
+state 180
+
+    (38) service_plus -> PLUS ICMP TYPE NUMBER CODE . NUMBER
+
+    NUMBER          shift and go to state 195
+
+
+state 181
+
+    (127) route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY . IP_ADDR
+    (128) route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY . IP_ADDR PREFERENCE NUMBER
+
+    IP_ADDR         shift and go to state 196
+
+
+state 182
+
+    (80) opt_zone -> FROM object_name . TO item
+
+    TO              shift and go to state 197
+
+
+state 183
+
+    (82) rules -> src_addr . dst_addr svc_name
+    (85) dst_addr -> . object_name
+    (86) dst_addr -> . ANY
+    (23) object_name -> . WORD
+
+    ANY             shift and go to state 198
+    WORD            shift and go to state 54
+
+    object_name                    shift and go to state 199
+    dst_addr                       shift and go to state 200
+
+state 184
+
+    (66) policy_line -> SET POLICY opt_global opt_id opt_position opt_name opt_zone rules . opt_nat action options
+    (89) opt_nat -> . NAT opt_src_nat opt_dst_nat
+    (90) opt_nat -> . empty
+    (16) empty -> .
+
+    NAT             shift and go to state 202
+    DENY            reduce using rule 16 (empty -> .)
+    REJECT          reduce using rule 16 (empty -> .)
+    PERMIT          reduce using rule 16 (empty -> .)
+    TUNNEL          reduce using rule 16 (empty -> .)
+
+    opt_nat                        shift and go to state 201
+    empty                          shift and go to state 203
+
+state 185
+
+    (83) src_addr -> object_name .
+
+    ANY             reduce using rule 83 (src_addr -> object_name .)
+    WORD            reduce using rule 83 (src_addr -> object_name .)
+
+
+state 186
+
+    (84) src_addr -> ANY .
+
+    ANY             reduce using rule 84 (src_addr -> ANY .)
+    WORD            reduce using rule 84 (src_addr -> ANY .)
+
+
+state 187
+
+    (107) options -> option options .
+
+    NL              reduce using rule 107 (options -> option options .)
+
+
+state 188
+
+    (62) interface_line -> SET INTERFACE object_name IP IP_ADDR SLASH NUMBER SECONDARY .
+
+    NL              reduce using rule 62 (interface_line -> SET INTERFACE object_name IP IP_ADDR SLASH NUMBER SECONDARY .)
+
+
+state 189
+
+    (28) address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR words .
+
+    NL              reduce using rule 28 (address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash IP_ADDR words .)
+
+
+state 190
+
+    (30) address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash NUMBER words .
+
+    NL              reduce using rule 30 (address_line -> SET ADDRESS WORD object_name IP_ADDR opt_slash NUMBER words .)
+
+
+state 191
+
+    (44) opt_protocol_src -> SRC_PORT NUMBER HYPHEN NUMBER .
+
+    DST_PORT        reduce using rule 44 (opt_protocol_src -> SRC_PORT NUMBER HYPHEN NUMBER .)
+    NL              reduce using rule 44 (opt_protocol_src -> SRC_PORT NUMBER HYPHEN NUMBER .)
+
+
+state 192
+
+    (46) opt_protocol_dst -> DST_PORT NUMBER HYPHEN . NUMBER
+    (47) opt_protocol_dst -> DST_PORT NUMBER HYPHEN . NUMBER TIMEOUT NUMBER
+    (48) opt_protocol_dst -> DST_PORT NUMBER HYPHEN . NUMBER TIMEOUT NEVER
+
+    NUMBER          shift and go to state 204
+
+
+state 193
+
+    (42) service_protocol -> PROTOCOL ICMP TYPE NUMBER CODE NUMBER .
+
+    NL              reduce using rule 42 (service_protocol -> PROTOCOL ICMP TYPE NUMBER CODE NUMBER .)
+
+
+state 194
+
+    (39) service_plus -> PLUS protocol SRC_PORT NUMBER HYPHEN NUMBER . DST_PORT NUMBER HYPHEN NUMBER
+
+    DST_PORT        shift and go to state 205
+
+
+state 195
+
+    (38) service_plus -> PLUS ICMP TYPE NUMBER CODE NUMBER .
+
+    NL              reduce using rule 38 (service_plus -> PLUS ICMP TYPE NUMBER CODE NUMBER .)
+
+
+state 196
+
+    (127) route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR .
+    (128) route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR . PREFERENCE NUMBER
+
+    NL              reduce using rule 127 (route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR .)
+    PREFERENCE      shift and go to state 206
+
+
+state 197
+
+    (80) opt_zone -> FROM object_name TO . item
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    item                           shift and go to state 207
+
+state 198
+
+    (86) dst_addr -> ANY .
+
+    ANY             reduce using rule 86 (dst_addr -> ANY .)
+    WORD            reduce using rule 86 (dst_addr -> ANY .)
+
+
+state 199
+
+    (85) dst_addr -> object_name .
+
+    ANY             reduce using rule 85 (dst_addr -> object_name .)
+    WORD            reduce using rule 85 (dst_addr -> object_name .)
+
+
+state 200
+
+    (82) rules -> src_addr dst_addr . svc_name
+    (87) svc_name -> . object_name
+    (88) svc_name -> . ANY
+    (23) object_name -> . WORD
+
+    ANY             shift and go to state 208
+    WORD            shift and go to state 54
+
+    svc_name                       shift and go to state 210
+    object_name                    shift and go to state 209
+
+state 201
+
+    (66) policy_line -> SET POLICY opt_global opt_id opt_position opt_name opt_zone rules opt_nat . action options
+    (98) action -> . DENY
+    (99) action -> . REJECT
+    (100) action -> . PERMIT
+    (101) action -> . tunnel
+    (102) tunnel -> . TUNNEL L2TP item
+    (103) tunnel -> . TUNNEL VPN_GROUP item
+    (104) tunnel -> . TUNNEL VPN item
+    (105) tunnel -> . TUNNEL VPN item L2TP item
+    (106) tunnel -> . TUNNEL VPN item PAIR_POLICY item
+
+    DENY            shift and go to state 212
+    REJECT          shift and go to state 215
+    PERMIT          shift and go to state 213
+    TUNNEL          shift and go to state 216
+
+    tunnel                         shift and go to state 211
+    action                         shift and go to state 214
+
+state 202
+
+    (89) opt_nat -> NAT . opt_src_nat opt_dst_nat
+    (91) opt_src_nat -> . SRC
+    (92) opt_src_nat -> . SRC DIP_ID NUMBER
+    (93) opt_src_nat -> . empty
+    (16) empty -> .
+
+    SRC             shift and go to state 217
+    DST             reduce using rule 16 (empty -> .)
+    DENY            reduce using rule 16 (empty -> .)
+    REJECT          reduce using rule 16 (empty -> .)
+    PERMIT          reduce using rule 16 (empty -> .)
+    TUNNEL          reduce using rule 16 (empty -> .)
+
+    empty                          shift and go to state 219
+    opt_src_nat                    shift and go to state 218
+
+state 203
+
+    (90) opt_nat -> empty .
+
+    DENY            reduce using rule 90 (opt_nat -> empty .)
+    REJECT          reduce using rule 90 (opt_nat -> empty .)
+    PERMIT          reduce using rule 90 (opt_nat -> empty .)
+    TUNNEL          reduce using rule 90 (opt_nat -> empty .)
+
+
+state 204
+
+    (46) opt_protocol_dst -> DST_PORT NUMBER HYPHEN NUMBER .
+    (47) opt_protocol_dst -> DST_PORT NUMBER HYPHEN NUMBER . TIMEOUT NUMBER
+    (48) opt_protocol_dst -> DST_PORT NUMBER HYPHEN NUMBER . TIMEOUT NEVER
+
+    NL              reduce using rule 46 (opt_protocol_dst -> DST_PORT NUMBER HYPHEN NUMBER .)
+    TIMEOUT         shift and go to state 220
+
+
+state 205
+
+    (39) service_plus -> PLUS protocol SRC_PORT NUMBER HYPHEN NUMBER DST_PORT . NUMBER HYPHEN NUMBER
+
+    NUMBER          shift and go to state 221
+
+
+state 206
+
+    (128) route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR PREFERENCE . NUMBER
+
+    NUMBER          shift and go to state 222
+
+
+state 207
+
+    (80) opt_zone -> FROM object_name TO item .
+
+    ANY             reduce using rule 80 (opt_zone -> FROM object_name TO item .)
+    WORD            reduce using rule 80 (opt_zone -> FROM object_name TO item .)
+
+
+state 208
+
+    (88) svc_name -> ANY .
+
+    NAT             reduce using rule 88 (svc_name -> ANY .)
+    DENY            reduce using rule 88 (svc_name -> ANY .)
+    REJECT          reduce using rule 88 (svc_name -> ANY .)
+    PERMIT          reduce using rule 88 (svc_name -> ANY .)
+    TUNNEL          reduce using rule 88 (svc_name -> ANY .)
+
+
+state 209
+
+    (87) svc_name -> object_name .
+
+    NAT             reduce using rule 87 (svc_name -> object_name .)
+    DENY            reduce using rule 87 (svc_name -> object_name .)
+    REJECT          reduce using rule 87 (svc_name -> object_name .)
+    PERMIT          reduce using rule 87 (svc_name -> object_name .)
+    TUNNEL          reduce using rule 87 (svc_name -> object_name .)
+
+
+state 210
+
+    (82) rules -> src_addr dst_addr svc_name .
+
+    NAT             reduce using rule 82 (rules -> src_addr dst_addr svc_name .)
+    DENY            reduce using rule 82 (rules -> src_addr dst_addr svc_name .)
+    REJECT          reduce using rule 82 (rules -> src_addr dst_addr svc_name .)
+    PERMIT          reduce using rule 82 (rules -> src_addr dst_addr svc_name .)
+    TUNNEL          reduce using rule 82 (rules -> src_addr dst_addr svc_name .)
+
+
+state 211
+
+    (101) action -> tunnel .
+
+    WORD            reduce using rule 101 (action -> tunnel .)
+    NUMBER          reduce using rule 101 (action -> tunnel .)
+    DISABLE         reduce using rule 101 (action -> tunnel .)
+    ATTACK          reduce using rule 101 (action -> tunnel .)
+    AV              reduce using rule 101 (action -> tunnel .)
+    ZONE            reduce using rule 101 (action -> tunnel .)
+    TIMEOUT         reduce using rule 101 (action -> tunnel .)
+    NL              reduce using rule 101 (action -> tunnel .)
+
+
+state 212
+
+    (98) action -> DENY .
+
+    WORD            reduce using rule 98 (action -> DENY .)
+    NUMBER          reduce using rule 98 (action -> DENY .)
+    DISABLE         reduce using rule 98 (action -> DENY .)
+    ATTACK          reduce using rule 98 (action -> DENY .)
+    AV              reduce using rule 98 (action -> DENY .)
+    ZONE            reduce using rule 98 (action -> DENY .)
+    TIMEOUT         reduce using rule 98 (action -> DENY .)
+    NL              reduce using rule 98 (action -> DENY .)
+
+
+state 213
+
+    (100) action -> PERMIT .
+
+    WORD            reduce using rule 100 (action -> PERMIT .)
+    NUMBER          reduce using rule 100 (action -> PERMIT .)
+    DISABLE         reduce using rule 100 (action -> PERMIT .)
+    ATTACK          reduce using rule 100 (action -> PERMIT .)
+    AV              reduce using rule 100 (action -> PERMIT .)
+    ZONE            reduce using rule 100 (action -> PERMIT .)
+    TIMEOUT         reduce using rule 100 (action -> PERMIT .)
+    NL              reduce using rule 100 (action -> PERMIT .)
+
+
+state 214
+
+    (66) policy_line -> SET POLICY opt_global opt_id opt_position opt_name opt_zone rules opt_nat action . options
+    (107) options -> . option options
+    (108) options -> . empty
+    (109) option -> . WORD
+    (110) option -> . NUMBER
+    (111) option -> . DISABLE
+    (112) option -> . ATTACK
+    (113) option -> . AV
+    (114) option -> . ZONE
+    (115) option -> . TIMEOUT
+    (16) empty -> .
+
+    WORD            shift and go to state 160
+    NUMBER          shift and go to state 163
+    DISABLE         shift and go to state 166
+    ATTACK          shift and go to state 165
+    AV              shift and go to state 168
+    ZONE            shift and go to state 162
+    TIMEOUT         shift and go to state 167
+    NL              reduce using rule 16 (empty -> .)
+
+    option                         shift and go to state 161
+    options                        shift and go to state 223
+    empty                          shift and go to state 169
+
+state 215
+
+    (99) action -> REJECT .
+
+    WORD            reduce using rule 99 (action -> REJECT .)
+    NUMBER          reduce using rule 99 (action -> REJECT .)
+    DISABLE         reduce using rule 99 (action -> REJECT .)
+    ATTACK          reduce using rule 99 (action -> REJECT .)
+    AV              reduce using rule 99 (action -> REJECT .)
+    ZONE            reduce using rule 99 (action -> REJECT .)
+    TIMEOUT         reduce using rule 99 (action -> REJECT .)
+    NL              reduce using rule 99 (action -> REJECT .)
+
+
+state 216
+
+    (102) tunnel -> TUNNEL . L2TP item
+    (103) tunnel -> TUNNEL . VPN_GROUP item
+    (104) tunnel -> TUNNEL . VPN item
+    (105) tunnel -> TUNNEL . VPN item L2TP item
+    (106) tunnel -> TUNNEL . VPN item PAIR_POLICY item
+
+    L2TP            shift and go to state 224
+    VPN_GROUP       shift and go to state 226
+    VPN             shift and go to state 225
+
+
+state 217
+
+    (91) opt_src_nat -> SRC .
+    (92) opt_src_nat -> SRC . DIP_ID NUMBER
+
+    DST             reduce using rule 91 (opt_src_nat -> SRC .)
+    DENY            reduce using rule 91 (opt_src_nat -> SRC .)
+    REJECT          reduce using rule 91 (opt_src_nat -> SRC .)
+    PERMIT          reduce using rule 91 (opt_src_nat -> SRC .)
+    TUNNEL          reduce using rule 91 (opt_src_nat -> SRC .)
+    DIP_ID          shift and go to state 227
+
+
+state 218
+
+    (89) opt_nat -> NAT opt_src_nat . opt_dst_nat
+    (94) opt_dst_nat -> . DST IP IP_ADDR
+    (95) opt_dst_nat -> . DST IP IP_ADDR IP_ADDR
+    (96) opt_dst_nat -> . DST IP IP_ADDR PORT item
+    (97) opt_dst_nat -> . empty
+    (16) empty -> .
+
+    DST             shift and go to state 228
+    DENY            reduce using rule 16 (empty -> .)
+    REJECT          reduce using rule 16 (empty -> .)
+    PERMIT          reduce using rule 16 (empty -> .)
+    TUNNEL          reduce using rule 16 (empty -> .)
+
+    opt_dst_nat                    shift and go to state 229
+    empty                          shift and go to state 230
+
+state 219
+
+    (93) opt_src_nat -> empty .
+
+    DST             reduce using rule 93 (opt_src_nat -> empty .)
+    DENY            reduce using rule 93 (opt_src_nat -> empty .)
+    REJECT          reduce using rule 93 (opt_src_nat -> empty .)
+    PERMIT          reduce using rule 93 (opt_src_nat -> empty .)
+    TUNNEL          reduce using rule 93 (opt_src_nat -> empty .)
+
+
+state 220
+
+    (47) opt_protocol_dst -> DST_PORT NUMBER HYPHEN NUMBER TIMEOUT . NUMBER
+    (48) opt_protocol_dst -> DST_PORT NUMBER HYPHEN NUMBER TIMEOUT . NEVER
+
+    NUMBER          shift and go to state 232
+    NEVER           shift and go to state 231
+
+
+state 221
+
+    (39) service_plus -> PLUS protocol SRC_PORT NUMBER HYPHEN NUMBER DST_PORT NUMBER . HYPHEN NUMBER
+
+    HYPHEN          shift and go to state 233
+
+
+state 222
+
+    (128) route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR PREFERENCE NUMBER .
+
+    NL              reduce using rule 128 (route_line -> SET ROUTE IP_ADDR SLASH NUMBER INTERFACE WORD GATEWAY IP_ADDR PREFERENCE NUMBER .)
+
+
+state 223
+
+    (66) policy_line -> SET POLICY opt_global opt_id opt_position opt_name opt_zone rules opt_nat action options .
+
+    NL              reduce using rule 66 (policy_line -> SET POLICY opt_global opt_id opt_position opt_name opt_zone rules opt_nat action options .)
+
+
+state 224
+
+    (102) tunnel -> TUNNEL L2TP . item
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    item                           shift and go to state 234
+
+state 225
+
+    (104) tunnel -> TUNNEL VPN . item
+    (105) tunnel -> TUNNEL VPN . item L2TP item
+    (106) tunnel -> TUNNEL VPN . item PAIR_POLICY item
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    item                           shift and go to state 235
+
+state 226
+
+    (103) tunnel -> TUNNEL VPN_GROUP . item
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    item                           shift and go to state 236
+
+state 227
+
+    (92) opt_src_nat -> SRC DIP_ID . NUMBER
+
+    NUMBER          shift and go to state 237
+
+
+state 228
+
+    (94) opt_dst_nat -> DST . IP IP_ADDR
+    (95) opt_dst_nat -> DST . IP IP_ADDR IP_ADDR
+    (96) opt_dst_nat -> DST . IP IP_ADDR PORT item
+
+    IP              shift and go to state 238
+
+
+state 229
+
+    (89) opt_nat -> NAT opt_src_nat opt_dst_nat .
+
+    DENY            reduce using rule 89 (opt_nat -> NAT opt_src_nat opt_dst_nat .)
+    REJECT          reduce using rule 89 (opt_nat -> NAT opt_src_nat opt_dst_nat .)
+    PERMIT          reduce using rule 89 (opt_nat -> NAT opt_src_nat opt_dst_nat .)
+    TUNNEL          reduce using rule 89 (opt_nat -> NAT opt_src_nat opt_dst_nat .)
+
+
+state 230
+
+    (97) opt_dst_nat -> empty .
+
+    DENY            reduce using rule 97 (opt_dst_nat -> empty .)
+    REJECT          reduce using rule 97 (opt_dst_nat -> empty .)
+    PERMIT          reduce using rule 97 (opt_dst_nat -> empty .)
+    TUNNEL          reduce using rule 97 (opt_dst_nat -> empty .)
+
+
+state 231
+
+    (48) opt_protocol_dst -> DST_PORT NUMBER HYPHEN NUMBER TIMEOUT NEVER .
+
+    NL              reduce using rule 48 (opt_protocol_dst -> DST_PORT NUMBER HYPHEN NUMBER TIMEOUT NEVER .)
+
+
+state 232
+
+    (47) opt_protocol_dst -> DST_PORT NUMBER HYPHEN NUMBER TIMEOUT NUMBER .
+
+    NL              reduce using rule 47 (opt_protocol_dst -> DST_PORT NUMBER HYPHEN NUMBER TIMEOUT NUMBER .)
+
+
+state 233
+
+    (39) service_plus -> PLUS protocol SRC_PORT NUMBER HYPHEN NUMBER DST_PORT NUMBER HYPHEN . NUMBER
+
+    NUMBER          shift and go to state 239
+
+
+state 234
+
+    (102) tunnel -> TUNNEL L2TP item .
+
+    WORD            reduce using rule 102 (tunnel -> TUNNEL L2TP item .)
+    NUMBER          reduce using rule 102 (tunnel -> TUNNEL L2TP item .)
+    DISABLE         reduce using rule 102 (tunnel -> TUNNEL L2TP item .)
+    ATTACK          reduce using rule 102 (tunnel -> TUNNEL L2TP item .)
+    AV              reduce using rule 102 (tunnel -> TUNNEL L2TP item .)
+    ZONE            reduce using rule 102 (tunnel -> TUNNEL L2TP item .)
+    TIMEOUT         reduce using rule 102 (tunnel -> TUNNEL L2TP item .)
+    NL              reduce using rule 102 (tunnel -> TUNNEL L2TP item .)
+
+
+state 235
+
+    (104) tunnel -> TUNNEL VPN item .
+    (105) tunnel -> TUNNEL VPN item . L2TP item
+    (106) tunnel -> TUNNEL VPN item . PAIR_POLICY item
+
+    WORD            reduce using rule 104 (tunnel -> TUNNEL VPN item .)
+    NUMBER          reduce using rule 104 (tunnel -> TUNNEL VPN item .)
+    DISABLE         reduce using rule 104 (tunnel -> TUNNEL VPN item .)
+    ATTACK          reduce using rule 104 (tunnel -> TUNNEL VPN item .)
+    AV              reduce using rule 104 (tunnel -> TUNNEL VPN item .)
+    ZONE            reduce using rule 104 (tunnel -> TUNNEL VPN item .)
+    TIMEOUT         reduce using rule 104 (tunnel -> TUNNEL VPN item .)
+    NL              reduce using rule 104 (tunnel -> TUNNEL VPN item .)
+    L2TP            shift and go to state 241
+    PAIR_POLICY     shift and go to state 240
+
+
+state 236
+
+    (103) tunnel -> TUNNEL VPN_GROUP item .
+
+    WORD            reduce using rule 103 (tunnel -> TUNNEL VPN_GROUP item .)
+    NUMBER          reduce using rule 103 (tunnel -> TUNNEL VPN_GROUP item .)
+    DISABLE         reduce using rule 103 (tunnel -> TUNNEL VPN_GROUP item .)
+    ATTACK          reduce using rule 103 (tunnel -> TUNNEL VPN_GROUP item .)
+    AV              reduce using rule 103 (tunnel -> TUNNEL VPN_GROUP item .)
+    ZONE            reduce using rule 103 (tunnel -> TUNNEL VPN_GROUP item .)
+    TIMEOUT         reduce using rule 103 (tunnel -> TUNNEL VPN_GROUP item .)
+    NL              reduce using rule 103 (tunnel -> TUNNEL VPN_GROUP item .)
+
+
+state 237
+
+    (92) opt_src_nat -> SRC DIP_ID NUMBER .
+
+    DST             reduce using rule 92 (opt_src_nat -> SRC DIP_ID NUMBER .)
+    DENY            reduce using rule 92 (opt_src_nat -> SRC DIP_ID NUMBER .)
+    REJECT          reduce using rule 92 (opt_src_nat -> SRC DIP_ID NUMBER .)
+    PERMIT          reduce using rule 92 (opt_src_nat -> SRC DIP_ID NUMBER .)
+    TUNNEL          reduce using rule 92 (opt_src_nat -> SRC DIP_ID NUMBER .)
+
+
+state 238
+
+    (94) opt_dst_nat -> DST IP . IP_ADDR
+    (95) opt_dst_nat -> DST IP . IP_ADDR IP_ADDR
+    (96) opt_dst_nat -> DST IP . IP_ADDR PORT item
+
+    IP_ADDR         shift and go to state 242
+
+
+state 239
+
+    (39) service_plus -> PLUS protocol SRC_PORT NUMBER HYPHEN NUMBER DST_PORT NUMBER HYPHEN NUMBER .
+
+    NL              reduce using rule 39 (service_plus -> PLUS protocol SRC_PORT NUMBER HYPHEN NUMBER DST_PORT NUMBER HYPHEN NUMBER .)
+
+
+state 240
+
+    (106) tunnel -> TUNNEL VPN item PAIR_POLICY . item
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    item                           shift and go to state 243
+
+state 241
+
+    (105) tunnel -> TUNNEL VPN item L2TP . item
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    item                           shift and go to state 244
+
+state 242
+
+    (94) opt_dst_nat -> DST IP IP_ADDR .
+    (95) opt_dst_nat -> DST IP IP_ADDR . IP_ADDR
+    (96) opt_dst_nat -> DST IP IP_ADDR . PORT item
+
+    DENY            reduce using rule 94 (opt_dst_nat -> DST IP IP_ADDR .)
+    REJECT          reduce using rule 94 (opt_dst_nat -> DST IP IP_ADDR .)
+    PERMIT          reduce using rule 94 (opt_dst_nat -> DST IP IP_ADDR .)
+    TUNNEL          reduce using rule 94 (opt_dst_nat -> DST IP IP_ADDR .)
+    IP_ADDR         shift and go to state 245
+    PORT            shift and go to state 246
+
+
+state 243
+
+    (106) tunnel -> TUNNEL VPN item PAIR_POLICY item .
+
+    WORD            reduce using rule 106 (tunnel -> TUNNEL VPN item PAIR_POLICY item .)
+    NUMBER          reduce using rule 106 (tunnel -> TUNNEL VPN item PAIR_POLICY item .)
+    DISABLE         reduce using rule 106 (tunnel -> TUNNEL VPN item PAIR_POLICY item .)
+    ATTACK          reduce using rule 106 (tunnel -> TUNNEL VPN item PAIR_POLICY item .)
+    AV              reduce using rule 106 (tunnel -> TUNNEL VPN item PAIR_POLICY item .)
+    ZONE            reduce using rule 106 (tunnel -> TUNNEL VPN item PAIR_POLICY item .)
+    TIMEOUT         reduce using rule 106 (tunnel -> TUNNEL VPN item PAIR_POLICY item .)
+    NL              reduce using rule 106 (tunnel -> TUNNEL VPN item PAIR_POLICY item .)
+
+
+state 244
+
+    (105) tunnel -> TUNNEL VPN item L2TP item .
+
+    WORD            reduce using rule 105 (tunnel -> TUNNEL VPN item L2TP item .)
+    NUMBER          reduce using rule 105 (tunnel -> TUNNEL VPN item L2TP item .)
+    DISABLE         reduce using rule 105 (tunnel -> TUNNEL VPN item L2TP item .)
+    ATTACK          reduce using rule 105 (tunnel -> TUNNEL VPN item L2TP item .)
+    AV              reduce using rule 105 (tunnel -> TUNNEL VPN item L2TP item .)
+    ZONE            reduce using rule 105 (tunnel -> TUNNEL VPN item L2TP item .)
+    TIMEOUT         reduce using rule 105 (tunnel -> TUNNEL VPN item L2TP item .)
+    NL              reduce using rule 105 (tunnel -> TUNNEL VPN item L2TP item .)
+
+
+state 245
+
+    (95) opt_dst_nat -> DST IP IP_ADDR IP_ADDR .
+
+    DENY            reduce using rule 95 (opt_dst_nat -> DST IP IP_ADDR IP_ADDR .)
+    REJECT          reduce using rule 95 (opt_dst_nat -> DST IP IP_ADDR IP_ADDR .)
+    PERMIT          reduce using rule 95 (opt_dst_nat -> DST IP IP_ADDR IP_ADDR .)
+    TUNNEL          reduce using rule 95 (opt_dst_nat -> DST IP IP_ADDR IP_ADDR .)
+
+
+state 246
+
+    (96) opt_dst_nat -> DST IP IP_ADDR PORT . item
+    (19) item -> . WORD
+    (20) item -> . NUMBER
+
+    WORD            shift and go to state 26
+    NUMBER          shift and go to state 25
+
+    item                           shift and go to state 247
+
+state 247
+
+    (96) opt_dst_nat -> DST IP IP_ADDR PORT item .
+
+    DENY            reduce using rule 96 (opt_dst_nat -> DST IP IP_ADDR PORT item .)
+    REJECT          reduce using rule 96 (opt_dst_nat -> DST IP IP_ADDR PORT item .)
+    PERMIT          reduce using rule 96 (opt_dst_nat -> DST IP IP_ADDR PORT item .)
+    TUNNEL          reduce using rule 96 (opt_dst_nat -> DST IP IP_ADDR PORT item .)
 

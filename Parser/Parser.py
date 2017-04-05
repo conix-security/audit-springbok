@@ -47,8 +47,6 @@ def parser(file_name, yacc_parser, progressBar):
     t0 = time.time()  # start timer
     count, ctr = 0, 0
 
-    os.system("rm ../parse*")
-
 
     for line in fd:
         _parse_kit.update()
@@ -157,3 +155,7 @@ def generate_debug_conf(destination_file, file_name, type=None):
 
     fd.close()
     file_out.close()
+
+
+def get_routing_parser(fw, conf):
+    return RoutingParser.RoutingParser(fw, conf)

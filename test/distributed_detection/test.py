@@ -22,7 +22,10 @@ def test(file):
     '''
     res = ''
     NetworkGraph().clear()
-    firewalls = Parser.parser(file, Parser.suppose_type(file), None)
+    type = Parser.suppose_type(file)
+    if type is None:
+        type = "Parser.JuniperNetscreen.JuniperNetscreenYacc"
+    firewalls = Parser.parser(file, type, None)
     for fw in firewalls:
         fw.build_bdd()
         NetworkGraph().network_graph(fw)

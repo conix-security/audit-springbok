@@ -132,16 +132,6 @@ class Gtk_MenuBar:
         self.submenu_view.append(self.menu_show_routes)
         self.menu_show_routes.connect("activate", self.on_show_routes)
 
-        # Show NAT Rules
-        self.menu_show_nat_rules = gtk.CheckMenuItem("Show NAT Rules")
-        self.submenu_view.append(self.menu_show_nat_rules)
-        self.menu_show_nat_rules.connect("activate", self.on_show_nat)
-
-        # Show VPN
-        self.menu_show_vpn = gtk.CheckMenuItem("Show VPNs")
-        self.submenu_view.append(self.menu_show_vpn)
-        self.menu_show_vpn.connect("activate", self.on_show_vpn)
-
         self.menu_view = gtk.MenuItem("View")
         self.menu_view.set_submenu(self.submenu_view)
 
@@ -375,6 +365,7 @@ class Gtk_MenuBar:
 
         Gtk_Main.Gtk_Main().lateral_pane.help_message.change_message(Gtk_Message.TOPOLOGY_MESSAGE)
         Gtk_Main.Gtk_Main().statusbar.change_message("Construct ROBDD ...")
+        Gtk_Main.Gtk_Main().update_interface()
         # Add check for reduce rule number
         for fw in self.tmp_fw_list:
             t0 = time.time()
@@ -383,12 +374,13 @@ class Gtk_MenuBar:
             if len(self.tmp_fw_list) - self.tmp_fw_list.index(fw) - 1 > 0:
                 message += ", %d remaining ..." % (len(self.tmp_fw_list) - self.tmp_fw_list.index(fw) - 1)
             Gtk_Main.Gtk_Main().change_statusbar(message)
+            Gtk_Main.Gtk_Main().update_interface()
 
         Gtk_Main.Gtk_Main().statusbar.change_message("Ready")
 
     def on_extract_excel(self, widget):
-        currentLine = 3
-        currentCol = 2
+        current_line = 3
+        current_col = 2
         if len(self.tmp_fw_list) == 0:
             return
         filename = os.path.dirname(os.path.abspath(__file__)) + "/../input/template_rule_to_excel.xlsx"
@@ -402,8 +394,8 @@ class Gtk_MenuBar:
                 if len(acl.rules):
                     for rule in acl.rules:
                         for idx, data in enumerate(rule.to_string_list()):
-                            toolkit.set_value(currentLine, toolkit.colnum_string(idx+currentCol), data)
-                        currentLine += 1
+                            toolkit.set_value(current_line, toolkit.colnum_string(idx+current_col), data)
+                        current_line += 1
         Gtk_Main.Gtk_Main().statusbar.change_message("Extract ready")
         toolkit.save_sheet()
         toolkit.zip_file(os.path.dirname(os.path.abspath(__file__)) + "/../output/rule_to_excel.xlsx")
@@ -415,7 +407,7 @@ class Gtk_MenuBar:
             # unblock file
             self.next_file = True
 
-        Gtk_Main.Gtk_Main().statusbar.change_message("Import %s" % (filename))
+        Gtk_Main.Gtk_Main().statusbar.change_message("Import %s" % filename)
         progressBar = gtk.ProgressBar(adjustment=None)
         progressBar.set_text("Parsing File")
         progressBar.set_fraction(0)
@@ -732,6 +724,7 @@ class Gtk_MenuBar:
         print 'end nodes\n'
         for edge in g.edges(data=True):
             # print edge
+
             firewall, ip = (edge[0], edge[1]) if isinstance(edge[0], Firewall) and isinstance(edge[1], Ip)\
                 else (edge[1], edge[0])
             route_list = firewall.route_list
@@ -747,8 +740,14 @@ class Gtk_MenuBar:
                                                            '/' + str(fromDotted2Dec(route.net_mask.to_string())))
                 else:
                     output[route.gw_ip.to_string()] = []
-                    output[route.gw_ip.to_string()].append(route.net_ip_dst.to_string()
-                                                           + '/' + str(fromDotted2Dec(route.net_mask.to_string())))
+                    tmp = route.net_ip_dst.to_string()
+                    tmp2 = route.net_mask.to_string()
+                    if tmp == "0.0.0.0 / 0":
+                        tmp = "0.0.0.0"
+                    if tmp2 == "0.0.0.0 / 0":
+                        tmp2 = "0.0.0.0"
+                    output[route.gw_ip.to_string()].append(tmp
+                                                           + '/' + str(fromDotted2Dec(tmp2)))
             print len(output), output
             if len(output) > 0:
                 data = Route_info(output, iface)
@@ -758,20 +757,10 @@ class Gtk_MenuBar:
                 Gtk_Main.Gtk_Main().lateral_pane.focus_firewall()
                 Gtk_Main.Gtk_Main().draw()
 
-    def on_show_nat(self, widget):
-        """To do"""
-        print 'nat'
-        pass
-
-    def on_show_vpn(self, widget):
-        """To do"""
-        print ('vpn')
-        pass
-
     def listContains(route_list, ip_dest):
         for route in route_list:
-            if ip_dest.ip & route.net_ip_dst.ip & route.net_ip_dst.mask ==\
-                ip_dest.ip & route.net_ip_dst.mask & ip_dest.mask:
+            if ip_dest.ip & route.net_ip_dst.ip & route.net_ip_dst.mask == \
+                                    ip_dest.ip & route.net_ip_dst.mask & ip_dest.mask:
                 return route
             return None
 
@@ -785,9 +774,8 @@ class Gtk_MenuBar:
             if ip != None and iface.network != None:
                 if iface.network.to_string() == ip.to_string():
                     return iface
-            else:
-                return
         print firewall.hostname, ip.to_string()
+        return
 
 # The following two functions are used to convert an IP address from it
 # dotted format to the decimal one and vice-versa

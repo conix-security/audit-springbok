@@ -31,15 +31,26 @@ class IptablesParser:
             self.filename = ""
             self.tmp_block = []
 
-    # (Operator('EQ', Ip(src_ip.split('/')[0], fromDec2Dotted(int(src_ip.split('/')[1])))))
     def get_rule_from_iptable_line(self, rule_line):
         """
         get one iptable line and return a corresponding rule
         This function need some improvement in order to manage every case
         """
         action = Action(True) if rule_line[0] != "DROP" else Action(False)
-        ip_source = [] if rule_line[3] == "anywhere" else [Operator("EQ", Ip(rule_line[3]))]
-        ip_dest = [] if rule_line[4] == "anywhere" else [Operator("EQ", Ip(rule_line[4]))]
+        if rule_line[3] == "anywhere":
+            ip_source = []
+        else:
+            if "/" not in rule_line[3]:
+                ip_source = [Operator("EQ", Ip(rule_line[3]))]
+            else:
+                ip_source = [Operator('EQ', Ip(rule_line[3].split('/')[0], fromDec2Dotted(int(rule_line[3].split('/')[1]))))]
+        if rule_line[4] == "anywhere":
+            ip_dest = []
+        else:
+            if "/" not in rule_line[4]:
+                ip_dest = [Operator("EQ", Ip(rule_line[4]))]
+            else:
+                ip_dest = [Operator('EQ', Ip(rule_line[3].split('/')[0], fromDec2Dotted(int(rule_line[3].split('/')[1]))))]
         port_source = []
         port_dest = []
         protocol = [] if rule_line[1] == "all" else [Operator("EQ", Protocol(rule_line[1]))]
@@ -250,10 +261,6 @@ class IptablesParser:
             if idx >= 2:
                 if component[0] != "ACCEPT" and component[0] != "DROP":
                     new_node = self.get_node(component[0])
-                    if new_node is None:
-                        print "coucou"
-                    if new_node.data_list is None:
-                        print "coucou"
                     path_list_from_node = self.create_all_path_from_node(new_node)
                     for path in path_list_from_node:
                         path.insert(0, component)

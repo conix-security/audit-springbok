@@ -293,7 +293,7 @@ def run_query(rule, ip_source=None, ip_dest=None):
 
     # get all simple path
     start = time.time()
-    simple_path = g.get_all_simple_path_new(rule, [["", rule.ip_source[0]]], rule.ip_dest[0])
+    simple_path = g.get_all_simple_path_new(rule, [])
     if len(simple_path):
         create_graph(simple_path)
 

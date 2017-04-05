@@ -18,7 +18,10 @@ def test(file):
     - return rule list
     '''
     res = ''
-    firewalls = Parser.parser(file, Parser.suppose_type(file), None)
+    type = Parser.suppose_type(file)
+    if type is None:
+        type = "Parser.JuniperNetscreen.JuniperNetscreenYacc"
+    firewalls = Parser.parser(file, type, None)
     for fw in firewalls:
         for acl in fw.acl:
             for rule in acl.rules:

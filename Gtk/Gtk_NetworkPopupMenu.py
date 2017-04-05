@@ -22,7 +22,7 @@ from SpringBase import Port
 from SpringBase import Interface
 from AnomalyDetection.InternalDetection import InternalDetection
 from NetworkGraph import NetworkGraph
-
+from Parser.Routing.RoutingParser import RoutingParser
 
 ######## Modification of the class by Maurice TCHAMGOUE N. on 30-06-2015
 ###          * Adding the method on_remove_all_menu : this method is called
@@ -121,6 +121,12 @@ class Gtk_NewtworkPopupMenu:
             self.show_ipsec_tunnels = gtk.MenuItem("Show IPSec tunnels")
             self.menu.append(self.show_ipsec_tunnels)
             self.show_ipsec_tunnels.connect("activate", self.on_show_ipsec_tunnels)
+
+        # Add route config file #
+        if isinstance(self.node.object, Firewall.Firewall):
+            self.add_route_config = gtk.MenuItem("add route config")
+            self.menu.append(self.add_route_config)
+            self.add_route_config.connect("activate", self.on_add_route_config)
 
         # Itinerary #
         if isinstance(self.node.object, Ip.Ip):
@@ -587,3 +593,53 @@ class Gtk_NewtworkPopupMenu:
     def on_show_ipsec_tunnels(self, widget):
         Gtk_Main.Gtk_Main().notebook.add_ipsec_tunnels(self.node.object, self.node.object.ipsec_maps)
         print ('maps ipsec')
+
+    def on_add_route_config(self, widget):
+        # self.node.object => instance firewall
+        Gtk_Main.Gtk_Main().statusbar.change_message("Importing Routing configuration ...")
+        filename = self.open_filechooser("Import the routing configuration file")
+        if not filename:
+            Gtk_Main.Gtk_Main().statusbar.change_message("Ready")
+            return
+
+        if self.node.object.type == "Fortinet FortiGate" or self.node.object.type == "Iptables":
+            parser = RoutingParser(self.node.object, filename)
+            parser.parse()
+            new_routes = parser.get_routes()
+            for new_route in new_routes:
+                self.node.object.route_list.append(new_route)
+
+
+        Gtk_Main.Gtk_Main().statusbar.change_message("Ready")
+
+    def open_filechooser(self, name, multiple_select=False):
+        """Open a file chooser for opening a file.
+
+        Parameters
+        ----------
+        name : string. the title name of the file chooser dialog
+        multiple_select : bool (optional, default=False). If true enable multiple selection
+
+        Return
+        ------
+        If mulitple_select is true return the list of selected file (or empty list if cancel)
+        If mulitple_select is false return the name of the selected file (or None if cancel)
+        """
+        filename = [] if multiple_select else None
+
+        dialog = gtk.FileChooserDialog(name,
+                                       None,
+                                       gtk.FILE_CHOOSER_ACTION_OPEN,
+                                       (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                        gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+        dialog.set_select_multiple(multiple_select)
+        dialog.set_default_response(gtk.RESPONSE_OK)
+
+        response = dialog.run()
+        if response == gtk.RESPONSE_OK:
+            if multiple_select:
+                filename = dialog.get_filenames()
+            else:
+                filename = dialog.get_filename()
+        dialog.destroy()
+        return filename

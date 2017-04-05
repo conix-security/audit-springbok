@@ -17,10 +17,13 @@ def test(file):
     - detect the file type (Cisco Asa, Juniper, ...)
     - construct the firewall data structure
     - perform the internal detection
-    - return the error list
+    - return the error list:
     '''
     res = ''
-    firewalls = Parser.parser(file, Parser.suppose_type(file), None)
+    type = Parser.suppose_type(file)
+    if type is None:
+        type = "Parser.JuniperNetscreen.JuniperNetscreenYacc"
+    firewalls = Parser.parser(file, type, None)
     for fw in firewalls:
         fw.build_bdd()
         error_list = InternalDetection.InternalDetection(Node.Node(fw), True).detect_anomaly()
