@@ -92,8 +92,6 @@ def launch_test():
                 or file == "gtk" \
                 or file == "juniper_parse":
             continue
-        if file == "distributed_detection":
-            print "test"
         if os.path.isdir(file) and not file.startswith('.'):
             # get folder path
             sub_folder = os.path.join(folder, file)

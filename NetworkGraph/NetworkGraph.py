@@ -222,40 +222,51 @@ class NetworkGraph(object):
                 new_rule = Rule(rule.identifier, rule.name, rule.protocol,
                                 [data[1]], rule.port_source, rule.ip_dest, rule.port_dest, Action(True))
                 tmp_path = list(current_path)
-                tmp_path.append(data[0])
+                tmp_path.append([data[0]])
                 tmp_list = self.get_all_simple_path_new(new_rule, tmp_path)
                 path_list += tmp_list
         elif len(current_path) == 1:
             print "error when searching path"
             return
         else:
-            current_fw = current_path[len(current_path)-1]
+            current_fw = current_path[len(current_path)-1][0]
+
             # if prerouting insert here
+            # to do with iptables
+
             datas = self.check_rule_fw(rule, current_fw)
             if len(datas):
                 for data in datas:
                     check_end = False
                     tmp = list(current_path)
+                    if len(current_path[len(current_path)-1]) == 1:
+                        new_rule = Rule(0, "tmp_rule", data[4], [data[0]],
+                                        data[2], [data[1]], data[3], Action(True))
+                        tmp[len(tmp) - 1].append(new_rule)
                     for fw_interface in current_fw.interfaces:
                         if fw_interface.network is not None:
                             tmp_ope = Operator("EQ", fw_interface.network)
                             final_ip = self.ip_operator_merge(data[1], tmp_ope)
                             if final_ip is not None:
-                                tmp.append([data[0], final_ip, data[2], data[3], data[4]])
-                                path_list.append(tmp)
+                                tmp_list = list(tmp)
+                                tmp_list.append([data[0], final_ip, data[2], data[3], data[4]])
+                                path_list.append(tmp_list)
                                 check_end = True
                     if not check_end:
                         routes_dests = self.find_routes(current_path, rule)
                         for route_dest in routes_dests:
-                            rule.ip_dest = [routes_dests[1]]
-                            fw_list = self.find_fw_from_intefarce(route_dest[0].iface, current_fw)
-                            for fw in fw_list:
-                                tmp = list(current_path)
-                                tmp.append(fw)
-                                new_rule = Rule(0, "tmp_rule", data[4], [data[0]],
-                                                data[2], [data[1]], data[3], Action(True))
-                                tmp_list = self.get_all_simple_path_new(new_rule, tmp)
-                                path_list += tmp_list
+                            check_dest = self.ip_operator_merge(route_dest[2], rule.ip_dest[0])
+                            if check_dest is not None:
+                                tmp_list.append([data[0], check_dest, data[2], data[3], data[4]])
+                                path_list.append(tmp_list)
+                            else:
+                                rule.ip_dest = [route_dest[1]]
+                                fw_list = self.find_fw_from_intefarce(route_dest[0].iface, current_path)
+                                for fw in fw_list:
+                                    tmp = list(current_path)
+                                    tmp.append([fw])
+                                    tmp_list = self.get_all_simple_path_new(rule, tmp)
+                                    path_list += tmp_list
         return path_list
 
     def find_fw_from_ip(self, ip_source_operator):
@@ -285,9 +296,9 @@ class NetworkGraph(object):
         """
         fw_list = []
         fw_hostname_list = []
-        for tmp_fw in current_path:
-            if isinstance(tmp_fw, Firewall):
-                fw_hostname_list.append(tmp_fw.hostname)
+        for data in current_path:
+            if len(data) == 2:
+                fw_hostname_list.append(data[0].hostname)
         for fw in self.firewalls:
             if fw.hostname not in fw_hostname_list:
                 for fw_interface in fw.interfaces:
@@ -298,11 +309,12 @@ class NetworkGraph(object):
                             break
         return fw_list
 
-    def find_routes(self, fw, rule):
+    def find_routes(self, current_path, rule):
         """
         return a tuple (route, ip_operator) for each route which correspond to the rule receive in input
         """
         routes_dest_list = []
+        fw = current_path[len(current_path)-1][0]
         for route in fw.route_list:
             ip_dst = route.net_ip_dst.ip
             mask_dst = route.net_mask.ip
@@ -310,7 +322,7 @@ class NetworkGraph(object):
             for ip_dst in rule.ip_dest:
                 merge_ip = self.ip_operator_merge(ip_dst, ip_route)
                 if merge_ip is not None:
-                    routes_dest_list.append([route, merge_ip])
+                    routes_dest_list.append([route, merge_ip, Operator("EQ", route.gw_ip)])
         return routes_dest_list
 
     def check_rule_fw(self, rule, fw):
@@ -343,40 +355,6 @@ class NetworkGraph(object):
                                         if merge_ip is not None:
                                             data.append([ip_source_merge, merge_ip, port_source_list, port_dest_list, protocol_list])
         return data
-
-    def ip_operator_compare(self, operator_1, operator_2):
-        """
-        take two ip_operator in input
-        return true if the second one is contain or is equal to the first
-        """
-        check = False
-        # 4294967295 value for 255.255.255.255
-        if operator_1.v1.mask != 4294967295:
-            tmp_val = 4294967295
-            ip_min_check = operator_1.v1.ip & operator_1.v1.mask
-            tmp_val = tmp_val ^ operator_1.v1.mask
-            ip_max_check = operator_1.v1.ip | tmp_val
-            operator_1 = Operator("RANGE", Ip(ip_min_check), Ip(ip_max_check))
-        if operator_2.v1.mask != 4294967295:
-            tmp_val = 4294967295
-            ip_min_check = operator_2.v1.ip & operator_2.v1.mask
-            tmp_val = tmp_val ^ operator_2.v1.mask
-            ip_max_check = operator_2.v1.ip | tmp_val
-            operator_2 = Operator("RANGE", Ip(ip_min_check), Ip(ip_max_check))
-        if operator_1.operator == "RANGE" and operator_2.operator == "RANGE":
-            if operator_1.v1.ip <= operator_2.v1.ip <= operator_1.v2.ip:
-                if operator_1.v1.ip <= operator_2.v2.ip <= operator_1.v2.ip:
-                    check = True
-        elif operator_1.operator == "RANGE" and operator_2.operator != "RANGE":
-            if operator_1.v1.ip <= operator_2.v1.ip <= operator_1.v2.ip:
-                check = True
-        elif operator_1.operator != "RANGE" and operator_2.operator == "RANGE":
-            if operator_1.v1.ip == operator_2.v1.ip and operator_1.v1.ip == operator_2.v2.ip:
-                    check = True
-        elif operator_1.operator != "RANGE" and operator_2.operator != "RANGE":
-            if operator_1.v1.ip == operator_2.v1.ip:
-                check = True
-        return check
 
     def ip_operator_merge(self, operator_1, operator_2):
         """

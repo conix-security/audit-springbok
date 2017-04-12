@@ -127,13 +127,13 @@ class Gtk_QueryPath:
         res = []
 
 
-        try:
-            res, routedPaths = run_query(test_rule)
-            if not res:
-                raise
-        except ValueError:
-            # message popup if no result
+        #try:
+        res, routedPaths = run_query(test_rule)
+        if not res:
             Gtk_DialogBox("No path found !")
+        # except:
+            # message popup if no result
+
 
         g = NetworkGraph.NetworkGraph()
 
@@ -144,6 +144,7 @@ class Gtk_QueryPath:
             edge[2]['object'].clear_path()
 
         # construct and add path string
+        """
         for path_data in res:
             path = path_data[0]
             i = 0
@@ -152,6 +153,7 @@ class Gtk_QueryPath:
                 g.graph[path[i]][path[i + 1]]['object'].mark_path()
                 i += 1
             Gtk_Main.Gtk_Main().lateral_pane.path.add_row(path_to_string(path_data[0], '\n'))
+        """
         routedPaths = []
         # add routed path result
         for path_data in routedPaths:
@@ -163,7 +165,7 @@ class Gtk_QueryPath:
                 i += 1
             Gtk_Main.Gtk_Main().lateral_pane.path_route.add_row(path_to_string(path_data[0], '\n'))
 
-        Gtk_Main.Gtk_Main().lateral_pane.path_data = res
+        # Gtk_Main.Gtk_Main().lateral_pane.path_data = res
         Gtk_Main.Gtk_Main().lateral_pane.focus_path()
         Gtk_Main.Gtk_Main().statusbar.change_message("Ready")
 
@@ -224,51 +226,47 @@ def treeview_output(query_path):
 def create_graph(simple_path):
     dot = Digraph(comment='Query Result')
     current_node = 0
-    last_node = 0
+    dictionnary = {}
+    link_dictionnary = {}
+    previous_node = None
     for idx1, path in enumerate(simple_path):
         for idx2, component in enumerate(path):
-            # save the id of the last node
-            if idx1 == 0 and (idx2 == len(path) - 1):
-                last_node = current_node + 1
 
-            # complete the tree
-            if idx1 == 0 and idx2 == 0:
-                to_print = ""
-                if component[1].operator == "EQ":
-                    to_print += "ip: " + Ip.Ip.toString(component[1].v1.ip) + \
-                                "\nmask: " + Ip.Ip.toString(component[1].v1.mask)
-                if component[1].operator == "RANGE":
-                    to_print += "ip: " + Ip.Ip.toString(component[1].v1.ip) + \
-                                " - " + Ip.Ip.toString(component[1].v2.ip)
-                dot.node(str(0), to_print)
-                current_node += 1
-            elif idx1 != 0 and idx2 == 0:
-                continue
-            elif idx1 != 0 and idx2 == (len(path) - 1):
-                dot.node(str(current_node), component[0])
-                current_node += 1
-                if idx2 == 1:
-                    dot.edge(str(0), str(current_node - 1))
-                else:
-                    dot.edge(str(current_node - 2), str(current_node - 1))
-                dot.edge(str(current_node - 1), str(last_node))
+            tmp_node = current_node
+            current_data_string = ""
+            if len(component) == 2:
+                current_data_string = component[0].hostname
+            elif len(component) == 5:
+                if len(component[4]):
+                    current_data_string += "Protocol: " + component[4][0].to_string()
+                for idx, data in enumerate(component[4]):
+                    if idx:
+                        current_data_string += ", " + data.to_string()
+                current_data_string += "\nFrom: " + component[0].to_string()
+                if len(component[2]):
+                    current_data_string += '\nport: ' + component[2][0].to_string()
+                for idx,data in enumerate(component[2]):
+                    if idx:
+                        current_data_string += ", " + data.to_string()
+                current_data_string += "\n\nTo: " + component[1].to_string()
+                if len(component[3]):
+                    current_data_string += '\nport:' + component[3][0].to_string()
+                for idx, data in enumerate(component[3]):
+                    if idx:
+                        current_data_string += ", " + data.to_string()
+            if current_data_string in dictionnary:
+                tmp_node = dictionnary[current_data_string]
             else:
-                dot.node(str(current_node), component[0])
-                current_node += 1
-                to_print = ""
-                if component[1].operator == "EQ":
-                    to_print += "ip: " + Ip.Ip.toString(component[1].v1.ip) + \
-                                "\nmask: " + Ip.Ip.toString(component[1].v1.mask)
-                if component[1].operator == "RANGE":
-                    to_print += "ip: " + Ip.Ip.toString(component[1].v1.ip) + " - " + Ip.Ip.toString(component[1].v2.ip)
-                dot.node(str(current_node), to_print)
-                if idx2 == 1:
-                    dot.edge(str(0), str(current_node - 1))
-                    dot.edge(str(current_node - 1), str(current_node))
-                else:
-                    dot.edge(str(current_node - 2), str(current_node - 1))
-                    dot.edge(str(current_node - 1), str(current_node))
-                current_node += 1
+                dictionnary[current_data_string] = tmp_node
+            dot.node(str(tmp_node), current_data_string)
+            if idx2 != 0:
+                link = str(previous_node) + "-" + str(tmp_node)
+                if link not in link_dictionnary:
+                    link_dictionnary[link] = ""
+                    dot.edge(str(previous_node), str(tmp_node))
+
+            previous_node = tmp_node
+            current_node += 1
 
     dot.render('output/query-result.gv', view=True)
 
@@ -296,6 +294,9 @@ def run_query(rule, ip_source=None, ip_dest=None):
     simple_path = g.get_all_simple_path_new(rule, [])
     if len(simple_path):
         create_graph(simple_path)
+        return (["success"],[])
+    else:
+        return ([],[])
 
     simple_path = g.get_all_simple_path(ip_source, ip_dest)
     end = time.time()
