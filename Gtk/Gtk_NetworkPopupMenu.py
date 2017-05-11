@@ -128,6 +128,12 @@ class Gtk_NewtworkPopupMenu:
             self.menu.append(self.add_route_config)
             self.add_route_config.connect("activate", self.on_add_route_config)
 
+        # Add interface config file #
+        if isinstance(self.node.object, Firewall.Firewall):
+            self.add_interface_config = gtk.MenuItem("add interface config")
+            self.menu.append(self.add_interface_config)
+            self.add_interface_config.connect("activate", self.on_add_interface_config)
+
         # Itinerary #
         if isinstance(self.node.object, Ip.Ip):
             self.itinerary_menu = gtk.Menu()
@@ -242,19 +248,18 @@ class Gtk_NewtworkPopupMenu:
             for row in Gtk_Main.Gtk_Main().lateral_pane.firewalls.model:
                 if 1 == 1:
                     Gtk_Main.Gtk_Main().lateral_pane.firewalls.model.remove(row.iter)
-                    #break
+                    # break
             for node in NetworkGraph.NetworkGraph().graph.nodes(data=True):
                 self.node = node[1]['object']
                 if isinstance(self.node.object, Firewall.Firewall):
                     self.on_remove_menu(node)
                     self.node = None
-            #g.remove_nodes_from(nodes)
+            # g.remove_nodes_from(nodes)
             Gtk_Main.Gtk_Main().lateral_pane.details.clear()
             Gtk_Main.Gtk_Main().lateral_pane.path.clear()
             Gtk_Main.Gtk_Main().notebook.close_all_closable()
 
             Gtk_Main.Gtk_Main().draw()
-
 
         map(self.menu.remove, self.menu.get_children())
 
@@ -609,6 +614,22 @@ class Gtk_NewtworkPopupMenu:
             for new_route in new_routes:
                 self.node.object.route_list.append(new_route)
 
+
+        Gtk_Main.Gtk_Main().statusbar.change_message("Ready")
+
+    def on_add_interface_config(self, widget):
+        Gtk_Main.Gtk_Main().statusbar.change_message("Importing Interface configuration ...")
+        filename = self.open_filechooser("Import the Interface configuration file")
+        if not filename:
+            Gtk_Main.Gtk_Main().statusbar.change_message("Ready")
+            return
+
+        if self.node.object.type == "Iptables":
+            parser = RoutingParser(self.node.object, filename)
+            parser.parse_interface()
+            new_interfaces = parser.get_interface()
+            for new_interface in new_interfaces:
+                self.node.object.interfaces.append(new_interface)
 
         Gtk_Main.Gtk_Main().statusbar.change_message("Ready")
 

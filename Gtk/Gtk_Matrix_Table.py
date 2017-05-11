@@ -296,7 +296,6 @@ class Gtk_Matrix_Table:
                 print 'error'
             self.flows.append(current_rule)
 
-
     def launch_verification(self, widget):
         """
         To launch the matrix verification : it will first call the 'get_all_flows'
@@ -312,7 +311,7 @@ class Gtk_Matrix_Table:
             for firewall in self.firewalls:
                 for acl in firewall.acl:
                     for rule in acl.rules:
-                        if (self.is_subset(rule, flow) == True) and (flow.action.to_string() == rule.action.to_string()):
+                        if (self.is_subset(rule, flow)) and (flow.action.to_string() == rule.action.to_string()):
                             if flow.identifier in self.result:
                                 self.result[flow.identifier].append((rule, firewall))
                                 print('rule : ' + rule.to_string() + '\n')
@@ -326,7 +325,7 @@ class Gtk_Matrix_Table:
             for acl in firewall.acl:
                 for rule in acl.rules:
                     for flow in self.flowlist:
-                        if (self.is_subset(flow, rule) == False) or (flow.action.to_string() != rule.action.to_string()):
+                        if (not self.is_subset(flow, rule)) or (flow.action.to_string() != rule.action.to_string()):
                             if rule.identifier in self.result_rule:
                                 f.write('rule : ' + rule.to_string() + '\n')
                                 f.write('flow : ' + flow.to_string() + '\n')
@@ -378,12 +377,12 @@ class Gtk_Matrix_Table:
         for row in greens:
             self.modify_row_color2(row, 'green')
 
-    def un_list(self, aList):
+    def un_list(self, a_list):
         """
         return a string representation of the attribute(ip, port, protocol...)
         """
         result = ''
-        for element in aList:
+        for element in a_list:
             if isinstance(element.v1, Protocol):
                 result += element.v1.get_service_name(element.v1.get_value()) + ', '
             elif isinstance(element.v1, Port):

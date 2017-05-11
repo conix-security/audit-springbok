@@ -121,15 +121,6 @@ def finish():
     #if p_info['default_permit_all']:
     #    for acl in p_info['firewall'].acl:
     #        acl.rules.append(Rule(-1, 'default', [], [], [], [], [], Action(True)))
-    f = open('/home/maurice/zones', 'w')
-    for zone in zones:
-        f.write(zone['name'] + '\n')
-        for elt in zone['elts']:
-            print elt
-            f.write(p_info['firewall'].get_interface_by_nameif(elt).network.to_string() + '\n')
-        f.write( '--\n')
-
-    f.close()
 
 def get_firewall():
     firewall = p_info['firewall']
