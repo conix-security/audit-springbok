@@ -181,13 +181,13 @@ class IptablesParser:
                                 tmp_list.append(ip1)
                         elif ip1.operator == "RANGE" and ip2.operator == "RANGE":
                             if ip1.v1.ip < ip2.v1.ip < ip1.v2.ip and ip1.v1.ip < ip2.v2.ip < ip1.v2.ip:
-                                tmp_list.append(ip1)
+                                tmp_list.append(ip2)
                             elif ip1.v1.ip < ip2.v1.ip < ip1.v2.ip and ip1.v2.ip < ip2.v2.ip:
                                 tmp_list.append(Operator("RANGE", Ip(ip2.v1.ip), Ip(ip1.v2.ip)))
                             elif ip2.v1.ip < ip1.v1.ip and ip1.v1.ip < ip2.v2.ip < ip1.v2.ip:
                                 tmp_list.append(Operator("RANGE", Ip(ip1.v1.ip), Ip(ip2.v2.ip)))
                             elif ip2.v1.ip < ip1.v1.ip < ip2.v2.ip and ip2.v1.ip < ip1.v2.ip < ip2.v2.ip:
-                                tmp_list.append(ip2)
+                                tmp_list.append(ip1)
                 ips_list[idx + 1] = tmp_list
                 if len(tmp_list) == 0:
                     ips_list[len(ips_list) - 1] = None
