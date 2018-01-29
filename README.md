@@ -15,12 +15,8 @@ To launch the springbok project you need to have:
 ## Installation
 
 ```
-sudo apt-get install python-gtk2
-sudo apt-get install python-networkx
-sudo apt-get install python-matplotlib
-sudo apt-get install python-reportlab
-sudo pip install graphviz
-sudo apt-get install python-netaddr 
+apt-get install python-gtk2 python-networkx python-matplotlib python-reportlab python-netaddr
+pip install graphviz
 ```
 
 ## Launch springbok project
